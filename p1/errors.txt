@@ -1,0 +1,5 @@
+1:4 ***ERROR*** Illegal character  
+1:6 ***ERROR*** Illegal character  
+2:3 ***ERROR*** Illegal character  
+2:5 ***ERROR*** Illegal character  
+6:1 ***ERROR*** Illegal character \
