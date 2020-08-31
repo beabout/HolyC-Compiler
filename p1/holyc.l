@@ -32,117 +32,136 @@ DIGIT [0-9]
             yylval = lval;
 %}
 
-#* {}
+#(.*)\n {
+  lineNum++;
+  colNum = 0;
+}
+
+'(\[tn]?|[a-zA-Z0-9]?) {
+  yylval->tokenValue = new CharLitToken(lineNum, colNum, *&yytext[1]);
+  colNum = colNum + yyleng;
+  return TokenKind::CHARLIT;
+}
+
+\n {
+  //Update the line number, reset the columnNumber
+  lineNum++;
+  colNum = 1;
+}
+
+[ ] {
+  colNum++;
+}
 
 "NULLPTR" {
   int tokenKind = TokenKind::NULLPTR;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 4;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "TOCONSOLE" {
   int tokenKind = TokenKind::TOCONSOLE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 9;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "FROMCONSOLE" {
   int tokenKind = TokenKind::FROMCONSOLE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 11;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "true" {
   int tokenKind = TokenKind::TRUE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 4;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "false" {
   int tokenKind = TokenKind::FALSE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 5;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "if" {
   int tokenKind = TokenKind::IF;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "else" {
   int tokenKind = TokenKind::ELSE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 4;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "while" {
   int tokenKind = TokenKind::WHILE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 5;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "return" {
   int tokenKind = TokenKind::RETURN;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 6;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "void" {
   int tokenKind = TokenKind::VOID;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 4;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "charptr" {
   int tokenKind = TokenKind::CHARPTR;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 7;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "char" {
   int tokenKind = TokenKind::CHAR;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 4;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "boolptr" {
   int tokenKind = TokenKind::BOOLPTR;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 7;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "bool" {
   int tokenKind = TokenKind::BOOL;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 4;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "intptr" {
   int tokenKind = TokenKind::INTPTR;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 6;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "int" {
   int tokenKind = TokenKind::INT;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 3;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
@@ -156,28 +175,28 @@ DIGIT [0-9]
 "||" {
   int tokenKind = TokenKind::OR;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "&&" {
   int tokenKind = TokenKind::AND;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 "=" {
   int tokenKind = TokenKind::ASSIGN;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 
 ">=" {
   int tokenKind = TokenKind::GREATEREQ;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 ">" {
@@ -189,25 +208,25 @@ DIGIT [0-9]
 "<=" {
   int tokenKind = TokenKind::LESSEQ;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 "<" {
   int tokenKind = TokenKind::LESS;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum++;
   return tokenKind;
 }
 "!=" {
   int tokenKind = TokenKind::NOTEQUALS;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 "==" {
   int tokenKind = TokenKind::EQUALS;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum += 2;
+  colNum = colNum + yyleng;
   return tokenKind;
 }
 ! {
@@ -231,7 +250,7 @@ DIGIT [0-9]
 "++" {
     int tokenKind = TokenKind::CROSSCROSS;
     this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-    colNum += 2;
+    colNum = colNum + yyleng;
     return tokenKind;
     }
 
@@ -271,7 +290,7 @@ DIGIT [0-9]
 "--" {
     int tokenKind = TokenKind::DASHDASH;
     this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-    colNum += 2;
+    colNum = colNum + yyleng;
     return tokenKind;
     }
 "-" {
@@ -311,12 +330,6 @@ DIGIT [0-9]
 		//As before, alert the client program that an INTLITERAL 
 		// token was matched
 		return TokenKind::INTLITERAL;
-		}
-
-\n		{
-		//Update the line number, reset the columnNumber
-		lineNum++;
-		colNum = 0;
 		}
 
 [ \t]       {colNum += strlen(yytext);}

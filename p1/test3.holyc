@@ -8,4 +8,4 @@
 int intptr bool boolptr char charptr
 void if else while return true false
 FROMCONSOLE TOCONSOLE NULLPTR
-'\t
+'\n

@@ -170,10 +170,7 @@ lexer.o: lexer.yy.cc
 # handle additional test cases
 # ---------------------------------------------
 test: all
-	./holycc test1.holyc -t test1.out 2> test1.err
 	./holycc test3.holyc -t test3.out 2> test3.err
-	diff test1.out test1.out.expected
-	diff test1.err test1.err.expected
 	diff test3.out test3.out.expected
 	diff test3.err test3.err.expected
 
