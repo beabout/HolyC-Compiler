@@ -1,14 +1,8 @@
 # Clay's output files 
-/p1/tokens.txt 
-/p1/errors.txt
+/p1/*.txt
 
 # .o files
-/p1/scanner.o
-/p1/scanner.d
-/p1/lexer.o
-/p1/main.o
-/p1/main.d
-/p1/tokens.d
-/p1/tokens.o
+/p1/*.o
+/p1/*.d
 /p1/lexer.yy.cc
 /p1/holycc
