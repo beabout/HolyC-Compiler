@@ -84,6 +84,174 @@ DIGIT [0-9]
   return tokenKind;
 }
 
+"@" { 
+  int tokenKind = TokenKind::AT;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"^" { 
+  int tokenKind = TokenKind::CARAT;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+}  
+
+"[" { 
+  int tokenKind = TokenKind::LBRACE;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"]" { 
+  int tokenKind = TokenKind::RBRACE;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"{" { 
+  int tokenKind = TokenKind::LCURLY;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"}" { 
+  int tokenKind = TokenKind::RCURLY;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"(" { 
+  int tokenKind = TokenKind::LPAREN;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+")" { 
+  int tokenKind = TokenKind::RPAREN;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+";" { 
+  int tokenKind = TokenKind::SEMICOLON;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"," { 
+  int tokenKind = TokenKind::COMMA;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"--" { 
+  int tokenKind = TokenKind::DASHDASH;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum = colNum + 2;
+  return tokenKind;
+} 
+
+"++" { 
+  int tokenKind = TokenKind::CROSSCROSS;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum = colNum + 2;
+  return tokenKind;
+} 
+
+"*" { 
+  int tokenKind = TokenKind::STAR;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"/" { 
+  int tokenKind = TokenKind::SLASH;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"!" { 
+  int tokenKind = TokenKind::NOT;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"==" { 
+  int tokenKind = TokenKind::EQUALS;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum = colNum + 2;
+  return tokenKind;
+} 
+
+"!=" { 
+  int tokenKind = TokenKind::NOTEQUALS;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum = colNum + 2;
+  return tokenKind;
+} 
+
+"<" { 
+  int tokenKind = TokenKind::GREATER;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+}  
+
+">" { 
+  int tokenKind = TokenKind::LESS;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+}  
+
+"&" { 
+  int tokenKind = TokenKind::AMP;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum++;
+  return tokenKind;
+} 
+
+"<=" { 
+  int tokenKind = TokenKind::LESSEQ;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum = colNum + 2;
+  return tokenKind;
+} 
+
+">=" { 
+  int tokenKind = TokenKind::GREATEREQ;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum = colNum + 2;
+  return tokenKind;
+} 
+
+"&&" { 
+  int tokenKind = TokenKind::AND;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum = colNum + 2;
+  return tokenKind;
+} 
+
+"||" {
+  int tokenKind = TokenKind::OR;
+  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
+  colNum = colNum + 2;
+  return tokenKind;
+}
+
 int {
   int tokenKind = TokenKind::INT;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
@@ -202,6 +370,12 @@ NULLPTR {
   return TokenKind::ID;
 }
 
+'\n {
+  yylval->tokenValue = new CharLitToken(lineNum, colNum, *&yytext[1]);
+  colNum = colNum + yyleng;
+  return TokenKind::CHARLIT;
+}
+
 '(\[tn]?|[a-zA-Z0-9]?) {
   yylval->tokenValue = new CharLitToken(lineNum, colNum, *&yytext[1]);
   colNum = colNum + yyleng;
@@ -215,14 +389,19 @@ NULLPTR {
   return TokenKind::INTLITERAL;
 }
 
-\"(.|\[tn])*\" {
+\"([^".]|\[tn])*\" {
   yylval->tokenValue = new StrToken(lineNum, colNum, yytext);
+  colNum = colNum + yyleng;
   return TokenKind::STRLITERAL;
 }
 
 #(.*)\n {
   lineNum++;
   colNum = 0;
+}
+
+(" ")* {
+  colNum = colNum + yyleng;
 }
 
 \n {
@@ -237,7 +416,7 @@ NULLPTR {
   // are properly accounted for. 
   std::string msg = "Illegal character ";
   msg += yytext;
-  error(lineNum,colNum,msg);
+  Report::fatal(lineNum,colNum,msg);
   colNum += yyleng;
 }
 %%

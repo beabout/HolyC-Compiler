@@ -2,8 +2,10 @@ int = 3+2
 _dc = 3
 "&!88"
 'a'a
-"use \n to denote a newline character"
+charptr hello = "use \n to denote a newline character" + "this"
 '\n
-"thing"
+"thing" # comment after thing
 # aaaaaa # asdf
-
+while (true) {
+  _dc++;
+}
