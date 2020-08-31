@@ -286,6 +286,7 @@ namespace holyc {
         VOID = 303,
         WHILE = 304,
         DOT = 305
+				
       };
     };
 

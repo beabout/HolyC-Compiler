@@ -1,0 +1,11 @@
+@   ^^  [   ]   {   }   (   )   ;      
+,      --   -   +   ++     *   /
+!      ==   !=   <  >  &
+<=   >=     =       &&    ||
+# this is a comment
+# and so is # this
+"use \n to denote a newline character"
+int intptr bool boolptr char charptr
+void if else while return true false
+FROMCONSOLE TOCONSOLE NULLPTR
+'\t
