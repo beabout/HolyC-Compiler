@@ -36,8 +36,17 @@ DIGIT [0-9]
   lineNum++;
   colNum = 0;
 }
-
-'(\[tn]?|[a-zA-Z0-9]?) {
+'\\t {
+  yylval->tokenValue = new CharLitToken(lineNum, colNum, '\t');
+  colNum = colNum + yyleng;
+  return TokenKind::CHARLIT;
+}
+'\\n {
+  yylval->tokenValue = new CharLitToken(lineNum, colNum, '\n');
+  colNum = colNum + yyleng;
+  return TokenKind::CHARLIT;
+}
+'\\[a-zA-Z0-9]? {
   yylval->tokenValue = new CharLitToken(lineNum, colNum, *&yytext[1]);
   colNum = colNum + yyleng;
   return TokenKind::CHARLIT;
@@ -400,7 +409,11 @@ DIGIT [0-9]
     colNum++;
     return TokenKind::CARAT;
   }
-  
+[a-zA-Z_]+[a-zA-Z0-9_]* {
+    yylval->tokenValue = new IDToken(lineNum, colNum, yytext);
+    colNum = colNum + yyleng;
+    return TokenKind::ID;
+  }
 .   {
 		//TODO: Add the rest of the rules above this point so that legal characters
 		// are properly accounted for. 
