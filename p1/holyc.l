@@ -402,11 +402,7 @@ false {
   return TokenKind::INTLITERAL;
 }
 
-\"([^".]|\\[tn])*[^\\]\" {
-  yylval->tokenValue = new StrToken(lineNum, colNum, yytext);
-  colNum = colNum + yyleng;
-  return TokenKind::STRLITERAL;
-}
+
 
 #(.*)\n {
   lineNum++;
@@ -417,6 +413,11 @@ false {
   colNum = colNum + yyleng;
 }
 
+\"([^".\\]|\\[tn])*[^\\]\" {
+  yylval->tokenValue = new StrToken(lineNum, colNum, yytext);
+  colNum = colNum + yyleng;
+  return TokenKind::STRLITERAL;
+}
 
 \"[^\"]*\n {
   // thrown when user does not close string literal
@@ -427,19 +428,7 @@ false {
   lineNum++;
 }
 
-\"[^\"]*(\\[^nt]?)*[^\"]*[^\\]\" {
-  // thrown when user gives string literal bad escape sequence.
-  std::string yystring(yytext);
-  std::string msg = "String literal with bad escape sequence"; 
-  Report::fatal(lineNum,colNum,msg);
-  colNum += yyleng;
-}
-
-
-
-
-
-\"[^\"]*(\\[^nt]?)*[^\"]*\n {
+\"[^\"]*(\\[^nt])+[^\"]*\n {
   // thrown when user does not close string literal AND has bad escape sequence.
   std::string yystring(yytext);
   std::string msg = "Unterminated string literal with bad escaped character ignored"; 
@@ -447,6 +436,16 @@ false {
   colNum = 1;
   lineNum++;
 }
+
+\"[^\"]*(\\[^nt])+[^\"]*[^\\]\" {
+  // thrown when user gives string literal bad escape sequence.
+  std::string yystring(yytext);
+  std::string msg = "String literal with bad escape sequence ignored"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+
+
 
 \n {
   //Update the line number, reset the columnNumber
