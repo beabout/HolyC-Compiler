@@ -32,9 +32,11 @@ DIGIT [0-9]
             yylval = lval;
 %}
 
+
+
 #(.*)\n {
   lineNum++;
-  colNum = 0;
+  colNum = 1;
 }
 '\\t {
   yylval->tokenValue = new CharLitToken(lineNum, colNum, '\t');
@@ -174,10 +176,11 @@ DIGIT [0-9]
   return tokenKind;
 }
 
-[\"](.*)([^\\]\")  {
+[\"](.*)([^\\]\")\n  {
   int tokenKind = TokenKind::STRLITERAL;
   this->yylval->tokenValue = new StrToken(lineNum, colNum, yytext);
-  colNum += strlen(yytext);
+  colNum = 1;
+  lineNum++;
   return tokenKind;
 }
 
@@ -414,10 +417,55 @@ DIGIT [0-9]
     colNum = colNum + yyleng;
     return TokenKind::ID;
   }
+
+\"(.*)(\\[^tn]?)(.*)\" {
+  // thrown when user gives string literal bad escape sequence.
+  std::string yystring(yytext);
+  std::string msg = "String literal with bad escape sequence"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+
+\"(.*)\\[^tn]?(.*)\n {
+  // thrown when user does not close string literal AND has bad escape sequence.
+  std::string yystring(yytext);
+  std::string msg = "Unterminated string literal with bad escaped character ignored"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum = 1;
+  lineNum++;
+}
+
+\"(.*)\n {
+  // thrown when user does not close string literal
+  std::string yystring(yytext);
+  std::string msg = "Unterminated string literal ignored"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum = 1;
+  lineNum++;
+}
+
+'\\ {
+  // thrown when user gives '\ and no character to escape
+  std::string yystring(yytext);
+  std::string msg = "Bad escape sequence in character literal"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+  
+' {
+  // thrown when user gives ' then end of file
+  std::string yystring(yytext);
+  std::string msg = "Empty character literal"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+  
 .   {
 		//TODO: Add the rest of the rules above this point so that legal characters
-		// are properly accounted for. 
-    std::cerr << "FATAL [" << std::to_string(lineNum) << "," << std::to_string(colNum) << "]: Illegal character " << yytext << std::endl;
+		// are properly accounted for.
+    std::string yystring(yytext);
+    std::string msg = "Illegal character " + yystring; 
+    Report::fatal(lineNum,colNum,msg);
 		colNum += yyleng;
     }
 %%

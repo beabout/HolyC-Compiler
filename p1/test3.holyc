@@ -9,3 +9,6 @@ int intptr bool boolptr char charptr
 void if else while return true false
 FROMCONSOLE TOCONSOLE NULLPTR
 '\n
+" this is an unterminated string literal.
+" This is an unterminated \q string literal WITH a bad escape sequence
+" This is a TERMINATED string literal WITH a bad escape sequence \q"
