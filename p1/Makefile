@@ -171,6 +171,7 @@ lexer.o: lexer.yy.cc
 # ---------------------------------------------
 test: all
 	./holycc test1.holyc -t test1.out 2> test1.err
+	./holycc test2.holyc -t test2.out 2> test2.err
 	diff test1.out test1.out.expected
 	diff test1.err test1.err.expected
 

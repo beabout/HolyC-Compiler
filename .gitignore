@@ -1,5 +1,9 @@
-# Clay's output files 
+# output files 
 /p1/*.txt
+/p1/*.err
+/p1/*.holyc
+/p1/*.out
+/p1/*.out.expected
 
 # .o files
 /p1/*.o

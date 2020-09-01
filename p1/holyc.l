@@ -32,6 +32,8 @@ DIGIT [0-9]
             yylval = lval;
 %}
 
+
+
 "+"	{
   // Keep track of the "kind" of token we matched. In this case,
   // it's a CROSS (aka the plus symbol). The full list of token
@@ -84,56 +86,56 @@ DIGIT [0-9]
   return tokenKind;
 }
 
-"@" { 
+@ { 
   int tokenKind = TokenKind::AT;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum++;
   return tokenKind;
 } 
 
-"^" { 
+[\^] { 
   int tokenKind = TokenKind::CARAT;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum++;
   return tokenKind;
 }  
 
-"[" { 
+[\[] { 
   int tokenKind = TokenKind::LBRACE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum++;
   return tokenKind;
 } 
 
-"]" { 
+[\]] { 
   int tokenKind = TokenKind::RBRACE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum++;
   return tokenKind;
 } 
 
-"{" { 
+[\{] { 
   int tokenKind = TokenKind::LCURLY;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum++;
   return tokenKind;
 } 
 
-"}" { 
+[\}] { 
   int tokenKind = TokenKind::RCURLY;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum++;
   return tokenKind;
 } 
 
-"(" { 
+[\(] { 
   int tokenKind = TokenKind::LPAREN;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum++;
   return tokenKind;
 } 
 
-")" { 
+[\)] { 
   int tokenKind = TokenKind::RPAREN;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum++;
@@ -216,13 +218,6 @@ DIGIT [0-9]
   colNum++;
   return tokenKind;
 }  
-
-"&" { 
-  int tokenKind = TokenKind::AMP;
-  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum++;
-  return tokenKind;
-} 
 
 "<=" { 
   int tokenKind = TokenKind::LESSEQ;
@@ -343,21 +338,21 @@ false {
   return tokenKind;
 }
 
-FROMCONSOLE {
+"FROMCONSOLE" {
   int tokenKind = TokenKind::FROMCONSOLE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum = colNum + yyleng;
   return tokenKind;
 }
 
-TOCONSOLE {
+"TOCONSOLE" {
   int tokenKind = TokenKind::TOCONSOLE;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum = colNum + yyleng;
   return tokenKind;
 }
 
-NULLPTR {
+"NULLPTR" {
   int tokenKind = TokenKind::NULLPTR;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
   colNum = colNum + yyleng;
@@ -370,7 +365,17 @@ NULLPTR {
   return TokenKind::ID;
 }
 
-'\n {
+'\\t {
+  yylval->tokenValue = new CharLitToken(lineNum, colNum, '\t');
+  colNum = colNum + yyleng;
+  return TokenKind::CHARLIT;
+}
+'\\n {
+  yylval->tokenValue = new CharLitToken(lineNum, colNum, '\n');
+  colNum = colNum + yyleng;
+  return TokenKind::CHARLIT;
+}
+'\\[a-zA-Z0-9]? {
   yylval->tokenValue = new CharLitToken(lineNum, colNum, *&yytext[1]);
   colNum = colNum + yyleng;
   return TokenKind::CHARLIT;
@@ -382,40 +387,93 @@ NULLPTR {
   return TokenKind::CHARLIT;
 }
 
-{DIGIT}+ {
-  int intVal = atoi(yytext);
+{DIGIT}+	{
+  int intVal = 0;
+  try
+  {
+    intVal = std::stoi(yytext);
+  } catch(const std::out_of_range& oor)
+  {
+    std::cout << "WARN [" << lineNum << "," << colNum << "]: Integer literal too large; using max value" << std::endl;
+    intVal = INT_MAX;
+  }
   yylval->tokenValue = new IntLitToken(lineNum, colNum, intVal);
-  colNum = colNum + yyleng;
+  colNum += strlen(yytext);
   return TokenKind::INTLITERAL;
 }
 
-\"([^".]|\[tn])*\" {
+
+
+#(.*)\n {
+  lineNum++;
+  colNum = 1;
+}
+
+[ ] {
+  colNum = colNum + yyleng;
+}
+
+\"([^".\\]|\\[tn])*[^\\]\" {
   yylval->tokenValue = new StrToken(lineNum, colNum, yytext);
   colNum = colNum + yyleng;
   return TokenKind::STRLITERAL;
 }
 
-#(.*)\n {
+\"[^"]*(\\[^nt])+[^"]*[\n] {
+  // thrown when user does not close string literal AND has bad escape sequence.
+  std::string yystring(yytext);
+  std::string msg = "Unterminated string literal with bad escaped character ignored"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum = 1;
   lineNum++;
-  colNum = 0;
 }
 
-(" ")* {
-  colNum = colNum + yyleng;
+\"[^"]*\n {
+  // thrown when user does not close string literal
+  std::string yystring(yytext);
+  std::string msg = "Unterminated string literal ignored"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum = 1;
+  lineNum++;
 }
+
+\"[^"]*(\\[^nt])+[^"\n]*[^\\\n]*\" {
+  // thrown when user gives string literal bad escape sequence.
+  std::string yystring(yytext);
+  std::string msg = "String literal with bad escape sequence ignored"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+
+
 
 \n {
   //Update the line number, reset the columnNumber
   lineNum++;
-  colNum = 0;
+  colNum = 1;
 }
 
+'\\ {
+  // thrown when user gives '\ and no character to escape
+  std::string yystring(yytext);
+  std::string msg = "Bad escape sequence in character literal"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+
+' {
+  // thrown when user gives ' then end of file
+  std::string yystring(yytext);
+  std::string msg = "Empty character literal"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
 
 . {
   //TODO: Add the rest of the rules above this point so that legal characters
   // are properly accounted for. 
-  std::string msg = "Illegal character ";
-  msg += yytext;
+  std::string yystring(yytext);
+  std::string msg = "Illegal character " + yystring;
   Report::fatal(lineNum,colNum,msg);
   colNum += yyleng;
 }
