@@ -365,6 +365,22 @@ false {
   return TokenKind::ID;
 }
 
+[']\\ {
+  // thrown when user gives '\ and no character to escape
+  std::string yystring(yytext);
+  std::string msg = "Bad escape sequence in char literal"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+
+['] {
+  // thrown when user gives ' then end of file
+  std::string yystring(yytext);
+  std::string msg = "Empty character literal"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+
 '\\t {
   yylval->tokenValue = new CharLitToken(lineNum, colNum, '\t');
   colNum = colNum + yyleng;
@@ -375,13 +391,7 @@ false {
   colNum = colNum + yyleng;
   return TokenKind::CHARLIT;
 }
-'\\[a-zA-Z0-9]? {
-  yylval->tokenValue = new CharLitToken(lineNum, colNum, *&yytext[1]);
-  colNum = colNum + yyleng;
-  return TokenKind::CHARLIT;
-}
-
-'(\[tn]?|[a-zA-Z0-9]?) {
+'[a-zA-Z0-9]? {
   yylval->tokenValue = new CharLitToken(lineNum, colNum, *&yytext[1]);
   colNum = colNum + yyleng;
   return TokenKind::CHARLIT;
@@ -453,21 +463,7 @@ false {
   colNum = 1;
 }
 
-[']\\ {
-  // thrown when user gives '\ and no character to escape
-  std::string yystring(yytext);
-  std::string msg = "Bad escape sequence in char literal"; 
-  Report::fatal(lineNum,colNum,msg);
-  colNum += yyleng;
-}
 
-['] {
-  // thrown when user gives ' then end of file
-  std::string yystring(yytext);
-  std::string msg = "Empty character literal"; 
-  Report::fatal(lineNum,colNum,msg);
-  colNum += yyleng;
-}
 
 . {
   //TODO: Add the rest of the rules above this point so that legal characters
