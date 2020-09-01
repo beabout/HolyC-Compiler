@@ -219,13 +219,6 @@ DIGIT [0-9]
   return tokenKind;
 }  
 
-"&" { 
-  int tokenKind = TokenKind::AMP;
-  this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-  colNum++;
-  return tokenKind;
-} 
-
 "<=" { 
   int tokenKind = TokenKind::LESSEQ;
   this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
@@ -409,18 +402,10 @@ false {
   return TokenKind::INTLITERAL;
 }
 
-\"([^".]|\[tn])*\" {
+\"([^".]|\\[tn])*[^\\]\" {
   yylval->tokenValue = new StrToken(lineNum, colNum, yytext);
   colNum = colNum + yyleng;
   return TokenKind::STRLITERAL;
-}
-
-[\"][^\"][^\\]\"  {
-  int tokenKind = TokenKind::STRLITERAL;
-  this->yylval->tokenValue = new StrToken(lineNum, colNum, yytext);
-  colNum = 1;
-  lineNum++;
-  return tokenKind;
 }
 
 #(.*)\n {
@@ -432,7 +417,17 @@ false {
   colNum = colNum + yyleng;
 }
 
-\"[^\"]*(\\[^tn]?)[^\"]*\" {
+
+\"[^\"]*\n {
+  // thrown when user does not close string literal
+  std::string yystring(yytext);
+  std::string msg = "Unterminated string literal ignored"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum = 1;
+  lineNum++;
+}
+
+\"[^\"]*(\\[^nt]?)*[^\"]*[^\\]\" {
   // thrown when user gives string literal bad escape sequence.
   std::string yystring(yytext);
   std::string msg = "String literal with bad escape sequence"; 
@@ -440,19 +435,14 @@ false {
   colNum += yyleng;
 }
 
-\"(.*)\\[^tn]?[^\"]*\n {
+
+
+
+
+\"[^\"]*(\\[^nt]?)*[^\"]*\n {
   // thrown when user does not close string literal AND has bad escape sequence.
   std::string yystring(yytext);
   std::string msg = "Unterminated string literal with bad escaped character ignored"; 
-  Report::fatal(lineNum,colNum,msg);
-  colNum = 1;
-  lineNum++;
-}
-
-\"[^\"]*\n {
-  // thrown when user does not close string literal
-  std::string yystring(yytext);
-  std::string msg = "Unterminated string literal ignored"; 
   Report::fatal(lineNum,colNum,msg);
   colNum = 1;
   lineNum++;
@@ -485,7 +475,6 @@ false {
   // are properly accounted for. 
   std::string yystring(yytext);
   std::string msg = "Illegal character " + yystring;
-  msg += yytext;
   Report::fatal(lineNum,colNum,msg);
   colNum += yyleng;
 }
