@@ -365,13 +365,32 @@ false {
   return TokenKind::ID;
 }
 
+[']\\\n {
+  // thrown when user gives '\ and no character to escape
+  std::string yystring(yytext);
+  std::string msg = "Empty escape sequence in character literal"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum = 1;
+  lineNum++;
+}
+
 [']\\ {
+  // thrown when user gives '\ and no character to escape
+  std::string yystring(yytext);
+  std::string msg = "Empty escape sequence in character literal"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum += yyleng;
+}
+
+[']\\[^tn] {
   // thrown when user gives '\ and no character to escape
   std::string yystring(yytext);
   std::string msg = "Bad escape sequence in char literal"; 
   Report::fatal(lineNum,colNum,msg);
   colNum += yyleng;
 }
+
+
 
 ['] {
   // thrown when user gives ' then end of file
