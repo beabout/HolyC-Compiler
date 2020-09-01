@@ -419,16 +419,7 @@ false {
   return TokenKind::STRLITERAL;
 }
 
-\"[^\"]*\n {
-  // thrown when user does not close string literal
-  std::string yystring(yytext);
-  std::string msg = "Unterminated string literal ignored"; 
-  Report::fatal(lineNum,colNum,msg);
-  colNum = 1;
-  lineNum++;
-}
-
-\"[^\"]*(\\[^nt])+[^\"]*\n {
+\"[^"]*(\\[^nt])+[^"]*[\n] {
   // thrown when user does not close string literal AND has bad escape sequence.
   std::string yystring(yytext);
   std::string msg = "Unterminated string literal with bad escaped character ignored"; 
@@ -437,7 +428,16 @@ false {
   lineNum++;
 }
 
-\"[^\"]*(\\[^nt])+[^\"]*[^\\]\" {
+\"[^"]*\n {
+  // thrown when user does not close string literal
+  std::string yystring(yytext);
+  std::string msg = "Unterminated string literal ignored"; 
+  Report::fatal(lineNum,colNum,msg);
+  colNum = 1;
+  lineNum++;
+}
+
+\"[^"]*(\\[^nt])+[^"\n]*[^\\\n]*\" {
   // thrown when user gives string literal bad escape sequence.
   std::string yystring(yytext);
   std::string msg = "String literal with bad escape sequence ignored"; 
