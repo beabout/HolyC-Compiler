@@ -422,7 +422,7 @@ false {
 \"[^"]*(\\[^nt])+[^"]*[\n] {
   // thrown when user does not close string literal AND has bad escape sequence.
   std::string yystring(yytext);
-  std::string msg = "Unterminated string literal with bad escaped character ignored"; 
+  std::string msg = "Unterminated string literal  with bad escape sequence ignored"; 
   Report::fatal(lineNum,colNum,msg);
   colNum = 1;
   lineNum++;
