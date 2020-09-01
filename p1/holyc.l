@@ -32,6 +32,8 @@ DIGIT [0-9]
             yylval = lval;
 %}
 
+
+
 "+"	{
   // Keep track of the "kind" of token we matched. In this case,
   // it's a CROSS (aka the plus symbol). The full list of token
@@ -413,7 +415,7 @@ false {
   return TokenKind::STRLITERAL;
 }
 
-[\"](.*)([^\\]\")\n  {
+[\"][^\"][^\\]\"  {
   int tokenKind = TokenKind::STRLITERAL;
   this->yylval->tokenValue = new StrToken(lineNum, colNum, yytext);
   colNum = 1;
@@ -430,7 +432,7 @@ false {
   colNum = colNum + yyleng;
 }
 
-\"(.*)(\\[^tn]?)(.*)\" {
+\"[^\"]*(\\[^tn]?)[^\"]*\" {
   // thrown when user gives string literal bad escape sequence.
   std::string yystring(yytext);
   std::string msg = "String literal with bad escape sequence"; 
@@ -438,7 +440,7 @@ false {
   colNum += yyleng;
 }
 
-\"(.*)\\[^tn]?(.*)\n {
+\"(.*)\\[^tn]?[^\"]*\n {
   // thrown when user does not close string literal AND has bad escape sequence.
   std::string yystring(yytext);
   std::string msg = "Unterminated string literal with bad escaped character ignored"; 
@@ -447,7 +449,7 @@ false {
   lineNum++;
 }
 
-\"(.*)\n {
+\"[^\"]*\n {
   // thrown when user does not close string literal
   std::string yystring(yytext);
   std::string msg = "Unterminated string literal ignored"; 
@@ -459,7 +461,7 @@ false {
 \n {
   //Update the line number, reset the columnNumber
   lineNum++;
-  colNum = 0;
+  colNum = 1;
 }
 
 '\\ {
