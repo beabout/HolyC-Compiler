@@ -1521,7 +1521,7 @@ YY_RULE_SETUP
 {
   // thrown when user gives string literal bad escape sequence.
   std::string yystring(yytext);
-  std::string msg = "String literal with bad escape sequence ignored"; 
+  std::string msg = "String literal with bad escape seqeunce ignored"; 
   Report::fatal(lineNum,colNum,msg);
   colNum += yyleng;
 }
@@ -1542,7 +1542,7 @@ YY_RULE_SETUP
 {
   // thrown when user gives '\ and no character to escape
   std::string yystring(yytext);
-  std::string msg = "Bad escape sequence in character literal"; 
+  std::string msg = "Bad escape sequence in char literal"; 
   Report::fatal(lineNum,colNum,msg);
   colNum += yyleng;
 }

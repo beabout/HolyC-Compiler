@@ -453,15 +453,15 @@ false {
   colNum = 1;
 }
 
-'\\ {
+[']\\ {
   // thrown when user gives '\ and no character to escape
   std::string yystring(yytext);
-  std::string msg = "Bad escape sequence in character literal"; 
+  std::string msg = "Bad escape sequence in char literal"; 
   Report::fatal(lineNum,colNum,msg);
   colNum += yyleng;
 }
 
-' {
+['] {
   // thrown when user gives ' then end of file
   std::string yystring(yytext);
   std::string msg = "Empty character literal"; 
