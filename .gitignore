@@ -5,8 +5,22 @@
 /p1/*.out
 /p1/*.out.expected
 
+/p2/*.txt
+/p2/*.err
+/p2/*.holyc
+/p2/*.out
+/p2/*.output
+/p2/*.out.expected
+/p2/*.cc
+
 # .o files
 /p1/*.o
 /p1/*.d
+/p1/*.d
 /p1/lexer.yy.cc
 /p1/holycc
+
+/p2/*.o
+/p2/*.d
+/p2/lexer.yy.cc
+/p2/holycc
