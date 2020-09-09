@@ -117,6 +117,10 @@ project)
  * declarations
 */
 
+// %type <intval> Sum
+
+$type <transToken> sum;
+
 %%
 
 /* TODO: add productions for the other nonterminals in the 
@@ -128,6 +132,7 @@ program 	: globals
 		  }
 
 globals 	: globals decl 
+          | globals assignment 
 	  	  { 
 	  	  }
 		| /* epsilon */
@@ -137,20 +142,45 @@ globals 	: globals decl
 decl 		: varDecl SEMICOLON
 		  { }
 
-varDecl 	: type id
+varDecl 	: type id 
 		  {
 		  }
 
-type 		: INT
-	  	  { 
-		  }
-		| INTPTR
-	  	  { 
-		  }
+assignment : assignLHS ASSIGN assignRHS SEMICOLON 
+assignLHS  : type id 
+           | id 
+
+assignRHS  : STRLITERAL
+           | CHARLIT
+           | TRUE 
+           | FALSE
+           | expression 
+
+expression : sum | sub | div | mult 
+
+sum : INTLITERAL CROSS INTLITERAL { $$ = $1 + $3;}
+    | sum CROSS expression { $$ = $1 + $3;}
+
+sub : INTLITERAL DASH INTLITERAL { $$ = $1 - $3;}
+    | sub DASH expression { $$ = $1 - $3;}
+
+mult : INTLITERAL STAR INTLITERAL { $$ = $1 * $3;}
+     | mult STAR expression { $$ = $1 * $3;}
+
+div : INTLITERAL SLASH INTLITERAL { $$ = $1 / $3;}
+    | div SLASH expression { $$ = $1 / $3;}
+
+type 	: VOID 
+        | INT
+			| INTPTR  
+        | BOOL
+        	| BOOLPTR
+        | CHAR
+        	| CHARPTR
+
+increment : id CROSSCROSS { $$ = $1 + 1; }
 
 id		: ID
-		  {
-		  }
 	
 %%
 

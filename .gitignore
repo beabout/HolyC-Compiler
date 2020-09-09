@@ -7,7 +7,6 @@
 
 /p2/*.txt
 /p2/*.err
-/p2/*.holyc
 /p2/*.out
 /p2/*.output
 /p2/*.out.expected

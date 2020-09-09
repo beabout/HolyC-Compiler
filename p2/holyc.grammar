@@ -12,7 +12,7 @@ decl            ::= varDecl SEMICOLON
 varDecl         ::= type id
 
 type            ::= INT
-		|   INTPTR
+		            |   INTPTR
                 |   BOOL
                 |   BOOLPTR
                 |   CHAR

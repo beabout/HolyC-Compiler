@@ -390,8 +390,6 @@ false {
   colNum += yyleng;
 }
 
-
-
 ['] {
   // thrown when user gives ' then end of file
   std::string yystring(yytext);
