@@ -135,7 +135,7 @@ program 	      : globals { }
 
 globals 	      : globals decl { }
                 | globals functiondecl {}
-		            | /* epsilon */ { }
+		          | /* epsilon */ { }
 
 decl     		    : varDecl SEMICOLON { } // int num; (OK outside functions)
 
@@ -158,11 +158,52 @@ d : d CROSS e | d DASH e | e
 e : e STAR f | e SLASH f | f
 f : DASH term | NOT term | term 
 
+
 functiondecl : varDecl LPAREN paramlist RPAREN LCURLY functionbody RCURLY
 paramlist : varDecl paramlist2 | /* epsilon */
 paramlist2 : COMMA varDecl paramlist2 | /* epsilon */
 
-functionbody : decl functionbody | reassign functionbody | /* epsilon */
+functionbody : decl functionbody 
+             | reassign functionbody 
+             | whileblock functionbody 
+             | ifblock functionbody 
+             | RETURN SEMICOLON functionbody 
+             | /* epsilon */
+
+ifblock : IF LPAREN conditionexpr RPAREN LCURLY functionbody RCURLY
+
+whileblock : WHILE LPAREN conditionexpr RPAREN LCURLY functionbody RCURLY
+
+// if(a < (b<(c==d)))
+
+// WHAT THIS ALLOWS: 
+// (4 == b) > (4 > 5)
+// 4 > (4 > 5)
+// 4 > 5
+// 4 > a 
+conditionexpr : term conditional conditionexpr2 // 4 > (4 > 5), 4 > 5, 4 > a 
+              | id conditional conditionexpr2 // num > (4 > 5), num > 5, num > a 
+              | conditionexpr conditional conditionexpr2 
+              
+conditionexpr2 : LPAREN conditionalexpr RPAREN
+               | term
+               | id
+
+conditionalexpr : LPAREN termorid conditional termorid RPAREN // (4 < d)
+                | termorid conditional termorid // 4 < d
+                | conditionalexpr conditional termorid // 4 < (d == 4)
+
+                
+termorid : term | id
+
+conditional : GREATER 
+            | EQUALS 
+            | AND 
+            | OR
+            | NOTEQUALS 
+            | GREATEREQ 
+            | LESS 
+            | LESSEQ
 
 term            : lval
                 | INTLITERAL

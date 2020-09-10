@@ -5,7 +5,11 @@ int fn(char n, int b){
   a = 2; 
   b = 5 + x;
   n = 'k;
-  while(a < 5){
+  return;
+  if(5){
+    b++;
+  }
+  while((a < 4) < 7){
     a++;
   }
 }
