@@ -119,7 +119,6 @@ project)
 
 // %type <intval> Sum
 
-$type <transToken> sum;
 
 %%
 
@@ -127,61 +126,59 @@ $type <transToken> sum;
    grammar and make sure that all of the productions of the 
    given nonterminals are complete
 */
-program 	: globals
-		  {
-		  }
 
-globals 	: globals decl 
-          | globals assignment 
-	  	  { 
-	  	  }
-		| /* epsilon */
-		  {
-		  }
+program 	      : globals { }
 
-decl 		: varDecl SEMICOLON
-		  { }
+globals 	      : globals decl { }
+		            | /* epsilon */ { }
 
-varDecl 	: type id 
-		  {
-		  }
+decl     		    : varDecl ASSIGN exp SEMICOLON { }
+                | varDecl SEMICOLON { }
 
-assignment : assignLHS ASSIGN assignRHS SEMICOLON 
-assignLHS  : type id 
-           | id 
+varDecl 	      : type id { }
 
-assignRHS  : STRLITERAL
-           | CHARLIT
-           | TRUE 
-           | FALSE
-           | expression 
+type          	: VOID 
+                | INT
+                | INTPTR  
+                | BOOL
+                | BOOLPTR
+                | CHAR
+                | CHARPTR
 
-expression : sum | sub | div | mult 
+// exp             : exp DASH exp
+//                 | exp CROSS exp
+//                 | exp STAR exp
+//                 | exp SLASH exp
+//                 | exp AND exp
+//                 | exp OR exp
+//                 | exp EQUALS exp
+//                 | exp NOTEQUALS exp
+//                 | exp GREATER exp
+//                 | exp GREATEREQ exp
+//                 | exp LESS exp
+//                 | exp LESSEQ exp
+//                 | NOT exp
+//                 | DASH term
+//                 | term
 
-sum : INTLITERAL CROSS INTLITERAL { $$ = $1 + $3;}
-    | sum CROSS expression { $$ = $1 + $3;}
+exp             : term DASH term
 
-sub : INTLITERAL DASH INTLITERAL { $$ = $1 - $3;}
-    | sub DASH expression { $$ = $1 - $3;}
+term            : lval
+                | INTLITERAL
+                | STRLITERAL
+                | CHARLIT
+                | TRUE
+                | FALSE
+                | NULLPTR
+                | LPAREN exp RPAREN
 
-mult : INTLITERAL STAR INTLITERAL { $$ = $1 * $3;}
-     | mult STAR expression { $$ = $1 * $3;}
+lval            : id
+                | id LBRACE exp RBRACE
+                | AT id
+                | CARAT id
 
-div : INTLITERAL SLASH INTLITERAL { $$ = $1 / $3;}
-    | div SLASH expression { $$ = $1 / $3;}
+id	          	: ID
 
-type 	: VOID 
-        | INT
-			| INTPTR  
-        | BOOL
-        	| BOOLPTR
-        | CHAR
-        	| CHARPTR
-
-increment : id CROSSCROSS { $$ = $1 + 1; }
-
-id		: ID
-	
 %%
 
 void holyc::Parser::error(const std::string& err_message){
