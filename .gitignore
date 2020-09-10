@@ -11,6 +11,8 @@
 /p2/*.output
 /p2/*.out.expected
 /p2/*.cc
+/p2/*.hh
+
 
 # .o files
 /p1/*.o

@@ -117,7 +117,11 @@ project)
  * declarations
 */
 
-// %type <intval> Sum
+%left CROSS DASH // plus and minus 
+%left STAR SLASH // mult and div 
+
+// %type <transIntToken> exp
+// %type <transIntToken> term
 
 
 %%
@@ -130,10 +134,10 @@ project)
 program 	      : globals { }
 
 globals 	      : globals decl { }
+                | globals functiondecl {}
 		            | /* epsilon */ { }
 
-decl     		    : varDecl ASSIGN exp SEMICOLON { }
-                | varDecl SEMICOLON { }
+decl     		    : varDecl SEMICOLON { } // int num; (OK outside functions)
 
 varDecl 	      : type id { }
 
@@ -145,23 +149,20 @@ type          	: VOID
                 | CHAR
                 | CHARPTR
 
-// exp             : exp DASH exp
-//                 | exp CROSS exp
-//                 | exp STAR exp
-//                 | exp SLASH exp
-//                 | exp AND exp
-//                 | exp OR exp
-//                 | exp EQUALS exp
-//                 | exp NOTEQUALS exp
-//                 | exp GREATER exp
-//                 | exp GREATEREQ exp
-//                 | exp LESS exp
-//                 | exp LESSEQ exp
-//                 | NOT exp
-//                 | DASH term
-//                 | term
+reassign : id ASSIGN exp SEMICOLON // x = 9 + 4;
 
-exp             : term DASH term
+exp : exp OR b | b
+b : b AND c | c
+c : c EQUALS d | c NOTEQUALS d | c GREATER d | c GREATEREQ d | c LESS d | c LESSEQ d | d
+d : d CROSS e | d DASH e | e 
+e : e STAR f | e SLASH f | f
+f : DASH term | NOT term | term 
+
+functiondecl : varDecl LPAREN paramlist RPAREN LCURLY functionbody RCURLY
+paramlist : varDecl paramlist2 | /* epsilon */
+paramlist2 : COMMA varDecl paramlist2 | /* epsilon */
+
+functionbody : decl functionbody | reassign functionbody | /* epsilon */
 
 term            : lval
                 | INTLITERAL

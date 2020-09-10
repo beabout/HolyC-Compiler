@@ -1,1 +1,11 @@
-int num;
+char n;
+int fn(char n, int b){
+  int b;
+  b = 'c;
+  a = 2; 
+  b = 5 + x;
+  n = 'k;
+  while(a < 5){
+    a++;
+  }
+}
