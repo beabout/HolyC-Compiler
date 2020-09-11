@@ -167,6 +167,7 @@ functionbody : decl functionbody
              | reassign functionbody 
              | whileblock functionbody 
              | ifblock functionbody 
+             | crement functionbody 
              | RETURN SEMICOLON functionbody 
              | /* epsilon */
 
@@ -176,25 +177,7 @@ whileblock : WHILE LPAREN conditionexpr RPAREN LCURLY functionbody RCURLY
 
 // if(a < (b<(c==d)))
 
-// WHAT THIS ALLOWS: 
-// (4 == b) > (4 > 5)
-// 4 > (4 > 5)
-// 4 > 5
-// 4 > a 
-conditionexpr : term conditional conditionexpr2 // 4 > (4 > 5), 4 > 5, 4 > a 
-              | id conditional conditionexpr2 // num > (4 > 5), num > 5, num > a 
-              | conditionexpr conditional conditionexpr2 
-              
-conditionexpr2 : LPAREN conditionalexpr RPAREN
-               | term
-               | id
-
-conditionalexpr : LPAREN termorid conditional termorid RPAREN // (4 < d)
-                | termorid conditional termorid // 4 < d
-                | conditionalexpr conditional termorid // 4 < (d == 4)
-
-                
-termorid : term | id
+conditionexpr : term conditional term | term | NOT term
 
 conditional : GREATER 
             | EQUALS 
@@ -205,14 +188,18 @@ conditional : GREATER
             | LESS 
             | LESSEQ
 
-term            : lval
-                | INTLITERAL
-                | STRLITERAL
-                | CHARLIT
-                | TRUE
-                | FALSE
-                | NULLPTR
-                | LPAREN exp RPAREN
+// increment and decrement 
+crement : id CROSSCROSS SEMICOLON  
+        | id DASHDASH SEMICOLON 
+
+term : lval
+     | INTLITERAL
+     | STRLITERAL
+     | CHARLIT
+     | TRUE
+     | FALSE
+     | NULLPTR
+     | LPAREN exp RPAREN
 
 lval            : id
                 | id LBRACE exp RBRACE

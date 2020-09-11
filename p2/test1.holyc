@@ -9,7 +9,10 @@ int fn(char n, int b){
   if(5){
     b++;
   }
-  while((a < 4) < 7){
+  if(!5){
+    b++;
+  }
+  while(a < 4){
     a++;
   }
 }
