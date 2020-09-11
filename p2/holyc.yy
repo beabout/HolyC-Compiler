@@ -153,7 +153,10 @@ type : VOID
      | CHAR
      | CHARPTR
 
-reassign : id ASSIGN exp SEMICOLON // x = 9 + 4;
+functioncall : ID LPAREN paramlist RPAREN SEMICOLON
+
+reassign : lval ASSIGN functioncall
+         | lval ASSIGN exp SEMICOLON 
 
 exp : exp OR b 
     | b
@@ -193,43 +196,19 @@ functionbody : decl functionbody
              | RETURN SEMICOLON functionbody 
              | cout functionbody
              | cin functionbody
+             | functioncall functionbody
              | /* epsilon */
 
-ifblock : IF LPAREN conditionexpr RPAREN LCURLY functionbody RCURLY
+ifblock : IF LPAREN conditionexpr RPAREN LCURLY functionbody RCURLY elseblock
+
+elseblock : ELSE LCURLY functionbody RCURLY
+          | /* epsilon */
 
 whileblock : WHILE LPAREN conditionexpr RPAREN LCURLY functionbody RCURLY
 
-// (5 == c)
-// (5 == c)
-// conde < 7
-// (conde > 9) < 7
-// ((conde == 4) > 9) < 7
-// (((3 > 2) == 4) > 9) < 7
-// ((3 > 2) == 4) < (5 || true)
-
-// conditionexpr : term conditional term
-
-// 5 == c
-// conditionexpr : term conditional conditionexpr2
-
-// 5 == (c == 4)
-// conditionexpr2 : LPAREN term conditional term RPAREN
-//               | term 
-//               | NOT term
-//               | /* epsilon */
-
-
-// 1 > ( (7 == 9) < a )
-// ( (7 -9) + a ) > 1
-// (7 -9) + a
-// (7 + 3)
-// !7
-
-conditionexpr : subcond conditional subcond
-subcond : LPAREN conditionexpr RPAREN
-        | term 
-        | NOT subcond
-
+conditionexpr : term conditional term
+              | term 
+              | NOT term 
 
 conditional : GREATER 
             | EQUALS 

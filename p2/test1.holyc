@@ -1,5 +1,8 @@
 char n;
 int fn(char n, int b){
+  a = ^b;
+  @a = 12;
+  a[0] = 11;
   int b;
   b = 'c;
   a = 2; 
@@ -15,20 +18,24 @@ int fn(char n, int b){
   TOCONSOLE false;
   TOCONSOLE NULLPTR;
   FROMCONSOLE test;
+  x = main();
   return;
   if(5){
     b++;
+  }
+  else{
+    
   }
   if(!5){
     b++;
   }
 
-  while(1 > ( (7 -9) + a )){
-    a++;
-  }
-  while(((b == 5) <= a) < (4)){
-    a++;
-  }
+#  while(1 > ( (7 -9) + a )){
+#    a++;
+#  }
+#  while(((b == 5) <= a) < (4)){
+#    a++;
+#  }
 }
 
 # THE FOLLOWING SHOULD FAIL 
@@ -38,7 +45,7 @@ int fn(char n, int b){
 #77 - 4 = c;
 #77;
 #"string";[]
+#a = []
+#int @a;
+#int a = 5;
 # ----------- EPIC FAIL -----------
-
-# To-Do
-# (   ) # <-- Just need to add for nested conditionals ((b < 0) == (a <= b))
