@@ -135,33 +135,55 @@ program 	      : globals { }
 
 globals 	      : globals decl { }
                 | globals functiondecl {}
-		          | /* epsilon */ { }
+		            | /* epsilon */ { }
 
 decl     		    : varDecl SEMICOLON { } // int num; (OK outside functions)
 
 varDecl 	      : type id { }
 
-type          	: VOID 
-                | INT
-                | INTPTR  
-                | BOOL
-                | BOOLPTR
-                | CHAR
-                | CHARPTR
+cout : TOCONSOLE term SEMICOLON 
+
+cin : FROMCONSOLE id SEMICOLON
+
+type : VOID 
+     | INT
+     | INTPTR  
+     | BOOL
+     | BOOLPTR
+     | CHAR
+     | CHARPTR
 
 reassign : id ASSIGN exp SEMICOLON // x = 9 + 4;
 
-exp : exp OR b | b
-b : b AND c | c
-c : c EQUALS d | c NOTEQUALS d | c GREATER d | c GREATEREQ d | c LESS d | c LESSEQ d | d
-d : d CROSS e | d DASH e | e 
-e : e STAR f | e SLASH f | f
-f : DASH term | NOT term | term 
+exp : exp OR b 
+    | b
+b : b AND c 
+  | c
+c : c EQUALS d 
+  | c NOTEQUALS d 
+  | c GREATER d 
+  | c GREATEREQ d 
+  | c LESS d 
+  | c LESSEQ d 
+  | d
+d : d CROSS e 
+  | d DASH e 
+  | e 
+e : e STAR f 
+  | e SLASH f 
+  | f
+f : DASH term 
+  | NOT term 
+  | term 
 
 
 functiondecl : varDecl LPAREN paramlist RPAREN LCURLY functionbody RCURLY
-paramlist : varDecl paramlist2 | /* epsilon */
-paramlist2 : COMMA varDecl paramlist2 | /* epsilon */
+
+paramlist : varDecl paramlist2 
+          | /* epsilon */
+
+paramlist2 : COMMA varDecl paramlist2 
+           | /* epsilon */
 
 functionbody : decl functionbody 
              | reassign functionbody 
@@ -169,15 +191,45 @@ functionbody : decl functionbody
              | ifblock functionbody 
              | crement functionbody 
              | RETURN SEMICOLON functionbody 
+             | cout functionbody
+             | cin functionbody
              | /* epsilon */
 
 ifblock : IF LPAREN conditionexpr RPAREN LCURLY functionbody RCURLY
 
 whileblock : WHILE LPAREN conditionexpr RPAREN LCURLY functionbody RCURLY
 
-// if(a < (b<(c==d)))
+// (5 == c)
+// (5 == c)
+// conde < 7
+// (conde > 9) < 7
+// ((conde == 4) > 9) < 7
+// (((3 > 2) == 4) > 9) < 7
+// ((3 > 2) == 4) < (5 || true)
 
-conditionexpr : term conditional term | term | NOT term
+// conditionexpr : term conditional term
+
+// 5 == c
+// conditionexpr : term conditional conditionexpr2
+
+// 5 == (c == 4)
+// conditionexpr2 : LPAREN term conditional term RPAREN
+//               | term 
+//               | NOT term
+//               | /* epsilon */
+
+
+// 1 > ( (7 == 9) < a )
+// ( (7 -9) + a ) > 1
+// (7 -9) + a
+// (7 + 3)
+// !7
+
+conditionexpr : subcond conditional subcond
+subcond : LPAREN conditionexpr RPAREN
+        | term 
+        | NOT subcond
+
 
 conditional : GREATER 
             | EQUALS 
@@ -188,7 +240,7 @@ conditional : GREATER
             | LESS 
             | LESSEQ
 
-// increment and decrement 
+// increment and decrement
 crement : id CROSSCROSS SEMICOLON  
         | id DASHDASH SEMICOLON 
 
@@ -201,10 +253,10 @@ term : lval
      | NULLPTR
      | LPAREN exp RPAREN
 
-lval            : id
-                | id LBRACE exp RBRACE
-                | AT id
-                | CARAT id
+lval : id
+     | id LBRACE exp RBRACE
+     | AT id
+     | CARAT id
 
 id	          	: ID
 

@@ -5,6 +5,16 @@ int fn(char n, int b){
   a = 2; 
   b = 5 + x;
   n = 'k;
+  b = 3 * 5 + d;
+  c = NULLPTR;
+  TOCONSOLE "test";
+  TOCONSOLE test;
+  TOCONSOLE 5;
+  TOCONSOLE 'a;
+  TOCONSOLE true;
+  TOCONSOLE false;
+  TOCONSOLE NULLPTR;
+  FROMCONSOLE test;
   return;
   if(5){
     b++;
@@ -12,7 +22,23 @@ int fn(char n, int b){
   if(!5){
     b++;
   }
-  while(a < 4){
+
+  while(1 > ( (7 -9) + a )){
+    a++;
+  }
+  while(((b == 5) <= a) < (4)){
     a++;
   }
 }
+
+# THE FOLLOWING SHOULD FAIL 
+# ----------- EPIC FAIL -----------
+#c;
+#c =
+#77 - 4 = c;
+#77;
+#"string";[]
+# ----------- EPIC FAIL -----------
+
+# To-Do
+# (   ) # <-- Just need to add for nested conditionals ((b < 0) == (a <= b))
