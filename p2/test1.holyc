@@ -30,12 +30,12 @@ int fn(char n, int b){
     b++;
   }
 
-#  while(1 > ( (7 -9) + a )){
-#    a++;
-#  }
-#  while(((b == 5) <= a) < (4)){
-#    a++;
-#  }
+  while(1 > b){
+    a++;
+  }
+  while(((b == 5) <= a) < (4)){
+    a++;
+  }
 }
 
 # THE FOLLOWING SHOULD FAIL 
