@@ -188,12 +188,14 @@ paramlist : varDecl paramlist2
 paramlist2 : COMMA varDecl paramlist2 
            | /* epsilon */
 
+returnexp : RETURN SEMICOLON | RETURN term SEMICOLON
+
 functionbody : decl functionbody 
              | reassign functionbody 
              | whileblock functionbody 
              | ifblock functionbody 
              | crement functionbody 
-             | RETURN SEMICOLON functionbody 
+             | returnexp functionbody 
              | cout functionbody
              | cin functionbody
              | functioncall functionbody

@@ -21,7 +21,7 @@ int fn(char n, int b){
   x = main();
   return;
   if(5){
-    b++;
+    b--;
   }
   else{
     
@@ -29,7 +29,9 @@ int fn(char n, int b){
   if(!5){
     b++;
   }
-
+  if(true && ((3 + 5) > 4)){
+    return true; 
+  }
   while(1 > b){
     a++;
   }
@@ -41,8 +43,8 @@ int fn(char n, int b){
 # THE FOLLOWING SHOULD FAIL 
 # ----------- EPIC FAIL -----------
 #c;
-#c =
-#77 - 4 = c;
+# c =
+# 77 - 4 = c;
 #77;
 #"string";[]
 #a = []
