@@ -222,8 +222,8 @@ conditional : GREATER
             | LESSEQ
 
 // increment and decrement
-crement : id CROSSCROSS SEMICOLON  
-        | id DASHDASH SEMICOLON 
+crement : lval CROSSCROSS SEMICOLON  
+        | lval DASHDASH SEMICOLON 
 
 term : lval
      | INTLITERAL
