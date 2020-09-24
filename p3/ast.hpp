@@ -119,7 +119,7 @@ class ExpNode : public ASTNode {
     ExpNode(size_t line, size_t col)
     : ASTNode(line, col){
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    virtual void unparse(std::ostream& out, int indent) override = 0;
 
 };
 
@@ -128,7 +128,7 @@ class NestedExpNode : public ExpNode {
     NestedExpNode(size_t line, size_t col, ExpNode* exp)
     : ExpNode(line, col), myExp(exp){
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private:
    ExpNode* myExp;
 };
@@ -205,9 +205,10 @@ class DerefNode : public LValNode
 class IndexNode : public LValNode
 {
   public:
-      IndexNode(size_t line, size_t col) 
-    : LValNode(line, col) {
+      IndexNode(size_t line, size_t col, IDNode* idnode, ExpNode* expnode) 
+    : LValNode(line, col), myIDNode(idnode), offsetExpression(expnode) {
     }
+    void unparse(std::ostream& out, int indent);
   private:
       IDNode* myIDNode;
       ExpNode* offsetExpression;
@@ -243,7 +244,7 @@ class AssignStmtNode : public StmtNode{
     AssignStmtNode(size_t line, size_t col, AssignExpNode *assignExp) 
     : StmtNode(line, col), myAssignExp(assignExp) {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private:
     AssignExpNode *myAssignExp;
 };
@@ -255,7 +256,7 @@ class CallStmtNode : public StmtNode{
     CallStmtNode(size_t line, size_t col, ExpNode *callExp) 
     : StmtNode(line, col), myCallExp(callExp) {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private: 
     ExpNode *myCallExp;
 };
@@ -264,10 +265,10 @@ class CallStmtNode : public StmtNode{
 
 class FromConsoleStmtNode : public StmtNode{
   public:
-    FromConsoleStmtNode(size_t line, size_t col, LValNode *lVal) 
-    : StmtNode(line, col), myLVal(lVal) {
+    FromConsoleStmtNode(LValNode *lVal) 
+    : StmtNode(lVal->line(), lVal->col()), myLVal(lVal) {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private: 
     LValNode *myLVal;
 };
@@ -278,7 +279,7 @@ class IfElseStmtNode : public StmtNode{
         : StmtNode(line, col), myExp(exp), myTrueStmts(trueStmtNodes), myFalseStmts(falseStmtNodes)
     {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private:
     ExpNode *myExp;
     std::list<StmtNode *> *myTrueStmts;
@@ -290,7 +291,7 @@ class IfStmtNode : public StmtNode{
     IfStmtNode(size_t line, size_t col, ExpNode *exp, std::list<StmtNode *> *stmtNodes) 
     : StmtNode(line, col), myExp(exp), myStmts(stmtNodes) {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private:
     ExpNode *myExp;
     std::list<StmtNode *> *myStmts;
@@ -301,7 +302,7 @@ class PostDecStmtNode : public StmtNode{
     PostDecStmtNode(size_t line, size_t col, LValNode *loc)
         : StmtNode(line, col), myLoc(loc) {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private: 
     LValNode *myLoc;
 };
@@ -311,7 +312,7 @@ class PostIncStmtNode : public StmtNode{
     PostIncStmtNode(size_t line, size_t col, LValNode *loc)
         : StmtNode(line, col), myLoc(loc) {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private: 
     LValNode *myLoc;
 };
@@ -324,7 +325,7 @@ class ReturnStmtNode : public StmtNode{
     ReturnStmtNode(size_t line, size_t col, ExpNode *exp) 
     : StmtNode(line, col), myExp(exp) {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private:
     ExpNode *myExp;
 };
@@ -334,7 +335,7 @@ class ToConsoleStmtNode : public StmtNode{
     ToConsoleStmtNode(size_t line, size_t col, ExpNode *exp) 
     : StmtNode(line, col), myExp(exp) {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private:
     ExpNode *myExp;
 };
@@ -344,7 +345,7 @@ class WhileStmtNode : public StmtNode {
     WhileStmtNode(size_t line, size_t col, ExpNode *exp, std::list<StmtNode *> *stmtNodes) 
     : StmtNode(line, col), myExp(exp), myStmts(stmtNodes)  {
     }
-    void unparse(std::ostream& out, int indent) override = 0;
+    void unparse(std::ostream& out, int indent);
   private:
     ExpNode *myExp;
     std::list<StmtNode *> *myStmts;
@@ -355,7 +356,7 @@ class DeclNode : public StmtNode {
     DeclNode(size_t line, size_t col)
         : StmtNode(line, col) {
     }
-    void unparse(std::ostream &out, int indent) override = 0;
+    void unparse(std::ostream &out, int indent);
   private:
 };
 
@@ -549,24 +550,9 @@ class IntLitNode : public ExpNode
     {
     }
     void unparse(std::ostream& out, int indent);
+    int myInt;
     private: 
-      int myInt;
 };
-
-// class CallExpNode : public ExpNode 
-// {
-//   public: 
-//     CallExpNode(IDNode *idNode, std::list<ExpNode*>* exp_list)
-//         : ExpNode(idNode->line(), idNode->col()), myIDNode(idNode), myExps(exp_list){
-
-//     }
-//     void unparse(std::ostream& out, int indent);
-//     private: 
-//       IDNode* myIDNode;
-//       std::list<ExpNode *> *myExps;
-// };
-
-
 
 /************************************
 * LVAL NODES
@@ -577,10 +563,10 @@ class IntLitNode : public ExpNode
 /** An identifier. Note that IDNodes subclass
  * ExpNode because they can be used as part of an expression. 
 **/
-class IDNode : public ExpNode{
+class IDNode : public LValNode{
   public:
     IDNode(IDToken *token, bool isAt, bool isCarat)
-    : ExpNode(token->line(), token->col()), myIsAt(isAt), myIsCarat(isCarat), myStrVal(token->value())
+    : LValNode(token->line(), token->col()), myIsAt(isAt), myIsCarat(isCarat), myStrVal(token->value())
     {
     }
     void unparse(std::ostream& out, int indent);

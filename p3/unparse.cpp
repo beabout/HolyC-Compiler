@@ -103,7 +103,7 @@ void NestedExpNode::unparse(std::ostream &out, int indent){
 }
 
 void IntLitNode::unparse(std::ostream &out, int indent){
-
+  out << this->myInt;
 }
 void StrLitNode::unparse(std::ostream &out, int indent){
 
@@ -122,6 +122,40 @@ void FalseNode::unparse(std::ostream &out, int indent){
 }
 void CallExpNode::unparse(std::ostream &out, int indent){
 
+}
+
+void PostDecStmtNode::unparse(std::ostream &out, int indent){
+
+}
+
+void PostIncStmtNode::unparse(std::ostream &out, int indent){
+
+}
+
+void FromConsoleStmtNode::unparse(std::ostream &out, int indent){
+
+}
+
+void ToConsoleStmtNode::unparse(std::ostream &out, int indent){
+
+}
+
+void IfStmtNode::unparse(std::ostream &out, int indent){
+
+}
+
+void IfElseStmtNode::unparse(std::ostream &out, int indent){
+
+}
+
+void WhileStmtNode::unparse(std::ostream &out, int indent){
+
+}
+
+void ReturnStmtNode::unparse(std::ostream &out, int indent){
+}
+
+void IndexNode::unparse(std::ostream &out, int indent){
 }
 
 } // End namespace holeyc

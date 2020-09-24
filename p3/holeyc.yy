@@ -74,6 +74,7 @@ create new translation value types
    holeyc::IDNode *                    transID;     
    holeyc::ExpNode *                   transExp;
    std::list<holeyc::StmtNode *> *     transStmtList;
+   holeyc::StmtNode *                  transStmt;
    std::list<holeyc::VarDeclNode *> *  transVarDeclList;
    holeyc::LValNode *                  transLVal;
    holeyc::CallExpNode *               transCallExp;
@@ -145,21 +146,21 @@ create new translation value types
 %type <transDeclList>     globals
 %type <transDecl>         decl
 %type <transVarDecl>      varDecl
-%type <transFnDecl>      fnDecl
+%type <transFnDecl>       fnDecl
 %type <transType>         type
 %type <transID>           id
 %type <transExp>          term
 %type <transExp>          exp
-%type <transStmtList>     fnbody
+%type <transStmtList>     fnBody
 %type <transVarDeclList>  formals
-%type <transVarDeclList>  formalslist
+%type <transVarDeclList>  formalsList
 %type <transVarDecl>      formalDecl
-%type <transExp>          lval
+%type <transLVal>          lval
 %type <transStmt>         stmt
 %type <transStmtList>     stmtList
 %type <transAssignExp>    assignExp
 %type <transCallExp>      callExp
-%type <transExpList>      explist
+%type <transExpList>      expList
 // %type <transSomething>    actualsList
 
 // Really just making SDT for nonterminals to generate AST
@@ -293,7 +294,10 @@ stmtList 	: /* epsilon */
 		  }
 		| stmtList stmt
 		  {
-			  $1->merge($2);
+        StmtNode * stmt = $2;
+        std::list<StmtNode*>* lst = new std::list<StmtNode*>();
+        lst->push_back(stmt);
+			  $1->merge(lst);
 			  $$ = $1;
 		   }
 
@@ -303,7 +307,8 @@ stmt		: varDecl SEMICOLON
 		  }
 		| assignExp SEMICOLON
 		  { 
-			  $$ = $1;
+        AssignStmtNode * assign = new AssignStmtNode($1->line(), $1->col(), $1);
+			  $$ = assign;
 		  }
 		| lval DASHDASH SEMICOLON
 		  { 
@@ -319,9 +324,7 @@ stmt		: varDecl SEMICOLON
 		  }
 		| FROMCONSOLE lval SEMICOLON
 		  { 
-        size_t tLine = $1->line();
-        size_t tCol = $1->col();
-			  $$ = new FromConsoleStmtNode(tLine, tCol, $1);
+			  $$ = new FromConsoleStmtNode($2);
 		  }
 		| TOCONSOLE exp SEMICOLON
 		  {
@@ -361,7 +364,8 @@ stmt		: varDecl SEMICOLON
       }
 		| callExp SEMICOLON
 		  { 
-        $$ = $1;
+        CallStmtNode * call = new CallStmtNode($1->line(), $1->col(), $1);
+        $$ = call;
       }
 
 exp		: assignExp 
@@ -418,11 +422,11 @@ exp		: assignExp
       }
 		| NOT exp
 		  { 
-        $$ = new NotNode($1->line(), $1->col(),$2);
+        $$ = new NotNode($2);
       }
 		| DASH term
 		  { 
-        $$ = new NegNode($1->line(), $1->col(),$2);
+        $$ = new NegNode($2);
       }
 		| term 
 		  { 
