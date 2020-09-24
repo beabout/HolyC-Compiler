@@ -145,6 +145,7 @@ class TypeNode : public ASTNode {
     virtual void unparse(std::ostream &out, int indent) = 0;
     //TODO: consider adding an isRef to use in unparse to
     // indicate if this is a reference type
+    bool isRef() { return myIsReference; }
   private:
     bool myIsReference;
 };
@@ -577,18 +578,17 @@ class IntLitNode : public ExpNode
  * ExpNode because they can be used as part of an expression. 
 **/
 class IDNode : public ExpNode{
-public:
-  IDNode(IDToken *token, bool isAt, bool isCarat)
-  : ExpNode(token->line(), token->col()), myIsAt(isAt), myIsCarat(isCarat), myStrVal(token->value())
-  {
-  }
-  void unparse(std::ostream& out, int indent);
-  bool myIsAt;
-  bool myIsCarat;
-private:
-  /** The name of the identifier **/
-  std::string myStrVal;
-
+  public:
+    IDNode(IDToken *token, bool isAt, bool isCarat)
+    : ExpNode(token->line(), token->col()), myIsAt(isAt), myIsCarat(isCarat), myStrVal(token->value())
+    {
+    }
+    void unparse(std::ostream& out, int indent);
+    bool myIsAt;
+    bool myIsCarat;
+  private:
+    /** The name of the identifier **/
+    std::string myStrVal;
 };
 
 class CallExpNode : public ExpNode

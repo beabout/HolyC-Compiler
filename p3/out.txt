@@ -1,1 +1,7 @@
 int a;
+intptr b;
+bool c;
+boolptr d;
+char e;
+charptr f;
+void g;

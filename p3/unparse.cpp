@@ -43,6 +43,9 @@ void ProgramNode::unparse(std::ostream& out, int indent){
 void VarDeclNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 	this->myType->unparse(out, 0);
+	if(this->myType->isRef()){
+		out<< "ptr";
+	}
 	out << " ";
 	this->myId->unparse(out, 0);
 	out << ";\n";

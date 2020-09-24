@@ -1,10 +1,2 @@
-int a; 
-int fn(int num){
-  a = a + 2;
-  Fib();
-  Fib(7+9, var, my_param);
-}
-
-int main() {
-  fn(4+42*4);
-}
+int a; intptr b; bool c; boolptr d; char e; charptr f; void g;
+int b = 3;
