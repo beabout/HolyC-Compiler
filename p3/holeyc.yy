@@ -154,186 +154,358 @@ program 	: globals
 		  *root = $$;
 		  }
 
-globals 	: globals decl 
-		  {
-		  $$ = $1;
-		  DeclNode * aGlobalDecl = $2;
-		  $1->push_back(aGlobalDecl);
-		  }
-		| /* epsilon */
-		  {
-		  std::list<DeclNode *> * startingGlobals;
-		  startingGlobals = new std::list<DeclNode *>();
-	 	  $$ = startingGlobals;
-		  }
-		; 
+globals : /* epsilon*/
+		| globals term 
+
+// globals 	: globals decl 
+// 		  {
+// 		  $$ = $1;
+// 		  DeclNode * aGlobalDecl = $2;
+// 		  $1->push_back(aGlobalDecl);
+// 		  }
+// 		| /* epsilon */
+// 		  {
+// 		  std::list<DeclNode *> * startingGlobals;
+// 		  startingGlobals = new std::list<DeclNode *>();
+// 	 	  $$ = startingGlobals;
+// 		  }
 
 decl 		: varDecl SEMICOLON
 		  {
-		  //TODO: Make sure to fill out this rule
-		  // (as well as any other empty rule!)
+        //TODO: Make sure to fill out this rule
+        // (as well as any other empty rule!)
+        $$ = $1;
 		  }
-		| fnDecl 
-		  { }
+		// | fnDecl 
+		//   { 
+    //     //size_t tLine = $1->line;
+    //     // size_t tCol = $1->col;	  
+    //     $$ = $1;
+    //   }
 
 varDecl 	: type id
 		  { 
-		  size_t typeLine = $1->line();
-		  size_t typeCol = $1->col();
-		  $$ = new VarDeclNode(typeLine, typeCol, $1, $2);
+        size_t typeLine = $1->line();
+        size_t typeCol = $1->col();
+        $$ = new VarDeclNode(typeLine, typeCol, $1, $2);
 		  }
 
-type 		: INT
+type : INT
 		  {
-		  bool isPtr = false;
-		  $$ = new IntTypeNode($1->line(), $1->col(), isPtr);
+        // the third parameter marks whether the type is a pointer type or not.
+        $$ = new IntTypeNode($1->line(), $1->col(), false); 
 		  }
 		| INTPTR
-		  { }
+		  { 
+        $$ = new IntTypeNode($1->line(), $1->col(), true); 
+      }
 		| BOOL
-		  { }
+		  { 
+        $$ = new BoolTypeNode($1->line(), $1->col(), false); 
+      }
 		| BOOLPTR
-		  { }
+		  { 
+        $$ = new BoolTypeNode($1->line(), $1->col(), true); 
+      }
 		| CHAR
-		  { }
+		  { 
+        $$ = new CharTypeNode($1->line(), $1->col(), false); 
+      }
 		| CHARPTR
-		  { }
+		  { 
+        $$ = new CharTypeNode($1->line(), $1->col(), true); 
+      }
 		| VOID
-		  { }
+		  { 
+        $$ = new VoidTypeNode($1->line(), $1->col(), false); 
+      }
 
-fnDecl 		: type id formals fnBody
-		  { }
+// fnDecl 		: type id formals fnBody
+// 		  { 
+//         size_t tLine = $1->line();
+//         size_t tCol = $1->col();
+//         $$ = new FnDeclNode(tLine, tCol, $1, $2, $3, $4);
+//       }
 
-formals 	: LPAREN RPAREN
-		  { }
-		| LPAREN formalsList RPAREN
-		  { }
+// formals 	: LPAREN RPAREN
+// 		  { 
+// 			  $$ = new std::list<VarDeclNode*>(); // ERRORS
+// 		  }
+// 		| LPAREN formalsList RPAREN
+// 		  { 
+// 			  $$ = $2;
+// 		  }
 
 
-formalsList	: formalDecl
-		  { }
-		| formalDecl COMMA formalsList 
-		  { }
+// formalsList	: formalDecl
+// 		  { 
+// 			  std::list<VarDeclNode*>* result = new std::list<VarDeclNode*>();
+// 			  result->push_back($1);
+// 			  $$ = result;
+// 		  }
+// 		| formalDecl COMMA formalsList 
+// 		  { 
+// 			  std::list<VarDeclNode*>* result = new std::list<VarDeclNode*>();
+// 			  result->merge($1);
+// 			  result->merge($3);
+// 			  $$ = result;
+// 		  }
 
-formalDecl 	: type id
-		  { }
+// formalDecl 	: type id
+// 		  { 
+//         size_t tLine = $1->line();
+//         size_t tCol = $1->col();
+//         $$ = new VarDeclNode(tLine, tCol, $1, $2);
+// 		  }
 
-fnBody		: LCURLY stmtList RCURLY
-		  { }
+// fnBody		: LCURLY stmtList RCURLY
+// 		  { 
+// 			  $$ = $2;
+// 		  }
 
-stmtList 	: /* epsilon */
-		  { }
-		| stmtList stmt
-		  { }
+// stmtList 	: /* epsilon */
+// 		  { 
+// 			  $$ = new std::list<StmtNode *>();
+// 		  }
+// 		| stmtList stmt
+// 		  {
+// 			  $1->merge($2);
+// 			  $$ = $1;
+// 		   }
 
-stmt		: varDecl SEMICOLON
-		  { }
-		| assignExp SEMICOLON
-		  { }
-		| lval DASHDASH SEMICOLON
-		  { }
-		| lval CROSSCROSS SEMICOLON
-		  { }
-		| FROMCONSOLE lval SEMICOLON
-		  { }
-		| TOCONSOLE exp SEMICOLON
-		  { }
-		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY
-		  { }
-		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
-		  { }
-		| WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
-		  { }
-		| RETURN exp SEMICOLON
-		  { }
-		| RETURN SEMICOLON
-		  { }
-		| callExp SEMICOLON
-		  { }
+// stmt		: varDecl SEMICOLON
+// 		  { 
+// 			  $$ = $1;
+// 		  }
+// 		| assignExp SEMICOLON
+// 		  { 
+// 			  $$ = $1;
+// 		  }
+// 		| lval DASHDASH SEMICOLON
+// 		  { 
+//         size_t tLine = $1->line();
+//         size_t tCol = $1->col();
+// 			  $$ = new PostDecStmtNode(tLine, tCol, $1);
+// 		  }
+// 		| lval CROSSCROSS SEMICOLON
+// 		  { 
+//         size_t tLine = $1->line();
+//         size_t tCol = $1->col();
+// 			 $$ = new PostIncStmtNode(tLine, tCol, $1); 
+// 		  }
+// 		| FROMCONSOLE lval SEMICOLON
+// 		  { 
+//         size_t tLine = $1->line();
+//         size_t tCol = $1->col();
+// 			  $$ = new FromConsoleStmtNode(tLine, tCol, $1);
+// 		  }
+// 		| TOCONSOLE exp SEMICOLON
+// 		  {
+//         size_t tLine = $1->line();
+//         size_t tCol = $1->col();
+// 			  $$ = new ToConsoleStmtNode(tLine, tCol, $2);
+// 			}
+// 		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY
+// 		  { 
+//         size_t tLine = $3->line();
+//         size_t tCol = $3->col();
+// 			  $$ = new IfStmtNode(tLine, tCol, $3, $6);
+// 		  }
+// 		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
+// 		  { 
+//         size_t tLine = $3->line();
+//         size_t tCol = $3->col();
+// 			  $$ = new IfElseStmtNode(tLine, tCol, $3, $6, $10);
+// 		  }
+// 		| WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
+// 		  { 
+//         size_t tLine = $3->line();
+//         size_t tCol = $3->col();
+//         $$ = new WhileStmtNode(tLine, tCol, $3, $6);
+//       }
+// 		| RETURN exp SEMICOLON
+// 		  { 
+//         size_t tLine = $2->line();
+//         size_t tCol = $2->col();
+// 			  $$ = new ReturnStmtNode(tLine, tCol, $2);
+//       }
+// 		| RETURN SEMICOLON
+// 		  { 
+//         size_t tLine = $1->line();
+//         size_t tCol = $1->col();
+//         $$ = new ReturnStmtNode(tLine, tCol, nullptr);
+//       }
+// 		| callExp SEMICOLON
+// 		  { 
+//         $$ = $1;
+//       }
 
-exp		: assignExp 
-		  { }
-		| exp DASH exp
-		  { }
-		| exp CROSS exp
-		  { }
-		| exp STAR exp
-		  { }
-		| exp SLASH exp
-		  { }
-		| exp AND exp
-		  { }
-		| exp OR exp
-		  { }
-		| exp EQUALS exp
-		  { }
-		| exp NOTEQUALS exp
-		  { }
-		| exp GREATER exp
-		  { }
-		| exp GREATEREQ exp
-		  { }
-		| exp LESS exp
-		  { }
-		| exp LESSEQ exp
-		  { }
-		| NOT exp
-		  { }
-		| DASH term
-		  { }
-		| term 
-		  { }
+// exp		: assignExp 
+// 		  { 
+// 			  $$ = $1;
+// 		  }
+// 		| exp DASH exp
+// 		  { 
+// 			  $$ = new MinusNode($1->line(), $1->col(),$1,$3);
+// 		  }
+// 		| exp CROSS exp
+// 		  { 
+//         $$ = new PlusNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp STAR exp
+// 		  { 
+//         $$ = new TimesNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp SLASH exp
+// 		  { 
+//         $$ = new DivideNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp AND exp
+// 		  { 
+//         $$ = new AndNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp OR exp
+// 		  { 
+//         $$ = new OrNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp EQUALS exp
+// 		  { 
+//         $$ = new EqualsNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp NOTEQUALS exp
+// 		  { 
+//         $$ = new NotEqualsNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp GREATER exp
+// 		  { 
+//         $$ = new GreaterNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp GREATEREQ exp
+// 		  { 
+//         $$ = new GreaterEqNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp LESS exp
+// 		  { 
+//         $$ = new LessNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| exp LESSEQ exp
+// 		  { 
+//         $$ = new LessEqNode($1->line(), $1->col(),$1,$3);
+//       }
+// 		| NOT exp
+// 		  { 
+//         $$ = new NotNode($1->line(), $1->col(),$2);
+//       }
+// 		| DASH term
+// 		  { 
+//         $$ = new NegNode($1->line(), $1->col(),$2);
+//       }
+// 		| term 
+// 		  { 
+//         $$ = $1;
+//       }
 
-assignExp	: lval ASSIGN exp
-		  { }
+// assignExp	: lval ASSIGN exp
+// 		  { 
+//         $$ = new AssignExpNode($1->line(), $1->col(), $1, $3);
+//       }
 
-callExp		: id LPAREN RPAREN
-		  { }
-		| id LPAREN actualsList RPAREN
-		  { }
+// callExp		: id LPAREN RPAREN
+// 		  { 
+//         size_t tLine = $1->line();
+//         size_t tCol = $1->col();
+//         $$ = new CallExpNode(tLine, tCol, $1);
+//       }
+		// | id LPAREN actualsList RPAREN
+		//   { 
+    //     size_t tLine = $1->line();
+    //     size_t tCol = $1->col();
+		// 	  $$ = new CallExpNode(tLine, tCol, $1, $3) // $1 -> id, $3 -> list of expressions 
+    //   }
 
-actualsList	: exp
-		  { }
-		| actualsList COMMA exp
-		  { }
+// actualsList	: exp
+// 		  { 
+// 			  std::list result = new std::list<ExpNode*>();
+// 			  result.push_back($1);
+// 			  $$ = result;
+//       }
+// 		| actualsList COMMA exp
+// 		  { 
+//         // list magic 
+// 			  std::list result = new std::list<ExpNode*>();
+// 			  result.push_back($1);
+// 			  $1->merge(result);
+// 			  $$ = $1;
+//       }
 
-term 		: lval
-		  { }
-		| callExp
-		  { }
-		| NULLPTR
-		  { }
+
+// lval
+// 		  { 
+//         $$ = $1;
+//       }
+		// | callExp
+		//   { 
+    //     $$ = $1;
+    //   }
+
+term 		: NULLPTR
+		  { 
+        $$ = new NullPtrNode($1);
+      }
 		| INTLITERAL 
-		  { }
+		  { 
+        $$ = new IntLitNode($1);
+      }
 		| STRLITERAL 
-		  { }
+		  { 
+        $$ = new StrLitNode($1);
+      }
 		| CHARLIT 
-		  { }
+		  { 
+        $$ = new CharLitNode($1);
+      }
 		| TRUE
-		  { }
+		  { 
+        $$ = new TrueNode($1->line(), $1->col(), true);
+      }
 		| FALSE
-		  { }
-		| LPAREN exp RPAREN
-		  { }
+		  { 
+        $$ = new FalseNode($1->line(),$1->col(), false);
+      }
+		// | LPAREN exp RPAREN
+		//   { 
+    //     $$ = new NestedExpNode($1->line(),$1->col(), $2);
+    //   }
 
 lval		: id
 		  {
+        $$ = $1;
 		  }
-		| id LBRACE exp RBRACE
-		  {
-		  }
+		// | id LBRACE exp RBRACE
+		//   {
+		// 	  $$ = new IndexNode($1->line(), $1->col(), $1, $3);
+		//   }
 		| AT id
 		  {
+        $$ = $1;
+
+        IDToken * t = $1;
+		    $$ = new IDNode(t,true,false);
 		  }
 		| CARAT id
 		  {
+        IDToken * t = $1;
+		    $$ = new IDNode(t,false,true);
 		  }
 
 id		: ID
 		  {
-		  $$ = new IDNode($1);
+        size_t tLine = $1->line();
+        size_t tCol = $1->col();
+        IDToken * t = $1;
+		    $$ = new IDNode(t,false,false);
 		  }
-	
+
 %%
 
 void holeyc::Parser::error(const std::string& msg){

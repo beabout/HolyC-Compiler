@@ -1,4 +1,10 @@
 int a; 
-int fn(){
+int fn(int num){
   a = a + 2;
+  Fib();
+  Fib(7+9, var, my_param);
+}
+
+int main() {
+  fn(4+42*4);
 }

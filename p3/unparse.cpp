@@ -56,4 +56,47 @@ void IntTypeNode::unparse(std::ostream& out, int indent){
 	out << "int";
 }
 
+// type id ( formalsList ) { stmtList }
+void FnDeclNode::unparse(std::ostream& out, int indent){
+	this->myType->unparse(out,0);
+	out << " ";
+	this->myId->unparse(out,0);
+	out << "(";
+
+  std::list<VarDeclNode*>::iterator it;
+  std::list<StmtNode *>::iterator it2;
+  for(it = this->formalDeclNodes->begin(); it != this->formalDeclNodes->end(); ++it){
+		(*it)->unparse(out, 0);
+	}
+  out << "){";
+  for (it2 = this->stmtNodes->begin(); it2 != this->stmtNodes->end(); ++it2){
+    (*it2)->unparse(out, 0);
+  }
+  out << "}\n";
+}
+
+// void formalDeclNode::unparse(std::ostream &out, int indent)
+// {
+
+// }
+
+void BoolTypeNode::unparse(std::ostream &out, int indent)
+{
+  out << "bool";
+}
+
+void CharTypeNode::unparse(std::ostream& out, int indent){
+  out << "char";
+}
+
+void VoidTypeNode::unparse(std::ostream& out, int indent){
+  out << "void";
+}
+
+void NestedExpNode::unparse(std::ostream &out, int indent){
+  out << "(";
+  this->myExp->unparse();
+  out << ")";
+}
+
 } // End namespace holeyc

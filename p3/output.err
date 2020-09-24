@@ -1,0 +1,35 @@
+holeyc.yy:453.9-10: error: $$ of ‘term’ has no declared type
+  453 |         $$ = new NullPtrNode($1);
+      |         ^~
+holeyc.yy:457.9-10: error: $$ of ‘term’ has no declared type
+  457 |         $$ = new IntLitNode($1);
+      |         ^~
+holeyc.yy:461.9-10: error: $$ of ‘term’ has no declared type
+  461 |         $$ = new StrLitNode($1);
+      |         ^~
+holeyc.yy:465.9-10: error: $$ of ‘term’ has no declared type
+  465 |         $$ = new CharLitNode($1);
+      |         ^~
+holeyc.yy:469.9-10: error: $$ of ‘term’ has no declared type
+  469 |         $$ = new TrueNode($1->line(), $1->col(), true);
+      |         ^~
+holeyc.yy:473.9-10: error: $$ of ‘term’ has no declared type
+  473 |         $$ = new FalseNode($1->line(),$1->col(), false);
+      |         ^~
+holeyc.yy:482.9-10: error: $$ of ‘lval’ has no declared type
+  482 |         $$ = $1;
+      |         ^~
+holeyc.yy:490.9-10: error: $$ of ‘lval’ has no declared type
+  490 |         $$ = $1;
+      |         ^~
+holeyc.yy:493.21-22: error: $$ of ‘lval’ has no declared type
+  493 | 		    $$ = new IDNode(t,true,false);
+      |                     ^~
+holeyc.yy:498.21-22: error: $$ of ‘lval’ has no declared type
+  498 | 		    $$ = new IDNode(t,false,true);
+      |                     ^~
+holeyc.yy:157.10: warning: empty rule for typed nonterminal, and no action [-Wother]
+  157 | globals : /* epsilon*/
+      |          ^
+make[1]: *** [parser.cc] Error 1
+make: *** [all] Error 2
