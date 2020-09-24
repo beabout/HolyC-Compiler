@@ -1,2 +1,9 @@
 int a; intptr b; bool c; boolptr d; char e; charptr f; void g;
-int b = 3;
+
+int main(int argc, charptr argv)
+{
+  while(true)
+  {
+    a++;
+  }
+}

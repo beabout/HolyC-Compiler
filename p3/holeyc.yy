@@ -60,26 +60,28 @@ TODO: You will have to add to this list to
 create new translation value types
 */
 %union {
-   holeyc::Token *                     transToken;
-   holeyc::IDToken *                   transIDToken;
-   holeyc::StrToken *                  transStrToken;
-   holeyc::CharLitToken *              transCharToken;
-   holeyc::IntLitToken *               transIntToken;
-   holeyc::ProgramNode *               transProgram;
-   std::list<holeyc::DeclNode *> *     transDeclList;
-   holeyc::DeclNode *                  transDecl;
-   holeyc::VarDeclNode *               transVarDecl;
-   holeyc::FnDeclNode *                transFnDecl;
-   holeyc::TypeNode *                  transType;
-   holeyc::IDNode *                    transID;     
-   holeyc::ExpNode *                   transExp;
-   std::list<holeyc::StmtNode *> *     transStmtList;
-   holeyc::StmtNode *                  transStmt;
-   std::list<holeyc::VarDeclNode *> *  transVarDeclList;
-   holeyc::LValNode *                  transLVal;
-   holeyc::CallExpNode *               transCallExp;
-   std::list<holeyc::ExpNode *> *      transExpList;
-   holeyc::AssignExpNode *             transAssignExp;
+   holeyc::Token *                      transToken;
+   holeyc::IDToken *                    transIDToken;
+   holeyc::StrToken *                   transStrToken;
+   holeyc::CharLitToken *               transCharToken;
+   holeyc::IntLitToken *                transIntToken;
+   holeyc::ProgramNode *                transProgram;
+   std::list<holeyc::DeclNode *> *      transDeclList;
+   holeyc::DeclNode *                   transDecl;
+   holeyc::VarDeclNode *                transVarDecl;
+   holeyc::FnDeclNode *                 transFnDecl;
+   holeyc::TypeNode *                   transType;
+   holeyc::IDNode *                     transID;     
+   holeyc::ExpNode *                    transExp;
+   std::list<holeyc::StmtNode *> *      transStmtList;
+   holeyc::StmtNode *                   transStmt;
+   std::list<holeyc::VarDeclNode *> *   transVarDeclList;
+   holeyc::LValNode *                   transLVal;
+   holeyc::CallExpNode *                transCallExp;
+   std::list<holeyc::ExpNode *> *       transExpList;
+   holeyc::AssignExpNode *              transAssignExp;
+   holeyc::FormalVarDeclListNode *      transFormalVarDeclList;
+
 }
 
 %define parse.assert
@@ -142,26 +144,26 @@ create new translation value types
 *  the names defined in the %union directive above
 */
 /*    (attribute type)    (nonterminal)    */
-%type <transProgram>      program
-%type <transDeclList>     globals
-%type <transDecl>         decl
-%type <transVarDecl>      varDecl
-%type <transFnDecl>       fnDecl
-%type <transType>         type
-%type <transID>           id
-%type <transExp>          term
-%type <transExp>          exp
-%type <transStmtList>     fnBody
-%type <transVarDeclList>  formals
-%type <transVarDeclList>  formalsList
-%type <transVarDecl>      formalDecl
-%type <transLVal>          lval
-%type <transStmt>         stmt
-%type <transStmtList>     stmtList
-%type <transAssignExp>    assignExp
-%type <transCallExp>      callExp
-%type <transExpList>      expList
-// %type <transSomething>    actualsList
+%type <transProgram>           program
+%type <transDeclList>          globals
+%type <transDecl>              decl
+%type <transVarDecl>           varDecl
+%type <transFnDecl>            fnDecl
+%type <transType>              type
+%type <transID>                id
+%type <transExp>               term
+%type <transExp>               exp
+%type <transStmtList>          fnBody
+%type <transFormalVarDeclList> formals
+%type <transFormalVarDeclList> formalsList
+%type <transVarDecl>           formalDecl
+%type <transLVal>              lval
+%type <transStmt>              stmt
+%type <transStmtList>          stmtList
+%type <transAssignExp>         assignExp
+%type <transCallExp>           callExp
+// %type <transExpList>           expList
+%type <transExpList>           actualsList 
 
 // Really just making SDT for nonterminals to generate AST
 
@@ -212,7 +214,7 @@ varDecl 	: type id
 		  { 
         size_t typeLine = $1->line();
         size_t typeCol = $1->col();
-        $$ = new VarDeclNode(typeLine, typeCol, $1, $2);
+        $$ = new VarDeclNode(typeLine, typeCol, $1, $2, false, false);
 		  }
 
 type : INT
@@ -254,33 +256,32 @@ fnDecl 		: type id formals fnBody
 
 formals 	: LPAREN RPAREN
 		  { 
-			  $$ = new std::list<VarDeclNode*>(); // ERRORS
+			  $$ = new FormalVarDeclListNode($1->line(), $1->col(), new std::list<VarDeclNode *>());
 		  }
 		| LPAREN formalsList RPAREN
 		  { 
 			  $$ = $2;
 		  }
 
-
 formalsList	: formalDecl
 		  { 
-			  std::list<VarDeclNode*>* result = new std::list<VarDeclNode*>();
-			  result->push_back($1);
+        std::list<VarDeclNode *>* list = new std::list<VarDeclNode *>();  
+        list->push_back($1);
+        FormalVarDeclListNode* result = new FormalVarDeclListNode(0,0, list);
 			  $$ = result;
 		  }
-		| formalDecl COMMA formalsList 
+		  |   formalsList COMMA formalDecl
 		  { 
-			  std::list<VarDeclNode*>* result = new std::list<VarDeclNode*>();
-			  result->merge($1);
-			  result->merge($3);
-			  $$ = result;
+        //$3 // we can assume is already a std::list<FormalVarDeclNode*>*
+        $1->myVarDecls->push_back($3);
+        $$ = $1;
 		  }
 
 formalDecl 	: type id
 		  { 
         size_t tLine = $1->line();
         size_t tCol = $1->col();
-        $$ = new VarDeclNode(tLine, tCol, $1, $2);
+        $$ = new VarDeclNode(tLine, tCol, $1, $2, true, false);
 		  }
 
 fnBody		: LCURLY stmtList RCURLY
@@ -292,12 +293,9 @@ stmtList 	: /* epsilon */
 		  { 
 			  $$ = new std::list<StmtNode *>();
 		  }
-		| stmtList stmt
+		  | stmtList stmt
 		  {
-        StmtNode * stmt = $2;
-        std::list<StmtNode*>* lst = new std::list<StmtNode*>();
-        lst->push_back(stmt);
-			  $1->merge(lst);
+			  $1->push_back($2);
 			  $$ = $1;
 		   }
 
@@ -443,25 +441,22 @@ callExp		: id LPAREN RPAREN
         std::list<ExpNode*>* emptylist = new std::list<ExpNode*>();
         $$ = new CallExpNode($1, emptylist);
       }
-		// | id LPAREN actualsList RPAREN
-		//   { 
-		// 	  $$ = new CallExpNode($1, $3) // $1 -> id, $3 -> list of expressions 
-    //   }
+		  | id LPAREN actualsList RPAREN
+		  { 
+			  $$ = new CallExpNode($1, $3); // $1 -> id, $3 -> std::list<ExpNode* >*
+      }
 
-// actualsList	: exp
-// 		  { 
-// 			  std::list<ExpNode*>* result = new std::list<ExpNode*>();
-// 			  result.push_back($1);
-// 			  $$ = result;
-//       }
-// 		| actualsList COMMA exp
-// 		  { 
-//         // list magic 
-// 			  std::list<ExpNode*>* result = new std::list<ExpNode*>();
-// 			  result.push_back($1);
-// 			  $1->merge(result);
-// 			  $$ = $1;
-//       }
+actualsList	: exp
+		  { 
+			  std::list<ExpNode*>* result = new std::list<ExpNode*>();
+			  result->push_back($1);
+			  $$ = result;
+      }
+		| actualsList COMMA exp
+		  { 
+        $1->push_back($3);
+        $$ = $1;
+      }
 
 term : lval
       { 

@@ -211,28 +211,30 @@ namespace holeyc {
     {
 #line 62 "holeyc.yy"
 
-   holeyc::Token *                     transToken;
-   holeyc::IDToken *                   transIDToken;
-   holeyc::StrToken *                  transStrToken;
-   holeyc::CharLitToken *              transCharToken;
-   holeyc::IntLitToken *               transIntToken;
-   holeyc::ProgramNode *               transProgram;
-   std::list<holeyc::DeclNode *> *     transDeclList;
-   holeyc::DeclNode *                  transDecl;
-   holeyc::VarDeclNode *               transVarDecl;
-   holeyc::FnDeclNode *                transFnDecl;
-   holeyc::TypeNode *                  transType;
-   holeyc::IDNode *                    transID;     
-   holeyc::ExpNode *                   transExp;
-   std::list<holeyc::StmtNode *> *     transStmtList;
-   holeyc::StmtNode *                  transStmt;
-   std::list<holeyc::VarDeclNode *> *  transVarDeclList;
-   holeyc::LValNode *                  transLVal;
-   holeyc::CallExpNode *               transCallExp;
-   std::list<holeyc::ExpNode *> *      transExpList;
-   holeyc::AssignExpNode *             transAssignExp;
+   holeyc::Token *                      transToken;
+   holeyc::IDToken *                    transIDToken;
+   holeyc::StrToken *                   transStrToken;
+   holeyc::CharLitToken *               transCharToken;
+   holeyc::IntLitToken *                transIntToken;
+   holeyc::ProgramNode *                transProgram;
+   std::list<holeyc::DeclNode *> *      transDeclList;
+   holeyc::DeclNode *                   transDecl;
+   holeyc::VarDeclNode *                transVarDecl;
+   holeyc::FnDeclNode *                 transFnDecl;
+   holeyc::TypeNode *                   transType;
+   holeyc::IDNode *                     transID;     
+   holeyc::ExpNode *                    transExp;
+   std::list<holeyc::StmtNode *> *      transStmtList;
+   holeyc::StmtNode *                   transStmt;
+   std::list<holeyc::VarDeclNode *> *   transVarDeclList;
+   holeyc::LValNode *                   transLVal;
+   holeyc::CallExpNode *                transCallExp;
+   std::list<holeyc::ExpNode *> *       transExpList;
+   holeyc::AssignExpNode *              transAssignExp;
+   holeyc::FormalVarDeclListNode *      transFormalVarDeclList;
 
-#line 236 "grammar.hh"
+
+#line 238 "grammar.hh"
 
     };
 #else
@@ -391,9 +393,10 @@ namespace holeyc {
         S_exp = 62,                              // exp
         S_assignExp = 63,                        // assignExp
         S_callExp = 64,                          // callExp
-        S_term = 65,                             // term
-        S_lval = 66,                             // lval
-        S_id = 67                                // id
+        S_actualsList = 65,                      // actualsList
+        S_term = 66,                             // term
+        S_lval = 67,                             // lval
+        S_id = 68                                // id
       };
     };
 
@@ -639,7 +642,7 @@ namespace holeyc {
     static const signed char yydefact_[];
 
     // YYPGOTO[NTERM-NUM].
-    static const signed char yypgoto_[];
+    static const short yypgoto_[];
 
     // YYDEFGOTO[NTERM-NUM].
     static const signed char yydefgoto_[];
@@ -649,7 +652,7 @@ namespace holeyc {
     // number is the opposite.  If YYTABLE_NINF, syntax error.
     static const short yytable_[];
 
-    static const signed char yycheck_[];
+    static const short yycheck_[];
 
     // YYSTOS[STATE-NUM] -- The (internal number of the) accessing
     // symbol of state STATE-NUM.
@@ -891,8 +894,8 @@ namespace holeyc {
     /// Constants.
     enum
     {
-      yylast_ = 473,     ///< Last index in yytable_.
-      yynnts_ = 19,  ///< Number of nonterminal symbols.
+      yylast_ = 518,     ///< Last index in yytable_.
+      yynnts_ = 20,  ///< Number of nonterminal symbols.
       yyfinal_ = 3 ///< Termination state number.
     };
 
@@ -906,7 +909,7 @@ namespace holeyc {
 
 #line 5 "holeyc.yy"
 } // holeyc
-#line 910 "grammar.hh"
+#line 913 "grammar.hh"
 
 
 

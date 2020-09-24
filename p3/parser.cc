@@ -583,7 +583,7 @@ namespace holeyc {
           switch (yyn)
             {
   case 2: // program: globals
-#line 180 "holeyc.yy"
+#line 182 "holeyc.yy"
                   {
 		  (yylhs.value.transProgram) = new ProgramNode((yystack_[0].value.transDeclList));
 		  *root = (yylhs.value.transProgram);
@@ -592,7 +592,7 @@ namespace holeyc {
     break;
 
   case 3: // globals: globals decl
-#line 186 "holeyc.yy"
+#line 188 "holeyc.yy"
                   {
         (yylhs.value.transDeclList) = (yystack_[1].value.transDeclList);
         DeclNode * aGlobalDecl = (yystack_[0].value.transDecl);
@@ -602,7 +602,7 @@ namespace holeyc {
     break;
 
   case 4: // globals: %empty
-#line 192 "holeyc.yy"
+#line 194 "holeyc.yy"
                   {
         std::list<DeclNode *> * startingGlobals;
         startingGlobals = new std::list<DeclNode *>();
@@ -612,7 +612,7 @@ namespace holeyc {
     break;
 
   case 5: // decl: varDecl SEMICOLON
-#line 199 "holeyc.yy"
+#line 201 "holeyc.yy"
                   {
         //TODO: Make sure to fill out this rule
         // (as well as any other empty rule!)
@@ -622,7 +622,7 @@ namespace holeyc {
     break;
 
   case 6: // decl: fnDecl
-#line 205 "holeyc.yy"
+#line 207 "holeyc.yy"
                   { 
         //size_t tLine = $1->line;
         // size_t tCol = $1->col;
@@ -632,17 +632,17 @@ namespace holeyc {
     break;
 
   case 7: // varDecl: type id
-#line 212 "holeyc.yy"
+#line 214 "holeyc.yy"
                   { 
         size_t typeLine = (yystack_[1].value.transType)->line();
         size_t typeCol = (yystack_[1].value.transType)->col();
-        (yylhs.value.transVarDecl) = new VarDeclNode(typeLine, typeCol, (yystack_[1].value.transType), (yystack_[0].value.transID));
+        (yylhs.value.transVarDecl) = new VarDeclNode(typeLine, typeCol, (yystack_[1].value.transType), (yystack_[0].value.transID), false, false);
 		  }
 #line 642 "parser.cc"
     break;
 
   case 8: // type: INT
-#line 219 "holeyc.yy"
+#line 221 "holeyc.yy"
                   {
         // the third parameter marks whether the type is a pointer type or not.
         (yylhs.value.transType) = new IntTypeNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col(), false); 
@@ -651,7 +651,7 @@ namespace holeyc {
     break;
 
   case 9: // type: INTPTR
-#line 224 "holeyc.yy"
+#line 226 "holeyc.yy"
                   { 
         (yylhs.value.transType) = new IntTypeNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col(), true); 
       }
@@ -659,7 +659,7 @@ namespace holeyc {
     break;
 
   case 10: // type: BOOL
-#line 228 "holeyc.yy"
+#line 230 "holeyc.yy"
                   { 
         (yylhs.value.transType) = new BoolTypeNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col(), false); 
       }
@@ -667,7 +667,7 @@ namespace holeyc {
     break;
 
   case 11: // type: BOOLPTR
-#line 232 "holeyc.yy"
+#line 234 "holeyc.yy"
                   { 
         (yylhs.value.transType) = new BoolTypeNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col(), true); 
       }
@@ -675,7 +675,7 @@ namespace holeyc {
     break;
 
   case 12: // type: CHAR
-#line 236 "holeyc.yy"
+#line 238 "holeyc.yy"
                   { 
         (yylhs.value.transType) = new CharTypeNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col(), false); 
       }
@@ -683,7 +683,7 @@ namespace holeyc {
     break;
 
   case 13: // type: CHARPTR
-#line 240 "holeyc.yy"
+#line 242 "holeyc.yy"
                   { 
         (yylhs.value.transType) = new CharTypeNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col(), true); 
       }
@@ -691,7 +691,7 @@ namespace holeyc {
     break;
 
   case 14: // type: VOID
-#line 244 "holeyc.yy"
+#line 246 "holeyc.yy"
                   { 
         (yylhs.value.transType) = new VoidTypeNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col(), false); 
       }
@@ -699,64 +699,64 @@ namespace holeyc {
     break;
 
   case 15: // fnDecl: type id formals fnBody
-#line 249 "holeyc.yy"
+#line 251 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[3].value.transType)->line();
         size_t tCol = (yystack_[3].value.transType)->col();
-        (yylhs.value.transFnDecl) = new FnDeclNode(tLine, tCol, (yystack_[3].value.transType), (yystack_[2].value.transID), (yystack_[1].value.transVarDeclList), (yystack_[0].value.transStmtList));
+        (yylhs.value.transFnDecl) = new FnDeclNode(tLine, tCol, (yystack_[3].value.transType), (yystack_[2].value.transID), (yystack_[1].value.transFormalVarDeclList), (yystack_[0].value.transStmtList));
       }
 #line 709 "parser.cc"
     break;
 
   case 16: // formals: LPAREN RPAREN
-#line 256 "holeyc.yy"
+#line 258 "holeyc.yy"
                   { 
-			  (yylhs.value.transVarDeclList) = new std::list<VarDeclNode*>(); // ERRORS
+			  (yylhs.value.transFormalVarDeclList) = new FormalVarDeclListNode((yystack_[1].value.transToken)->line(), (yystack_[1].value.transToken)->col(), new std::list<VarDeclNode *>());
 		  }
 #line 717 "parser.cc"
     break;
 
   case 17: // formals: LPAREN formalsList RPAREN
-#line 260 "holeyc.yy"
+#line 262 "holeyc.yy"
                   { 
-			  (yylhs.value.transVarDeclList) = (yystack_[1].value.transVarDeclList);
+			  (yylhs.value.transFormalVarDeclList) = (yystack_[1].value.transFormalVarDeclList);
 		  }
 #line 725 "parser.cc"
     break;
 
   case 18: // formalsList: formalDecl
-#line 266 "holeyc.yy"
+#line 267 "holeyc.yy"
                   { 
-			  std::list<VarDeclNode*>* result = new std::list<VarDeclNode*>();
-			  result->push_back((yystack_[0].value.transVarDecl));
-			  (yylhs.value.transVarDeclList) = result;
+        std::list<VarDeclNode *>* list = new std::list<VarDeclNode *>();  
+        list->push_back((yystack_[0].value.transVarDecl));
+        FormalVarDeclListNode* result = new FormalVarDeclListNode(0,0, list);
+			  (yylhs.value.transFormalVarDeclList) = result;
 		  }
-#line 735 "parser.cc"
+#line 736 "parser.cc"
     break;
 
-  case 19: // formalsList: formalDecl COMMA formalsList
-#line 272 "holeyc.yy"
+  case 19: // formalsList: formalsList COMMA formalDecl
+#line 274 "holeyc.yy"
                   { 
-			  std::list<VarDeclNode*>* result = new std::list<VarDeclNode*>();
-			  result->merge((yystack_[2].value.transVarDecl));
-			  result->merge((yystack_[0].value.transVarDeclList));
-			  (yylhs.value.transVarDeclList) = result;
+        //$3 // we can assume is already a std::list<FormalVarDeclNode*>*
+        (yystack_[2].value.transFormalVarDeclList)->myVarDecls->push_back((yystack_[0].value.transVarDecl));
+        (yylhs.value.transFormalVarDeclList) = (yystack_[2].value.transFormalVarDeclList);
 		  }
 #line 746 "parser.cc"
     break;
 
   case 20: // formalDecl: type id
-#line 280 "holeyc.yy"
+#line 281 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[1].value.transType)->line();
         size_t tCol = (yystack_[1].value.transType)->col();
-        (yylhs.value.transVarDecl) = new VarDeclNode(tLine, tCol, (yystack_[1].value.transType), (yystack_[0].value.transID));
+        (yylhs.value.transVarDecl) = new VarDeclNode(tLine, tCol, (yystack_[1].value.transType), (yystack_[0].value.transID), true, false);
 		  }
 #line 756 "parser.cc"
     break;
 
   case 21: // fnBody: LCURLY stmtList RCURLY
-#line 287 "holeyc.yy"
+#line 288 "holeyc.yy"
                   { 
 			  (yylhs.value.transStmtList) = (yystack_[1].value.transStmtList);
 		  }
@@ -764,7 +764,7 @@ namespace holeyc {
     break;
 
   case 22: // stmtList: %empty
-#line 292 "holeyc.yy"
+#line 293 "holeyc.yy"
                   { 
 			  (yylhs.value.transStmtList) = new std::list<StmtNode *>();
 		  }
@@ -772,399 +772,423 @@ namespace holeyc {
     break;
 
   case 23: // stmtList: stmtList stmt
-#line 296 "holeyc.yy"
+#line 297 "holeyc.yy"
                   {
-        StmtNode * stmt = (yystack_[0].value.transStmt);
-        std::list<StmtNode*>* lst = new std::list<StmtNode*>();
-        lst->push_back(stmt);
-			  (yystack_[1].value.transStmtList)->merge(lst);
+			  (yystack_[1].value.transStmtList)->push_back((yystack_[0].value.transStmt));
 			  (yylhs.value.transStmtList) = (yystack_[1].value.transStmtList);
 		   }
-#line 784 "parser.cc"
+#line 781 "parser.cc"
     break;
 
   case 24: // stmt: varDecl SEMICOLON
-#line 305 "holeyc.yy"
+#line 303 "holeyc.yy"
                   { 
 			  (yylhs.value.transStmt) = (yystack_[1].value.transVarDecl);
 		  }
-#line 792 "parser.cc"
+#line 789 "parser.cc"
     break;
 
   case 25: // stmt: assignExp SEMICOLON
-#line 309 "holeyc.yy"
+#line 307 "holeyc.yy"
                   { 
         AssignStmtNode * assign = new AssignStmtNode((yystack_[1].value.transAssignExp)->line(), (yystack_[1].value.transAssignExp)->col(), (yystack_[1].value.transAssignExp));
 			  (yylhs.value.transStmt) = assign;
 		  }
-#line 801 "parser.cc"
+#line 798 "parser.cc"
     break;
 
   case 26: // stmt: lval DASHDASH SEMICOLON
-#line 314 "holeyc.yy"
+#line 312 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[2].value.transLVal)->line();
         size_t tCol = (yystack_[2].value.transLVal)->col();
 			  (yylhs.value.transStmt) = new PostDecStmtNode(tLine, tCol, (yystack_[2].value.transLVal));
 		  }
-#line 811 "parser.cc"
+#line 808 "parser.cc"
     break;
 
   case 27: // stmt: lval CROSSCROSS SEMICOLON
-#line 320 "holeyc.yy"
+#line 318 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[2].value.transLVal)->line();
         size_t tCol = (yystack_[2].value.transLVal)->col();
 			 (yylhs.value.transStmt) = new PostIncStmtNode(tLine, tCol, (yystack_[2].value.transLVal)); 
 		  }
-#line 821 "parser.cc"
+#line 818 "parser.cc"
     break;
 
   case 28: // stmt: FROMCONSOLE lval SEMICOLON
-#line 326 "holeyc.yy"
+#line 324 "holeyc.yy"
                   { 
 			  (yylhs.value.transStmt) = new FromConsoleStmtNode((yystack_[1].value.transLVal));
 		  }
-#line 829 "parser.cc"
+#line 826 "parser.cc"
     break;
 
   case 29: // stmt: TOCONSOLE exp SEMICOLON
-#line 330 "holeyc.yy"
+#line 328 "holeyc.yy"
                   {
         size_t tLine = (yystack_[2].value.transToken)->line();
         size_t tCol = (yystack_[2].value.transToken)->col();
 			  (yylhs.value.transStmt) = new ToConsoleStmtNode(tLine, tCol, (yystack_[1].value.transExp));
 			}
-#line 839 "parser.cc"
+#line 836 "parser.cc"
     break;
 
   case 30: // stmt: IF LPAREN exp RPAREN LCURLY stmtList RCURLY
-#line 336 "holeyc.yy"
+#line 334 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[4].value.transExp)->line();
         size_t tCol = (yystack_[4].value.transExp)->col();
 			  (yylhs.value.transStmt) = new IfStmtNode(tLine, tCol, (yystack_[4].value.transExp), (yystack_[1].value.transStmtList));
 		  }
-#line 849 "parser.cc"
+#line 846 "parser.cc"
     break;
 
   case 31: // stmt: IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
-#line 342 "holeyc.yy"
+#line 340 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[8].value.transExp)->line();
         size_t tCol = (yystack_[8].value.transExp)->col();
 			  (yylhs.value.transStmt) = new IfElseStmtNode(tLine, tCol, (yystack_[8].value.transExp), (yystack_[5].value.transStmtList), (yystack_[1].value.transStmtList));
 		  }
-#line 859 "parser.cc"
+#line 856 "parser.cc"
     break;
 
   case 32: // stmt: WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
-#line 348 "holeyc.yy"
+#line 346 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[4].value.transExp)->line();
         size_t tCol = (yystack_[4].value.transExp)->col();
         (yylhs.value.transStmt) = new WhileStmtNode(tLine, tCol, (yystack_[4].value.transExp), (yystack_[1].value.transStmtList));
       }
-#line 869 "parser.cc"
+#line 866 "parser.cc"
     break;
 
   case 33: // stmt: RETURN exp SEMICOLON
-#line 354 "holeyc.yy"
+#line 352 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[1].value.transExp)->line();
         size_t tCol = (yystack_[1].value.transExp)->col();
 			  (yylhs.value.transStmt) = new ReturnStmtNode(tLine, tCol, (yystack_[1].value.transExp));
       }
-#line 879 "parser.cc"
+#line 876 "parser.cc"
     break;
 
   case 34: // stmt: RETURN SEMICOLON
-#line 360 "holeyc.yy"
+#line 358 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[1].value.transToken)->line();
         size_t tCol = (yystack_[1].value.transToken)->col();
         (yylhs.value.transStmt) = new ReturnStmtNode(tLine, tCol, nullptr);
       }
-#line 889 "parser.cc"
+#line 886 "parser.cc"
     break;
 
   case 35: // stmt: callExp SEMICOLON
-#line 366 "holeyc.yy"
+#line 364 "holeyc.yy"
                   { 
         CallStmtNode * call = new CallStmtNode((yystack_[1].value.transCallExp)->line(), (yystack_[1].value.transCallExp)->col(), (yystack_[1].value.transCallExp));
         (yylhs.value.transStmt) = call;
       }
-#line 898 "parser.cc"
+#line 895 "parser.cc"
     break;
 
   case 36: // exp: assignExp
-#line 372 "holeyc.yy"
+#line 370 "holeyc.yy"
                   { 
 			  (yylhs.value.transExp) = (yystack_[0].value.transAssignExp);
 		  }
-#line 906 "parser.cc"
+#line 903 "parser.cc"
     break;
 
   case 37: // exp: exp DASH exp
-#line 376 "holeyc.yy"
+#line 374 "holeyc.yy"
                   { 
 			  (yylhs.value.transExp) = new MinusNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
 		  }
-#line 914 "parser.cc"
+#line 911 "parser.cc"
     break;
 
   case 38: // exp: exp CROSS exp
-#line 380 "holeyc.yy"
+#line 378 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new PlusNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 922 "parser.cc"
+#line 919 "parser.cc"
     break;
 
   case 39: // exp: exp STAR exp
-#line 384 "holeyc.yy"
+#line 382 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new TimesNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 930 "parser.cc"
+#line 927 "parser.cc"
     break;
 
   case 40: // exp: exp SLASH exp
-#line 388 "holeyc.yy"
+#line 386 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new DivideNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 938 "parser.cc"
+#line 935 "parser.cc"
     break;
 
   case 41: // exp: exp AND exp
-#line 392 "holeyc.yy"
+#line 390 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new AndNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 946 "parser.cc"
+#line 943 "parser.cc"
     break;
 
   case 42: // exp: exp OR exp
-#line 396 "holeyc.yy"
+#line 394 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new OrNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 954 "parser.cc"
+#line 951 "parser.cc"
     break;
 
   case 43: // exp: exp EQUALS exp
-#line 400 "holeyc.yy"
+#line 398 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new EqualsNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 962 "parser.cc"
+#line 959 "parser.cc"
     break;
 
   case 44: // exp: exp NOTEQUALS exp
-#line 404 "holeyc.yy"
+#line 402 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new NotEqualsNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 970 "parser.cc"
+#line 967 "parser.cc"
     break;
 
   case 45: // exp: exp GREATER exp
-#line 408 "holeyc.yy"
+#line 406 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new GreaterNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 978 "parser.cc"
+#line 975 "parser.cc"
     break;
 
   case 46: // exp: exp GREATEREQ exp
-#line 412 "holeyc.yy"
+#line 410 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new GreaterEqNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 986 "parser.cc"
+#line 983 "parser.cc"
     break;
 
   case 47: // exp: exp LESS exp
-#line 416 "holeyc.yy"
+#line 414 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new LessNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 994 "parser.cc"
+#line 991 "parser.cc"
     break;
 
   case 48: // exp: exp LESSEQ exp
-#line 420 "holeyc.yy"
+#line 418 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new LessEqNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 1002 "parser.cc"
+#line 999 "parser.cc"
     break;
 
   case 49: // exp: NOT exp
-#line 424 "holeyc.yy"
+#line 422 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new NotNode((yystack_[0].value.transExp));
       }
-#line 1010 "parser.cc"
+#line 1007 "parser.cc"
     break;
 
   case 50: // exp: DASH term
-#line 428 "holeyc.yy"
+#line 426 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new NegNode((yystack_[0].value.transExp));
       }
-#line 1018 "parser.cc"
+#line 1015 "parser.cc"
     break;
 
   case 51: // exp: term
-#line 432 "holeyc.yy"
+#line 430 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = (yystack_[0].value.transExp);
       }
-#line 1026 "parser.cc"
+#line 1023 "parser.cc"
     break;
 
   case 52: // assignExp: lval ASSIGN exp
-#line 437 "holeyc.yy"
+#line 435 "holeyc.yy"
                   { 
         (yylhs.value.transAssignExp) = new AssignExpNode((yystack_[2].value.transLVal)->line(), (yystack_[2].value.transLVal)->col(), (yystack_[2].value.transLVal), (yystack_[0].value.transExp));
       }
-#line 1034 "parser.cc"
+#line 1031 "parser.cc"
     break;
 
   case 53: // callExp: id LPAREN RPAREN
-#line 442 "holeyc.yy"
+#line 440 "holeyc.yy"
                   { 
         std::list<ExpNode*>* emptylist = new std::list<ExpNode*>();
         (yylhs.value.transCallExp) = new CallExpNode((yystack_[2].value.transID), emptylist);
       }
-#line 1043 "parser.cc"
+#line 1040 "parser.cc"
     break;
 
-  case 54: // term: lval
-#line 467 "holeyc.yy"
+  case 54: // callExp: id LPAREN actualsList RPAREN
+#line 445 "holeyc.yy"
+                  { 
+			  (yylhs.value.transCallExp) = new CallExpNode((yystack_[3].value.transID), (yystack_[1].value.transExpList)); // $1 -> id, $3 -> std::list<ExpNode* >*
+      }
+#line 1048 "parser.cc"
+    break;
+
+  case 55: // actualsList: exp
+#line 450 "holeyc.yy"
+                  { 
+			  std::list<ExpNode*>* result = new std::list<ExpNode*>();
+			  result->push_back((yystack_[0].value.transExp));
+			  (yylhs.value.transExpList) = result;
+      }
+#line 1058 "parser.cc"
+    break;
+
+  case 56: // actualsList: actualsList COMMA exp
+#line 456 "holeyc.yy"
+                  { 
+        (yystack_[2].value.transExpList)->push_back((yystack_[0].value.transExp));
+        (yylhs.value.transExpList) = (yystack_[2].value.transExpList);
+      }
+#line 1067 "parser.cc"
+    break;
+
+  case 57: // term: lval
+#line 462 "holeyc.yy"
       { 
         (yylhs.value.transExp) = (yystack_[0].value.transLVal);
       }
-#line 1051 "parser.cc"
+#line 1075 "parser.cc"
     break;
 
-  case 55: // term: callExp
-#line 471 "holeyc.yy"
+  case 58: // term: callExp
+#line 466 "holeyc.yy"
       { 
         (yylhs.value.transExp) = (yystack_[0].value.transCallExp);
       }
-#line 1059 "parser.cc"
+#line 1083 "parser.cc"
     break;
 
-  case 56: // term: NULLPTR
-#line 476 "holeyc.yy"
+  case 59: // term: NULLPTR
+#line 471 "holeyc.yy"
                   { 
         Token * t = (yystack_[0].value.transToken);
         (yylhs.value.transExp) = new NullPtrNode(t->line(),t->col());
       }
-#line 1068 "parser.cc"
+#line 1092 "parser.cc"
     break;
 
-  case 57: // term: INTLITERAL
-#line 481 "holeyc.yy"
+  case 60: // term: INTLITERAL
+#line 476 "holeyc.yy"
                   { 
         IntLitToken * t = (yystack_[0].value.transIntToken);
         (yylhs.value.transExp) = new IntLitNode(t);
       }
-#line 1077 "parser.cc"
+#line 1101 "parser.cc"
     break;
 
-  case 58: // term: STRLITERAL
-#line 486 "holeyc.yy"
+  case 61: // term: STRLITERAL
+#line 481 "holeyc.yy"
                   { 
         StrToken * t = (yystack_[0].value.transStrToken);
         (yylhs.value.transExp) = new StrLitNode(t);
       }
-#line 1086 "parser.cc"
+#line 1110 "parser.cc"
     break;
 
-  case 59: // term: CHARLIT
-#line 491 "holeyc.yy"
+  case 62: // term: CHARLIT
+#line 486 "holeyc.yy"
                   { 
         CharLitToken * t = (yystack_[0].value.transCharToken);
         (yylhs.value.transExp) = new CharLitNode(t);
       }
-#line 1095 "parser.cc"
-    break;
-
-  case 60: // term: TRUE
-#line 496 "holeyc.yy"
-                  {         
-        (yylhs.value.transExp) = new TrueNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col());
-      }
-#line 1103 "parser.cc"
-    break;
-
-  case 61: // term: FALSE
-#line 500 "holeyc.yy"
-                  {         
-        (yylhs.value.transExp) = new FalseNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col());
-      }
-#line 1111 "parser.cc"
-    break;
-
-  case 62: // term: LPAREN exp RPAREN
-#line 504 "holeyc.yy"
-                  { 
-        (yylhs.value.transExp) = new NestedExpNode((yystack_[2].value.transToken)->line(),(yystack_[2].value.transToken)->col(), (yystack_[1].value.transExp));
-      }
 #line 1119 "parser.cc"
     break;
 
-  case 63: // lval: id
-#line 509 "holeyc.yy"
-                  {
-        (yylhs.value.transLVal) = (yystack_[0].value.transID);
-		  }
+  case 63: // term: TRUE
+#line 491 "holeyc.yy"
+                  {         
+        (yylhs.value.transExp) = new TrueNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col());
+      }
 #line 1127 "parser.cc"
     break;
 
-  case 64: // lval: id LBRACE exp RBRACE
-#line 513 "holeyc.yy"
-                  {
-			  (yylhs.value.transLVal) = new IndexNode((yystack_[3].value.transID)->line(), (yystack_[3].value.transID)->col(), (yystack_[3].value.transID), (yystack_[1].value.transExp));
-		  }
+  case 64: // term: FALSE
+#line 495 "holeyc.yy"
+                  {         
+        (yylhs.value.transExp) = new FalseNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col());
+      }
 #line 1135 "parser.cc"
     break;
 
-  case 65: // lval: AT id
-#line 517 "holeyc.yy"
+  case 65: // term: LPAREN exp RPAREN
+#line 499 "holeyc.yy"
+                  { 
+        (yylhs.value.transExp) = new NestedExpNode((yystack_[2].value.transToken)->line(),(yystack_[2].value.transToken)->col(), (yystack_[1].value.transExp));
+      }
+#line 1143 "parser.cc"
+    break;
+
+  case 66: // lval: id
+#line 504 "holeyc.yy"
+                  {
+        (yylhs.value.transLVal) = (yystack_[0].value.transID);
+		  }
+#line 1151 "parser.cc"
+    break;
+
+  case 67: // lval: id LBRACE exp RBRACE
+#line 508 "holeyc.yy"
+                  {
+			  (yylhs.value.transLVal) = new IndexNode((yystack_[3].value.transID)->line(), (yystack_[3].value.transID)->col(), (yystack_[3].value.transID), (yystack_[1].value.transExp));
+		  }
+#line 1159 "parser.cc"
+    break;
+
+  case 68: // lval: AT id
+#line 512 "holeyc.yy"
                   {
         (yystack_[0].value.transID)->myIsAt = true;
 		    (yylhs.value.transLVal) = (yystack_[0].value.transID); // $2 here is already an IDNode
 		  }
-#line 1144 "parser.cc"
+#line 1168 "parser.cc"
     break;
 
-  case 66: // lval: CARAT id
-#line 522 "holeyc.yy"
+  case 69: // lval: CARAT id
+#line 517 "holeyc.yy"
                   {
         (yystack_[0].value.transID)->myIsCarat = true;
 		    (yylhs.value.transLVal) = (yystack_[0].value.transID); // How to pass isCarat?
 		  }
-#line 1153 "parser.cc"
+#line 1177 "parser.cc"
     break;
 
-  case 67: // id: ID
-#line 528 "holeyc.yy"
+  case 70: // id: ID
+#line 523 "holeyc.yy"
                   {
         size_t tLine = (yystack_[0].value.transIDToken)->line();
         size_t tCol = (yystack_[0].value.transIDToken)->col();
         IDToken * t = (yystack_[0].value.transIDToken);
 		    (yylhs.value.transID) = new IDNode(t,false,false);
 		  }
-#line 1164 "parser.cc"
+#line 1188 "parser.cc"
     break;
 
 
-#line 1168 "parser.cc"
+#line 1192 "parser.cc"
 
             default:
               break;
@@ -1509,182 +1533,193 @@ namespace holeyc {
   }
 
 
-  const signed char Parser::yypact_ninf_ = -115;
+  const signed char Parser::yypact_ninf_ = -60;
 
   const signed char Parser::yytable_ninf_ = -1;
 
   const short
   Parser::yypact_[] =
   {
-    -115,    16,   112,  -115,  -115,  -115,  -115,  -115,  -115,  -115,
-    -115,  -115,   -38,    -6,  -115,  -115,  -115,   -14,    21,    11,
-    -115,    -6,     2,    45,  -115,  -115,  -115,  -115,   112,    58,
-    -115,    -6,    -6,     3,    28,  -115,   203,   242,    31,    29,
-      -6,  -115,    30,    33,    68,    13,  -115,  -115,    34,    44,
-     242,  -115,   252,  -115,  -115,   242,   242,  -115,  -115,  -115,
-    -115,   276,  -115,  -115,  -115,    71,   296,   242,  -115,  -115,
-    -115,  -115,   242,    36,    46,   242,    48,  -115,   318,  -115,
-    -115,   338,  -115,   242,   242,   242,   242,   242,   242,   242,
-     242,   242,   242,  -115,   242,   242,  -115,   364,   410,  -115,
-    -115,   384,  -115,    56,  -115,    -5,    -8,    -8,   150,   150,
-     150,   150,   150,   150,   430,  -115,  -115,    57,  -115,  -115,
-    -115,   104,   149,    72,  -115,    61,  -115,   194,  -115
+     -60,    15,    64,   -60,   -60,   -60,   -60,   -60,   -60,   -60,
+     -60,   -60,   -38,    14,   -60,   -60,   -60,    10,    21,    16,
+     -60,    14,    -7,   -60,   -60,   -60,   -60,    64,   -60,    70,
+     -60,    14,    14,     3,    11,   -60,   214,   263,    28,    22,
+      14,   -60,    26,    41,   111,   -16,   -60,   -60,    42,    34,
+     263,   -60,   296,   -60,   -60,   263,   263,   -60,   -60,   -60,
+     -60,   319,   -60,   -60,   -60,    75,   341,   263,   -60,   -60,
+     -60,   -60,   263,    43,    45,   263,   253,   -60,   361,   -60,
+     -60,   387,   -60,   263,   263,   263,   263,   263,   263,   263,
+     263,   263,   263,   -60,   263,   263,   -60,   407,   453,   -60,
+     -60,   433,   -60,   453,    -6,    40,   -60,    -5,   -25,   -25,
+     116,   116,   116,   116,   116,   116,   475,   -60,   -60,    59,
+     -60,   263,   -60,   -60,   -60,   453,   115,   160,    77,   -60,
+      67,   -60,   205,   -60
   };
 
   const signed char
   Parser::yydefact_[] =
   {
        4,     0,     2,     1,    10,    11,    12,    13,     8,     9,
-      14,     3,     0,     0,     6,     5,    67,     7,     0,     0,
-      16,     0,     0,    18,    22,    15,    20,    17,     0,     0,
+      14,     3,     0,     0,     6,     5,    70,     7,     0,     0,
+      16,     0,     0,    18,    22,    15,    20,     0,    17,     0,
       19,     0,     0,     0,     0,    21,     0,     0,     0,     0,
-       0,    23,     0,     0,     0,    63,    65,    66,     0,    63,
-       0,    59,     0,    61,    57,     0,     0,    56,    34,    58,
-      60,     0,    36,    55,    51,    54,     0,     0,    24,     7,
+       0,    23,     0,     0,     0,    66,    68,    69,     0,    66,
+       0,    62,     0,    64,    60,     0,     0,    59,    34,    61,
+      63,     0,    36,    58,    51,    57,     0,     0,    24,     7,
       25,    35,     0,     0,     0,     0,     0,    28,     0,    50,
-      54,     0,    49,     0,     0,     0,     0,     0,     0,     0,
+      57,     0,    49,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,    33,     0,     0,    29,     0,    52,    27,
-      26,     0,    53,     0,    62,    41,    38,    37,    43,    45,
-      46,    47,    48,    44,    42,    40,    39,     0,    64,    22,
-      22,     0,     0,    30,    32,     0,    22,     0,    31
+      26,     0,    53,    55,     0,     0,    65,    41,    38,    37,
+      43,    45,    46,    47,    48,    44,    42,    40,    39,     0,
+      67,     0,    54,    22,    22,    56,     0,     0,    30,    32,
+       0,    22,     0,    31
   };
 
-  const signed char
+  const short
   Parser::yypgoto_[] =
   {
-    -115,  -115,  -115,  -115,    89,    15,  -115,  -115,    76,  -115,
-    -115,  -114,  -115,   -36,   -27,   -20,    47,   -29,   101
+     -60,   -60,   -60,   -60,    99,    39,   -60,   -60,   -60,    83,
+     -60,   -59,   -60,   -36,   -27,   -20,   -60,    50,   -29,   144
   };
 
   const signed char
   Parser::yydefgoto_[] =
   {
       -1,     1,     2,    11,    39,    40,    14,    19,    22,    23,
-      25,    29,    41,    61,    62,    63,    64,    65,    45
+      25,    29,    41,    61,    62,    63,   104,    64,    65,    45
   };
 
   const short
   Parser::yytable_[] =
   {
-      44,    66,    42,    15,    48,   121,   122,    31,    84,    43,
-      85,    32,   127,    86,    78,    16,     3,    13,    18,    81,
+      44,    66,    42,    15,    48,    27,   121,    31,    84,    43,
+      85,    32,    75,    86,    78,     3,    76,    94,    95,    81,
       82,    87,    88,    80,    16,    89,    90,     4,     5,    91,
-       6,    97,     7,    21,    94,    95,    98,    94,    95,   101,
-      24,    75,    27,    21,     8,    76,     9,   105,   106,   107,
-     108,   109,   110,   111,   112,   113,   114,    28,   115,   116,
-      50,    20,    31,    67,     4,     5,    32,     6,    10,     7,
-      68,    70,    75,    72,    71,    77,    72,    99,    33,    16,
-      34,     8,    73,     9,    74,   119,   120,   100,   102,   125,
-     126,    12,    44,    44,    42,    42,    35,    36,    44,    79,
-      42,    43,    43,    37,    30,    10,    38,    43,    31,     0,
-       4,     5,    32,     6,    17,     7,     0,     0,     4,     5,
-       0,     6,    26,     7,    33,    16,    34,     8,     0,     9,
-       0,     0,    46,    47,    49,     8,     0,     9,     0,     0,
-       0,    69,   123,    36,     0,     0,     0,     0,     0,    37,
-       0,    10,    38,    31,     0,     4,     5,    32,     6,    10,
-       7,     0,     0,    84,     0,    85,     0,     0,    -1,    33,
-      16,    34,     8,     0,     9,     0,    -1,    -1,     0,     0,
-      -1,    -1,     0,     0,    -1,     0,     0,   124,    36,     0,
-       0,     0,    94,    95,    37,     0,    10,    38,    31,     0,
-       4,     5,    32,     6,     0,     7,     0,    31,     0,     0,
-       0,    32,     0,    51,    33,    16,    34,     8,    52,     9,
-       0,     0,    53,     0,    16,     0,     0,    54,     0,     0,
-       0,     0,   128,    36,     0,    55,    56,     0,    57,    37,
-       0,    10,    38,     0,    58,     0,    31,    59,     0,    60,
-      32,     0,    51,     0,     0,     0,    31,    52,     0,     0,
-      32,    53,    51,    16,     0,     0,    54,     0,     0,     0,
-       0,    53,     0,    16,    55,    56,    54,    57,     0,    83,
-       0,     0,     0,     0,    55,     0,    59,    57,    60,    84,
-       0,    85,     0,     0,    86,     0,    59,     0,    60,    83,
-       0,     0,    87,    88,     0,     0,    89,    90,     0,    84,
-      91,    85,    92,     0,    86,     0,     0,    93,    94,    95,
-       0,    83,    87,    88,     0,     0,    89,    90,     0,     0,
-      91,    84,    92,    85,     0,     0,    86,    96,    94,    95,
-       0,    83,     0,     0,    87,    88,     0,     0,    89,    90,
-       0,    84,    91,    85,    92,     0,    86,     0,   103,     0,
-      94,    95,     0,     0,    87,    88,     0,    83,    89,    90,
-       0,     0,    91,     0,    92,     0,     0,    84,   104,    85,
-      94,    95,    86,     0,     0,     0,     0,    83,     0,     0,
-      87,    88,     0,     0,    89,    90,     0,    84,    91,    85,
-      92,     0,    86,     0,   117,     0,    94,    95,     0,     0,
-      87,    88,     0,    83,    89,    90,     0,     0,    91,     0,
-      92,   118,     0,    84,     0,    85,    94,    95,    86,     0,
-       0,     0,     0,    83,     0,     0,    87,    88,     0,     0,
-      89,    90,     0,    84,    91,    85,    92,     0,    86,     0,
-       0,     0,    94,    95,     0,     0,    87,    88,     0,     0,
-      89,    90,     0,     0,    91,     0,     0,     0,     0,     0,
-       0,     0,    94,    95
+       6,    97,     7,    28,   122,    16,    98,    94,    95,   101,
+     103,    13,    18,    50,     8,    24,     9,   107,   108,   109,
+     110,   111,   112,   113,   114,   115,   116,    21,   117,   118,
+      67,    20,    75,    68,   126,   127,    21,    70,    10,   123,
+       4,     5,   132,     6,    31,     7,     4,     5,    32,     6,
+      72,     7,    71,    77,    99,   125,   100,     8,   124,     9,
+      33,    16,    34,     8,   130,     9,   131,    44,    44,    42,
+      42,    12,    79,    44,     0,    42,    43,    43,    35,    36,
+      30,    10,    43,     0,     0,    37,    72,    10,    38,    31,
+       0,     4,     5,    32,     6,    73,     7,    74,     0,    84,
+       0,    85,     0,     0,    -1,    33,    16,    34,     8,     0,
+       9,     0,    -1,    -1,     0,     0,    -1,    -1,     0,     0,
+      -1,     0,     0,   128,    36,     0,     0,    17,    94,    95,
+      37,     0,    10,    38,    31,    26,     4,     5,    32,     6,
+       0,     7,     0,     0,     0,    46,    47,    49,     0,     0,
+      33,    16,    34,     8,    69,     9,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,   129,    36,
+       0,     0,     0,     0,     0,    37,     0,    10,    38,    31,
+       0,     4,     5,    32,     6,     0,     7,     0,    31,     0,
+       0,     0,    32,     0,    51,    33,    16,    34,     8,    52,
+       9,     0,     0,    53,     0,    16,     0,     0,    54,     0,
+       0,     0,     0,   133,    36,     0,    55,    56,     0,    57,
+      37,     0,    10,    38,     0,    58,     0,    31,    59,     0,
+      60,    32,     0,    51,     0,     0,     0,    31,    52,     0,
+       0,    32,    53,    51,    16,     0,     0,    54,    52,     0,
+       0,     0,    53,     0,    16,    55,    56,    54,    57,     0,
+       0,     0,     0,   102,     0,    55,    56,    59,    57,    60,
+      31,     0,     0,     0,    32,     0,    51,    59,     0,    60,
+       0,     0,     0,     0,     0,    53,     0,    16,     0,     0,
+      54,     0,    83,     0,     0,     0,     0,     0,    55,     0,
+       0,    57,    84,     0,    85,     0,     0,    86,     0,     0,
+      59,     0,    60,     0,    83,    87,    88,     0,     0,    89,
+      90,     0,     0,    91,    84,    92,    85,     0,     0,    86,
+      93,    94,    95,     0,    83,     0,     0,    87,    88,     0,
+       0,    89,    90,     0,    84,    91,    85,    92,     0,    86,
+       0,     0,    96,    94,    95,     0,     0,    87,    88,     0,
+      83,    89,    90,     0,     0,    91,     0,    92,     0,     0,
+      84,   105,    85,    94,    95,    86,     0,     0,     0,     0,
+      83,     0,     0,    87,    88,     0,     0,    89,    90,     0,
+      84,    91,    85,    92,     0,    86,     0,   106,     0,    94,
+      95,     0,     0,    87,    88,     0,    83,    89,    90,     0,
+       0,    91,     0,    92,     0,     0,    84,   119,    85,    94,
+      95,    86,     0,     0,     0,     0,    83,     0,     0,    87,
+      88,     0,     0,    89,    90,     0,    84,    91,    85,    92,
+     120,    86,     0,     0,     0,    94,    95,     0,    83,    87,
+      88,     0,     0,    89,    90,     0,     0,    91,    84,    92,
+      85,     0,     0,    86,     0,    94,    95,     0,     0,     0,
+       0,    87,    88,     0,     0,    89,    90,     0,     0,    91,
+       0,     0,     0,     0,     0,     0,     0,    94,    95
   };
 
-  const signed char
+  const short
   Parser::yycheck_[] =
   {
-      29,    37,    29,    41,    33,   119,   120,     4,    13,    29,
-      15,     8,   126,    18,    50,    21,     0,     2,    32,    55,
+      29,    37,    29,    41,    33,    12,    12,     4,    13,    29,
+      15,     8,    28,    18,    50,     0,    32,    42,    43,    55,
       56,    26,    27,    52,    21,    30,    31,     6,     7,    34,
-       9,    67,    11,    18,    42,    43,    72,    42,    43,    75,
-      29,    28,    40,    28,    23,    32,    25,    83,    84,    85,
-      86,    87,    88,    89,    90,    91,    92,    12,    94,    95,
-      32,    40,     4,    32,     6,     7,     8,     9,    47,    11,
-      41,    41,    28,     5,    41,    41,     5,    41,    20,    21,
-      22,    23,    14,    25,    16,    29,    29,    41,    40,    17,
-      29,     2,   121,   122,   121,   122,    38,    39,   127,    52,
-     127,   121,   122,    45,    28,    47,    48,   127,     4,    -1,
-       6,     7,     8,     9,    13,    11,    -1,    -1,     6,     7,
-      -1,     9,    21,    11,    20,    21,    22,    23,    -1,    25,
-      -1,    -1,    31,    32,    33,    23,    -1,    25,    -1,    -1,
-      -1,    40,    38,    39,    -1,    -1,    -1,    -1,    -1,    45,
-      -1,    47,    48,     4,    -1,     6,     7,     8,     9,    47,
-      11,    -1,    -1,    13,    -1,    15,    -1,    -1,    18,    20,
-      21,    22,    23,    -1,    25,    -1,    26,    27,    -1,    -1,
-      30,    31,    -1,    -1,    34,    -1,    -1,    38,    39,    -1,
-      -1,    -1,    42,    43,    45,    -1,    47,    48,     4,    -1,
-       6,     7,     8,     9,    -1,    11,    -1,     4,    -1,    -1,
-      -1,     8,    -1,    10,    20,    21,    22,    23,    15,    25,
-      -1,    -1,    19,    -1,    21,    -1,    -1,    24,    -1,    -1,
-      -1,    -1,    38,    39,    -1,    32,    33,    -1,    35,    45,
-      -1,    47,    48,    -1,    41,    -1,     4,    44,    -1,    46,
-       8,    -1,    10,    -1,    -1,    -1,     4,    15,    -1,    -1,
-       8,    19,    10,    21,    -1,    -1,    24,    -1,    -1,    -1,
-      -1,    19,    -1,    21,    32,    33,    24,    35,    -1,     3,
-      -1,    -1,    -1,    -1,    32,    -1,    44,    35,    46,    13,
-      -1,    15,    -1,    -1,    18,    -1,    44,    -1,    46,     3,
-      -1,    -1,    26,    27,    -1,    -1,    30,    31,    -1,    13,
-      34,    15,    36,    -1,    18,    -1,    -1,    41,    42,    43,
-      -1,     3,    26,    27,    -1,    -1,    30,    31,    -1,    -1,
-      34,    13,    36,    15,    -1,    -1,    18,    41,    42,    43,
-      -1,     3,    -1,    -1,    26,    27,    -1,    -1,    30,    31,
-      -1,    13,    34,    15,    36,    -1,    18,    -1,    40,    -1,
-      42,    43,    -1,    -1,    26,    27,    -1,     3,    30,    31,
-      -1,    -1,    34,    -1,    36,    -1,    -1,    13,    40,    15,
-      42,    43,    18,    -1,    -1,    -1,    -1,     3,    -1,    -1,
-      26,    27,    -1,    -1,    30,    31,    -1,    13,    34,    15,
-      36,    -1,    18,    -1,    40,    -1,    42,    43,    -1,    -1,
-      26,    27,    -1,     3,    30,    31,    -1,    -1,    34,    -1,
-      36,    37,    -1,    13,    -1,    15,    42,    43,    18,    -1,
-      -1,    -1,    -1,     3,    -1,    -1,    26,    27,    -1,    -1,
-      30,    31,    -1,    13,    34,    15,    36,    -1,    18,    -1,
-      -1,    -1,    42,    43,    -1,    -1,    26,    27,    -1,    -1,
-      30,    31,    -1,    -1,    34,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    42,    43
+       9,    67,    11,    40,    40,    21,    72,    42,    43,    75,
+      76,     2,    32,    32,    23,    29,    25,    83,    84,    85,
+      86,    87,    88,    89,    90,    91,    92,    18,    94,    95,
+      32,    40,    28,    41,   123,   124,    27,    41,    47,    29,
+       6,     7,   131,     9,     4,    11,     6,     7,     8,     9,
+       5,    11,    41,    41,    41,   121,    41,    23,    29,    25,
+      20,    21,    22,    23,    17,    25,    29,   126,   127,   126,
+     127,     2,    52,   132,    -1,   132,   126,   127,    38,    39,
+      27,    47,   132,    -1,    -1,    45,     5,    47,    48,     4,
+      -1,     6,     7,     8,     9,    14,    11,    16,    -1,    13,
+      -1,    15,    -1,    -1,    18,    20,    21,    22,    23,    -1,
+      25,    -1,    26,    27,    -1,    -1,    30,    31,    -1,    -1,
+      34,    -1,    -1,    38,    39,    -1,    -1,    13,    42,    43,
+      45,    -1,    47,    48,     4,    21,     6,     7,     8,     9,
+      -1,    11,    -1,    -1,    -1,    31,    32,    33,    -1,    -1,
+      20,    21,    22,    23,    40,    25,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    38,    39,
+      -1,    -1,    -1,    -1,    -1,    45,    -1,    47,    48,     4,
+      -1,     6,     7,     8,     9,    -1,    11,    -1,     4,    -1,
+      -1,    -1,     8,    -1,    10,    20,    21,    22,    23,    15,
+      25,    -1,    -1,    19,    -1,    21,    -1,    -1,    24,    -1,
+      -1,    -1,    -1,    38,    39,    -1,    32,    33,    -1,    35,
+      45,    -1,    47,    48,    -1,    41,    -1,     4,    44,    -1,
+      46,     8,    -1,    10,    -1,    -1,    -1,     4,    15,    -1,
+      -1,     8,    19,    10,    21,    -1,    -1,    24,    15,    -1,
+      -1,    -1,    19,    -1,    21,    32,    33,    24,    35,    -1,
+      -1,    -1,    -1,    40,    -1,    32,    33,    44,    35,    46,
+       4,    -1,    -1,    -1,     8,    -1,    10,    44,    -1,    46,
+      -1,    -1,    -1,    -1,    -1,    19,    -1,    21,    -1,    -1,
+      24,    -1,     3,    -1,    -1,    -1,    -1,    -1,    32,    -1,
+      -1,    35,    13,    -1,    15,    -1,    -1,    18,    -1,    -1,
+      44,    -1,    46,    -1,     3,    26,    27,    -1,    -1,    30,
+      31,    -1,    -1,    34,    13,    36,    15,    -1,    -1,    18,
+      41,    42,    43,    -1,     3,    -1,    -1,    26,    27,    -1,
+      -1,    30,    31,    -1,    13,    34,    15,    36,    -1,    18,
+      -1,    -1,    41,    42,    43,    -1,    -1,    26,    27,    -1,
+       3,    30,    31,    -1,    -1,    34,    -1,    36,    -1,    -1,
+      13,    40,    15,    42,    43,    18,    -1,    -1,    -1,    -1,
+       3,    -1,    -1,    26,    27,    -1,    -1,    30,    31,    -1,
+      13,    34,    15,    36,    -1,    18,    -1,    40,    -1,    42,
+      43,    -1,    -1,    26,    27,    -1,     3,    30,    31,    -1,
+      -1,    34,    -1,    36,    -1,    -1,    13,    40,    15,    42,
+      43,    18,    -1,    -1,    -1,    -1,     3,    -1,    -1,    26,
+      27,    -1,    -1,    30,    31,    -1,    13,    34,    15,    36,
+      37,    18,    -1,    -1,    -1,    42,    43,    -1,     3,    26,
+      27,    -1,    -1,    30,    31,    -1,    -1,    34,    13,    36,
+      15,    -1,    -1,    18,    -1,    42,    43,    -1,    -1,    -1,
+      -1,    26,    27,    -1,    -1,    30,    31,    -1,    -1,    34,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    42,    43
   };
 
   const signed char
   Parser::yystos_[] =
   {
        0,    50,    51,     0,     6,     7,     9,    11,    23,    25,
-      47,    52,    53,    54,    55,    41,    21,    67,    32,    56,
-      40,    54,    57,    58,    29,    59,    67,    40,    12,    60,
-      57,     4,     8,    20,    22,    38,    39,    45,    48,    53,
-      54,    61,    63,    64,    66,    67,    67,    67,    66,    67,
+      47,    52,    53,    54,    55,    41,    21,    68,    32,    56,
+      40,    54,    57,    58,    29,    59,    68,    12,    40,    60,
+      58,     4,     8,    20,    22,    38,    39,    45,    48,    53,
+      54,    61,    63,    64,    67,    68,    68,    68,    67,    68,
       32,    10,    15,    19,    24,    32,    33,    35,    41,    44,
-      46,    62,    63,    64,    65,    66,    62,    32,    41,    67,
-      41,    41,     5,    14,    16,    28,    32,    41,    62,    65,
-      66,    62,    62,     3,    13,    15,    18,    26,    27,    30,
+      46,    62,    63,    64,    66,    67,    62,    32,    41,    68,
+      41,    41,     5,    14,    16,    28,    32,    41,    62,    66,
+      67,    62,    62,     3,    13,    15,    18,    26,    27,    30,
       31,    34,    36,    41,    42,    43,    41,    62,    62,    41,
-      41,    62,    40,    40,    40,    62,    62,    62,    62,    62,
-      62,    62,    62,    62,    62,    62,    62,    40,    37,    29,
-      29,    60,    60,    38,    38,    17,    29,    60,    38
+      41,    62,    40,    62,    65,    40,    40,    62,    62,    62,
+      62,    62,    62,    62,    62,    62,    62,    62,    62,    40,
+      37,    12,    40,    29,    29,    62,    60,    60,    38,    38,
+      17,    29,    60,    38
   };
 
   const signed char
@@ -1695,8 +1730,9 @@ namespace holeyc {
       58,    59,    60,    60,    61,    61,    61,    61,    61,    61,
       61,    61,    61,    61,    61,    61,    62,    62,    62,    62,
       62,    62,    62,    62,    62,    62,    62,    62,    62,    62,
-      62,    62,    63,    64,    65,    65,    65,    65,    65,    65,
-      65,    65,    65,    66,    66,    66,    66,    67
+      62,    62,    63,    64,    64,    65,    65,    66,    66,    66,
+      66,    66,    66,    66,    66,    66,    67,    67,    67,    67,
+      68
   };
 
   const signed char
@@ -1707,8 +1743,9 @@ namespace holeyc {
        2,     3,     0,     2,     2,     2,     3,     3,     3,     3,
        7,    11,     7,     3,     2,     2,     1,     3,     3,     3,
        3,     3,     3,     3,     3,     3,     3,     3,     3,     2,
-       2,     1,     3,     3,     1,     1,     1,     1,     1,     1,
-       1,     1,     3,     1,     4,     2,     2,     1
+       2,     1,     3,     3,     4,     1,     3,     1,     1,     1,
+       1,     1,     1,     1,     1,     3,     1,     4,     2,     2,
+       1
   };
 
 
@@ -1727,7 +1764,8 @@ namespace holeyc {
   "SEMICOLON", "SLASH", "STAR", "STRLITERAL", "TOCONSOLE", "TRUE", "VOID",
   "WHILE", "$accept", "program", "globals", "decl", "varDecl", "type",
   "fnDecl", "formals", "formalsList", "formalDecl", "fnBody", "stmtList",
-  "stmt", "exp", "assignExp", "callExp", "term", "lval", "id", YY_NULLPTR
+  "stmt", "exp", "assignExp", "callExp", "actualsList", "term", "lval",
+  "id", YY_NULLPTR
   };
 #endif
 
@@ -1736,13 +1774,14 @@ namespace holeyc {
   const short
   Parser::yyrline_[] =
   {
-       0,   179,   179,   185,   192,   198,   204,   211,   218,   223,
-     227,   231,   235,   239,   243,   248,   255,   259,   265,   271,
-     279,   286,   292,   295,   304,   308,   313,   319,   325,   329,
-     335,   341,   347,   353,   359,   365,   371,   375,   379,   383,
-     387,   391,   395,   399,   403,   407,   411,   415,   419,   423,
-     427,   431,   436,   441,   466,   470,   475,   480,   485,   490,
-     495,   499,   503,   508,   512,   516,   521,   527
+       0,   181,   181,   187,   194,   200,   206,   213,   220,   225,
+     229,   233,   237,   241,   245,   250,   257,   261,   266,   273,
+     280,   287,   293,   296,   302,   306,   311,   317,   323,   327,
+     333,   339,   345,   351,   357,   363,   369,   373,   377,   381,
+     385,   389,   393,   397,   401,   405,   409,   413,   417,   421,
+     425,   429,   434,   439,   444,   449,   455,   461,   465,   470,
+     475,   480,   485,   490,   494,   498,   503,   507,   511,   516,
+     522
   };
 
   void
@@ -1826,9 +1865,9 @@ namespace holeyc {
 
 #line 5 "holeyc.yy"
 } // holeyc
-#line 1830 "parser.cc"
+#line 1869 "parser.cc"
 
-#line 535 "holeyc.yy"
+#line 530 "holeyc.yy"
 
 
 void holeyc::Parser::error(const std::string& msg){
