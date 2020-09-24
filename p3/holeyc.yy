@@ -62,12 +62,21 @@ create new translation value types
 %union {
    holeyc::Token *                     transToken;
    holeyc::IDToken *                   transIDToken;
+   holeyc::StrToken *                  transStrToken;
+   holeyc::CharLitToken *              transCharToken;
+   holeyc::IntLitToken *               transIntToken;
    holeyc::ProgramNode *               transProgram;
    std::list<holeyc::DeclNode *> *     transDeclList;
    holeyc::DeclNode *                  transDecl;
    holeyc::VarDeclNode *               transVarDecl;
    holeyc::TypeNode *                  transType;
-   holeyc::IDNode *                    transID;
+   holeyc::IDNode *                    transID;     
+   holeyc::ExpNode *                   transExp;      
+   std::list<holeyc::StmtNode *> *     transStmtList;
+   std::list<holeyc::VarDeclNode *> *  transVarDeclList;
+   holeyc::LValNode *                  transLVal;
+   holeyc::CallExpNode *               transCallExp;
+   std::list<holeyc::ExpNode *> *      transExpList;
 }
 
 %define parse.assert
@@ -130,12 +139,25 @@ create new translation value types
 *  the names defined in the %union directive above
 */
 /*    (attribute type)    (nonterminal)    */
-%type <transProgram>    program
-%type <transDeclList>   globals
-%type <transDecl>       decl
-%type <transVarDecl>    varDecl
-%type <transType>       type
-%type <transID>         id
+%type <transProgram>      program
+%type <transDeclList>     globals
+%type <transDecl>         decl
+%type <transVarDecl>      varDecl
+%type <transVarDecl>      fnDecl
+%type <transType>         type
+%type <transID>           id
+%type <transExp>          term
+// %type <transExp>          exp
+%type <transStmtList>     fnbody
+%type <transVarDeclList>  formals
+%type <transExp>          lval
+%type <transStmt>         stmt
+%type <transAssignExp>    assignExp
+%type <transCallExp>      callExp
+%type <transExpList>      explist
+// %type <transSomething>    actualsList
+
+// Aaron: Really just making SDT for nonterminals to generate AST
 
 %right ASSIGN
 %left OR
@@ -410,67 +432,67 @@ type : INT
 //         $$ = new AssignExpNode($1->line(), $1->col(), $1, $3);
 //       }
 
-// callExp		: id LPAREN RPAREN
-// 		  { 
-//         size_t tLine = $1->line();
-//         size_t tCol = $1->col();
-//         $$ = new CallExpNode(tLine, tCol, $1);
-//       }
+callExp		: id LPAREN RPAREN
+		  { 
+        std::list<ExpNode*>* emptylist = new std::list<ExpNode*>();
+        $$ = new CallExpNode($1, emptylist);
+      }
 		// | id LPAREN actualsList RPAREN
 		//   { 
-    //     size_t tLine = $1->line();
-    //     size_t tCol = $1->col();
-		// 	  $$ = new CallExpNode(tLine, tCol, $1, $3) // $1 -> id, $3 -> list of expressions 
+		// 	  $$ = new CallExpNode($1, $3) // $1 -> id, $3 -> list of expressions 
     //   }
 
 // actualsList	: exp
 // 		  { 
-// 			  std::list result = new std::list<ExpNode*>();
+// 			  std::list<ExpNode*>* result = new std::list<ExpNode*>();
 // 			  result.push_back($1);
 // 			  $$ = result;
 //       }
 // 		| actualsList COMMA exp
 // 		  { 
 //         // list magic 
-// 			  std::list result = new std::list<ExpNode*>();
+// 			  std::list<ExpNode*>* result = new std::list<ExpNode*>();
 // 			  result.push_back($1);
 // 			  $1->merge(result);
 // 			  $$ = $1;
 //       }
 
+term : lval
+      { 
+        $$ = $1;
+      }
+    | callExp
+      { 
+        $$ = $1;
+      }
 
-// lval
-// 		  { 
-//         $$ = $1;
-//       }
-		// | callExp
-		//   { 
-    //     $$ = $1;
-    //   }
-
-term 		: NULLPTR
+    | NULLPTR
 		  { 
-        $$ = new NullPtrNode($1);
+        Token * t = $1;
+        $$ = new NullPtrNode(t->line(),t->col());
       }
 		| INTLITERAL 
 		  { 
-        $$ = new IntLitNode($1);
+        IntLitToken * t = $1;
+        $$ = new IntLitNode(t);
       }
 		| STRLITERAL 
 		  { 
-        $$ = new StrLitNode($1);
+        StrToken * t = $1;
+        $$ = new StrLitNode(t);
       }
 		| CHARLIT 
 		  { 
-        $$ = new CharLitNode($1);
+        CharLitToken * t = $1;
+        $$ = new CharLitNode(t);
       }
 		| TRUE
-		  { 
-        $$ = new TrueNode($1->line(), $1->col(), true);
+		  {         
+        $$ = new TrueNode($1->line(), $1->col());
       }
 		| FALSE
-		  { 
-        $$ = new FalseNode($1->line(),$1->col(), false);
+		  {         
+        $$ = new FalseNode($1->line(), $1->col());
       }
 		// | LPAREN exp RPAREN
 		//   { 
@@ -487,15 +509,13 @@ lval		: id
 		//   }
 		| AT id
 		  {
-        $$ = $1;
-
-        IDToken * t = $1;
-		    $$ = new IDNode(t,true,false);
+        $2->myIsAt = true;
+		    $$ = $2; // $2 here is already an IDNode
 		  }
 		| CARAT id
 		  {
-        IDToken * t = $1;
-		    $$ = new IDNode(t,false,true);
+        $2->myIsCarat = true;
+		    $$ = $2; // How to pass isCarat?
 		  }
 
 id		: ID

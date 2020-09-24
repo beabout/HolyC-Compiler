@@ -131,7 +131,7 @@ class NestedExpNode : public ExpNode {
     void unparse(std::ostream& out, int indent) override = 0;
   private:
    ExpNode* myExp;
-}
+};
 
 
 class TypeNode : public ASTNode {
@@ -509,7 +509,7 @@ class BinaryExpNode : public ExpNode
 	{
     public:
       TimesNode(size_t line, size_t col, ExpNode* lhs, ExpNode* rhs)
-      : BinaryExpNode(line, col), myLHS(lhs), myRHS(rhs){
+      : BinaryExpNode(line, col, lhs, rhs), myLHS(lhs), myRHS(rhs){
       }
       void unparse(std::ostream& out, int indent);
     private:
@@ -521,8 +521,8 @@ class BinaryExpNode : public ExpNode
 	class MinusNode : public BinaryExpNode
 	{
     public:
-    MinusNode(size_t line, size_t col)
-    : BinaryExpNode(line, col){
+    MinusNode(size_t line, size_t col, ExpNode* lhs, ExpNode* rhs)
+    : BinaryExpNode(line, col, lhs, rhs){
     }
     void unparse(std::ostream& out, int indent);
 	};
@@ -552,33 +552,25 @@ class IntLitNode : public ExpNode
       int myInt;
 };
 
-class CallExpNode : public ExpNode 
-{
-  public: 
-    CallExpNode(IDToken * token)
-    : ExpNode(token->line(), token->col()), myStrVal(token->value()){
+// class CallExpNode : public ExpNode 
+// {
+//   public: 
+//     CallExpNode(IDNode *idNode, std::list<ExpNode*>* exp_list)
+//         : ExpNode(idNode->line(), idNode->col()), myIDNode(idNode), myExps(exp_list){
 
-    }
-    CallExpNode(IDToken *token, std::list<ExpNode*>* exp_list)
-        : ExpNode(token->line(), token->col()), myStrVal(token->value()), myExps(exp_list)
-    {
-
-    }
-    void unparse(std::ostream& out, int indent);
-    private: 
-      std::string myStrVal;
-      std::list<ExpNode *> *myExps;
-};
+//     }
+//     void unparse(std::ostream& out, int indent);
+//     private: 
+//       IDNode* myIDNode;
+//       std::list<ExpNode *> *myExps;
+// };
 
 
 
 /************************************
 * LVAL NODES
 ************************************/
-class DerefNode : public LValNode
-{	
 
-};
 
 // TODO: THIS WAS ALSO GIVEN BUT WITH WRONG INHERITANCE????
 /** An identifier. Note that IDNodes subclass
@@ -587,43 +579,56 @@ class DerefNode : public LValNode
 class IDNode : public ExpNode{
 public:
   IDNode(IDToken *token, bool isAt, bool isCarat)
-      : ExpNode(token->line(), token->col()), myStrVal(token->value()), myIsAt(isAt), myIsCarat(isCarat))
+  : ExpNode(token->line(), token->col()), myIsAt(isAt), myIsCarat(isCarat), myStrVal(token->value())
   {
   }
   void unparse(std::ostream& out, int indent);
+  bool myIsAt;
+  bool myIsCarat;
 private:
   /** The name of the identifier **/
   std::string myStrVal;
-  bool myIsAt;
-  bool myIsCarat;
-};
-
-class IndexNode : public LValNode
-{	
 
 };
 
-class RefNode : public LValNode
-{	
-
-};
-
-class NullPtrNode : public ExpNode
+class CallExpNode : public ExpNode
 {
-
-};
-
-class StrLitNode : public ExpNode
-{
-
-};
-
-class FalseNode : public ExpNode
-{
-  public:
-  FalseNode(size_t lineIn, size_t colIn, bool bool_param)
-    : ExpNode(token->line(), token->col()), myBool(token->value())
+public:
+  CallExpNode(IDNode *idNode, std::list<ExpNode *> *exp_list)
+      : ExpNode(idNode->line(), idNode->col()), myIDNode(idNode), myExps(exp_list)
   {
+  }
+  void unparse(std::ostream &out, int indent);
+
+private:
+  IDNode *myIDNode;
+  std::list<ExpNode *> *myExps;
+};
+
+class NullPtrNode : public ExpNode{
+  public: 
+    NullPtrNode(size_t line, size_t col)
+    : ExpNode(line,col){
+    }
+    void unparse(std::ostream &out, int indent);
+
+};
+
+class StrLitNode : public ExpNode{
+  public:
+    StrLitNode(StrToken *token)
+        : ExpNode(token->line(), token->col()), myStrVal(token->str())
+    {
+    }
+    void unparse(std::ostream &out, int indent);
+  private: 
+    std::string myStrVal;
+};
+
+class FalseNode : public ExpNode{
+  public:
+  FalseNode(size_t line, size_t col)
+    : ExpNode(line, col), myBool(false){
   }
   void unparse(std::ostream &out, int indent);
   private:
@@ -633,9 +638,8 @@ class FalseNode : public ExpNode
 class TrueNode : public ExpNode
 {
   public:
-    TrueNode(size_t lineIn, size_t colIn, bool bool_param)
-      : ExpNode(token->line(), token->col()), myBool(token->value())
-    {
+    TrueNode(size_t line, size_t col)
+    : ExpNode(line, col), myBool(true){
     }
     void unparse(std::ostream &out, int indent);
   private:
