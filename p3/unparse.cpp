@@ -68,7 +68,13 @@ void FormalVarDeclListNode::unparse(std::ostream& out, int indent){
 }
 
 void IDNode::unparse(std::ostream& out, int indent){
-	out << this->myStrVal;
+  if(this->myIsAt){
+    out << "@" << this->myStrVal;
+  } else if(this->myIsCarat) {
+    out << "^" << this->myStrVal;
+  } else {
+	  out << this->myStrVal;
+  }
 }
 
 void IntTypeNode::unparse(std::ostream& out, int indent){
