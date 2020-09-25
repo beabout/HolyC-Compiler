@@ -6,7 +6,7 @@ char e;
 charptr f;
 void g;
 int main(int argc, charptr argv){
-	while(true){
+	while (true){
 		a++;
 
 	}}
@@ -14,9 +14,9 @@ int main(int num){
 	int num;
 	b = 'c;
 	a = 2;
-	b = 5+x;
+	b = 5 + x;
 	n = 'k;
-	b = 3*5+d;
+	b = 3 * 5 + d;
 	c = NULLPTR;
 }
 int b;
@@ -30,7 +30,7 @@ void something(int num, boolptr wow){
 	TOCONSOLE	NULLPTR;
 	FROMCONSOLE	test;
 	return;
-	if(5){
+	if (5){
 		b--;
 	} else {
 

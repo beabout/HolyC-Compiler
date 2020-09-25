@@ -168,7 +168,7 @@ void ToConsoleStmtNode::unparse(std::ostream &out, int indent){
 // IF LPAREN exp RPAREN LCURLY stmtList RCURLY
 void IfStmtNode::unparse(std::ostream &out, int indent){
   doIndent(out, indent);
-  out << "if(";
+  out << "if (";
   this->myExp->unparse(out,indent);
   out << "){\n";
   std::list<StmtNode *>::iterator it;
@@ -184,7 +184,7 @@ void IfElseStmtNode::unparse(std::ostream &out, int indent){
   std::list<StmtNode *>::iterator it;
   std::list<StmtNode *>::iterator it2;
   doIndent(out,indent);
-  out << "if(";
+  out << "if (";
   this->myExp->unparse(out, indent);
   out << "){\n";
   for (it = this->myTrueStmts->begin(); it != this->myTrueStmts->end(); ++it){
@@ -204,7 +204,7 @@ void IfElseStmtNode::unparse(std::ostream &out, int indent){
 
 void WhileStmtNode::unparse(std::ostream &out, int indent){
   doIndent(out,indent);
-  out << "while(";
+  out << "while (";
   this->myExp->unparse(out,indent);
   out << "){\n";
   std::list<StmtNode *>::iterator it;
@@ -284,22 +284,22 @@ void DeclNode::unparse(std::ostream &out, int indent){
 
 void LessNode::unparse(std::ostream &out, int indent){
 	this->myLHS->unparse(out,indent);
-	out << "<";
+	out << " < ";
 	this->myRHS->unparse(out,indent);
 }
 void PlusNode::unparse(std::ostream &out, int indent){
 	this->myLHS->unparse(out,indent);
-	out << "+";
+	out << " + ";
 	this->myRHS->unparse(out,indent);
 }
 void MinusNode::unparse(std::ostream &out, int indent){
 	this->myLHS->unparse(out,indent);
-	out << "-";
+	out << " - ";
 	this->myRHS->unparse(out,indent);
 }
 void TimesNode::unparse(std::ostream &out, int indent){
 	this->myLHS->unparse(out,indent);
-	out << "*";
+	out << " * ";
 	this->myRHS->unparse(out,indent);
 }
 
