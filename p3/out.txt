@@ -10,3 +10,8 @@ int main(int argc, charptr argv){
 		a++;
 	}
 }
+int main(int num){
+	int num;
+b='c
+}
+int b;

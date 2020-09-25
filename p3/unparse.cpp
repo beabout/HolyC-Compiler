@@ -57,13 +57,14 @@ void VarDeclNode::unparse(std::ostream& out, int indent){
 }
 
 void FormalVarDeclListNode::unparse(std::ostream& out, int indent){
-  this->myVarDecls->size();
-  while(this->myVarDecls->size() > 1){
-	  this->myVarDecls->front()->unparse(out,indent); // VarDeclNode
-    out << ", ";
-	  this->myVarDecls->pop_front();
+  if(this->myVarDecls->size() > 0) {
+    while(this->myVarDecls->size() > 1){
+      this->myVarDecls->front()->unparse(out,indent); // VarDeclNode
+      out << ", ";
+      this->myVarDecls->pop_front();
+    }
+    this->myVarDecls->front()->unparse(out,indent);
   }
-	this->myVarDecls->front()->unparse(out,indent);
 }
 
 void IDNode::unparse(std::ostream& out, int indent){
@@ -79,9 +80,9 @@ void FnDeclNode::unparse(std::ostream& out, int indent){
 	out << " ";
 	this->myId->unparse(out,indent);
 	out << "(";
-  std::list<StmtNode *>::iterator it2;
   this->formalDeclListNode->unparse(out, indent);
   out << "){\n";
+  std::list<StmtNode *>::iterator it2;
   for (it2 = this->stmtNodes->begin(); it2 != this->stmtNodes->end(); ++it2){
     (*it2)->unparse(out, indent+1);
   }
@@ -122,7 +123,9 @@ void NullPtrNode::unparse(std::ostream &out, int indent){
   out << "nullptr";
 }
 void CharLitNode::unparse(std::ostream &out, int indent){
+  out << "'";
   out << this->myChar;
+
 }
 void TrueNode::unparse(std::ostream &out, int indent){
   out << "true";
