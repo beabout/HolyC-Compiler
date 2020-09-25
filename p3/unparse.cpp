@@ -59,11 +59,11 @@ void VarDeclNode::unparse(std::ostream& out, int indent){
 void FormalVarDeclListNode::unparse(std::ostream& out, int indent){
   this->myVarDecls->size();
   while(this->myVarDecls->size() > 1){
-	  this->myVarDecls->front()->unparse(out,0); // VarDeclNode
+	  this->myVarDecls->front()->unparse(out,indent); // VarDeclNode
     out << ", ";
 	  this->myVarDecls->pop_front();
   }
-	this->myVarDecls->front()->unparse(out,0);
+	this->myVarDecls->front()->unparse(out,indent);
 }
 
 void IDNode::unparse(std::ostream& out, int indent){
@@ -83,7 +83,6 @@ void FnDeclNode::unparse(std::ostream& out, int indent){
   this->formalDeclListNode->unparse(out, indent);
   out << "){\n";
   for (it2 = this->stmtNodes->begin(); it2 != this->stmtNodes->end(); ++it2){
-    doIndent(out,indent+1);
     (*it2)->unparse(out, indent+1);
   }
   out << "\n}\n";
@@ -136,19 +135,29 @@ void CallExpNode::unparse(std::ostream &out, int indent){
 }
 
 void PostDecStmtNode::unparse(std::ostream &out, int indent){
-
+  doIndent(out,indent);
+  this->myLoc->unparse(out, indent);
+  out << "--;";
 }
 
 void PostIncStmtNode::unparse(std::ostream &out, int indent){
-
+  doIndent(out, indent);
+  this->myLoc->unparse(out,indent);
+  out << "++;";
 }
 
 void FromConsoleStmtNode::unparse(std::ostream &out, int indent){
-
+  doIndent(out, indent);
+  out << "FROMCONSOLE ";
+  doIndent(out, indent);
+  this->myLVal->unparse(out, indent);
 }
 
 void ToConsoleStmtNode::unparse(std::ostream &out, int indent){
-
+  doIndent(out,indent);
+  out << "TOCONSOLE ";
+  doIndent(out, indent);
+  this->myExp->unparse(out, indent);
 }
 
 // IF LPAREN exp RPAREN LCURLY stmtList RCURLY
@@ -184,16 +193,17 @@ void IfElseStmtNode::unparse(std::ostream &out, int indent){
 }
 
 void WhileStmtNode::unparse(std::ostream &out, int indent){
+  doIndent(out,indent);
   out << "while(";
   this->myExp->unparse(out,indent);
-  out << "){";
+  out << "){\n";
   std::list<StmtNode *>::iterator it;
   for (it = this->myStmts->begin(); it != this->myStmts->end(); ++it){
-    (*it)->unparse(out, indent);
+    (*it)->unparse(out, indent+1);
   }
-  out << "\n}";
-
-  
+  out << "\n";
+  doIndent(out, indent);
+  out << "}";
   
   // WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
 }

@@ -162,8 +162,8 @@ create new translation value types
 %type <transStmtList>          stmtList
 %type <transAssignExp>         assignExp
 %type <transCallExp>           callExp
-// %type <transExpList>           expList
 %type <transExpList>           actualsList 
+// %type <transExpList>           expList
 
 // Really just making SDT for nonterminals to generate AST
 

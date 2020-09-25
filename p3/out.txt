@@ -7,5 +7,6 @@ charptr f;
 void g;
 int main(int argc, charptr argv){
 	while(true){
-}
+		a++;
+	}
 }
