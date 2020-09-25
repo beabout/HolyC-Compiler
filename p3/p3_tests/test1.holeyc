@@ -11,29 +11,29 @@ int main(int argc, charptr argv)
 int main(int num){
   int num; 
   b = 'c;
-  #a = 2; 
-  #b = 5 + x;
-  #n = 'k;
-  #b = 3 * 5 + d;
-  #c = NULLPTR;
+  a = 2; 
+  b = 5 + x;
+  n = 'k;
+  b = 3 * 5 + d;
+  c = NULLPTR;
 }
 int b;
-#void something(int num, boolptr wow){
-  #TOCONSOLE "test";
-  #TOCONSOLE test;
-  #TOCONSOLE 5;
-  #TOCONSOLE 'a;
-  #TOCONSOLE true;
-  #TOCONSOLE false;
-  #TOCONSOLE NULLPTR;
-  #FROMCONSOLE test;
+void something(int num, boolptr wow){
+  TOCONSOLE "test";
+  TOCONSOLE test;
+  TOCONSOLE 5;
+  TOCONSOLE 'a;
+  TOCONSOLE true;
+  TOCONSOLE false;
+  TOCONSOLE NULLPTR;
+  FROMCONSOLE test;
   #x = main();
-  #return;
-  #if(5){
-  #  b--;
-  #}
-  #else{  
-  #}
+  return;
+  if(5){
+    b--;
+  }
+  else{
+  }
   #if(!5){
   #  b++;
   #}
@@ -46,7 +46,7 @@ int b;
   #while(((b == 5) <= a) < (4)){
   #  a++;
   #}
-#}
+}
 # THE FOLLOWING SHOULD FAIL 
 # ----------- EPIC FAIL -----------
 #c;

@@ -8,10 +8,31 @@ void g;
 int main(int argc, charptr argv){
 	while(true){
 		a++;
-	}
-}
+
+	}}
 int main(int num){
 	int num;
-b='c
+	b = 'c;
+	a = 2;
+	b = 5+x;
+	n = 'k;
+	b = 3*5+d;
+	c = NULLPTR;
 }
 int b;
+void something(int num, boolptr wow){
+	TOCONSOLE	"test";
+	TOCONSOLE	test;
+	TOCONSOLE	5;
+	TOCONSOLE	'a;
+	TOCONSOLE	true;
+	TOCONSOLE	false;
+	TOCONSOLE	NULLPTR;
+	FROMCONSOLE	test;
+	return;
+	if(5){
+		b--;
+	} else {
+
+	}
+}
