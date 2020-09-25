@@ -840,338 +840,338 @@ namespace holeyc {
                   { 
         size_t tLine = (yystack_[4].value.transExp)->line();
         size_t tCol = (yystack_[4].value.transExp)->col();
+		    (yystack_[4].value.transExp)->hasParens = false;
 			  (yylhs.value.transStmt) = new IfStmtNode(tLine, tCol, (yystack_[4].value.transExp), (yystack_[1].value.transStmtList));
 		  }
-#line 846 "parser.cc"
+#line 847 "parser.cc"
     break;
 
   case 31: // stmt: IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
-#line 340 "holeyc.yy"
+#line 341 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[8].value.transExp)->line();
         size_t tCol = (yystack_[8].value.transExp)->col();
 			  (yylhs.value.transStmt) = new IfElseStmtNode(tLine, tCol, (yystack_[8].value.transExp), (yystack_[5].value.transStmtList), (yystack_[1].value.transStmtList));
 		  }
-#line 856 "parser.cc"
+#line 857 "parser.cc"
     break;
 
   case 32: // stmt: WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
-#line 346 "holeyc.yy"
+#line 347 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[4].value.transExp)->line();
         size_t tCol = (yystack_[4].value.transExp)->col();
+		(yystack_[4].value.transExp)->hasParens = false;
         (yylhs.value.transStmt) = new WhileStmtNode(tLine, tCol, (yystack_[4].value.transExp), (yystack_[1].value.transStmtList));
       }
-#line 866 "parser.cc"
+#line 868 "parser.cc"
     break;
 
   case 33: // stmt: RETURN exp SEMICOLON
-#line 352 "holeyc.yy"
+#line 354 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[1].value.transExp)->line();
         size_t tCol = (yystack_[1].value.transExp)->col();
 			  (yylhs.value.transStmt) = new ReturnStmtNode(tLine, tCol, (yystack_[1].value.transExp));
       }
-#line 876 "parser.cc"
+#line 878 "parser.cc"
     break;
 
   case 34: // stmt: RETURN SEMICOLON
-#line 358 "holeyc.yy"
+#line 360 "holeyc.yy"
                   { 
         size_t tLine = (yystack_[1].value.transToken)->line();
         size_t tCol = (yystack_[1].value.transToken)->col();
         (yylhs.value.transStmt) = new ReturnStmtNode(tLine, tCol, nullptr);
       }
-#line 886 "parser.cc"
+#line 888 "parser.cc"
     break;
 
   case 35: // stmt: callExp SEMICOLON
-#line 364 "holeyc.yy"
+#line 366 "holeyc.yy"
                   { 
         CallStmtNode * call = new CallStmtNode((yystack_[1].value.transCallExp)->line(), (yystack_[1].value.transCallExp)->col(), (yystack_[1].value.transCallExp));
         (yylhs.value.transStmt) = call;
       }
-#line 895 "parser.cc"
+#line 897 "parser.cc"
     break;
 
   case 36: // exp: assignExp
-#line 370 "holeyc.yy"
+#line 372 "holeyc.yy"
                   { 
 			  (yylhs.value.transExp) = (yystack_[0].value.transAssignExp);
 		  }
-#line 903 "parser.cc"
+#line 905 "parser.cc"
     break;
 
   case 37: // exp: exp DASH exp
-#line 374 "holeyc.yy"
+#line 376 "holeyc.yy"
                   { 
 			  (yylhs.value.transExp) = new MinusNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
 		  }
-#line 911 "parser.cc"
+#line 913 "parser.cc"
     break;
 
   case 38: // exp: exp CROSS exp
-#line 378 "holeyc.yy"
+#line 380 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new PlusNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 919 "parser.cc"
+#line 921 "parser.cc"
     break;
 
   case 39: // exp: exp STAR exp
-#line 382 "holeyc.yy"
+#line 384 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new TimesNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 927 "parser.cc"
+#line 929 "parser.cc"
     break;
 
   case 40: // exp: exp SLASH exp
-#line 386 "holeyc.yy"
+#line 388 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new DivideNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 935 "parser.cc"
+#line 937 "parser.cc"
     break;
 
   case 41: // exp: exp AND exp
-#line 390 "holeyc.yy"
+#line 392 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new AndNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 943 "parser.cc"
+#line 945 "parser.cc"
     break;
 
   case 42: // exp: exp OR exp
-#line 394 "holeyc.yy"
+#line 396 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new OrNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 951 "parser.cc"
+#line 953 "parser.cc"
     break;
 
   case 43: // exp: exp EQUALS exp
-#line 398 "holeyc.yy"
+#line 400 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new EqualsNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 959 "parser.cc"
+#line 961 "parser.cc"
     break;
 
   case 44: // exp: exp NOTEQUALS exp
-#line 402 "holeyc.yy"
+#line 404 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new NotEqualsNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 967 "parser.cc"
+#line 969 "parser.cc"
     break;
 
   case 45: // exp: exp GREATER exp
-#line 406 "holeyc.yy"
+#line 408 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new GreaterNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 975 "parser.cc"
+#line 977 "parser.cc"
     break;
 
   case 46: // exp: exp GREATEREQ exp
-#line 410 "holeyc.yy"
+#line 412 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new GreaterEqNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 983 "parser.cc"
+#line 985 "parser.cc"
     break;
 
   case 47: // exp: exp LESS exp
-#line 414 "holeyc.yy"
+#line 416 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new LessNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 991 "parser.cc"
+#line 993 "parser.cc"
     break;
 
   case 48: // exp: exp LESSEQ exp
-#line 418 "holeyc.yy"
+#line 420 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new LessEqNode((yystack_[2].value.transExp)->line(), (yystack_[2].value.transExp)->col(),(yystack_[2].value.transExp),(yystack_[0].value.transExp));
       }
-#line 999 "parser.cc"
+#line 1001 "parser.cc"
     break;
 
   case 49: // exp: NOT exp
-#line 422 "holeyc.yy"
+#line 424 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new NotNode((yystack_[0].value.transExp));
       }
-#line 1007 "parser.cc"
+#line 1009 "parser.cc"
     break;
 
   case 50: // exp: DASH term
-#line 426 "holeyc.yy"
+#line 428 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new NegNode((yystack_[0].value.transExp));
       }
-#line 1015 "parser.cc"
+#line 1017 "parser.cc"
     break;
 
   case 51: // exp: term
-#line 430 "holeyc.yy"
+#line 432 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = (yystack_[0].value.transExp);
       }
-#line 1023 "parser.cc"
+#line 1025 "parser.cc"
     break;
 
   case 52: // assignExp: lval ASSIGN exp
-#line 435 "holeyc.yy"
+#line 437 "holeyc.yy"
                   { 
         (yylhs.value.transAssignExp) = new AssignExpNode((yystack_[2].value.transLVal)->line(), (yystack_[2].value.transLVal)->col(), (yystack_[2].value.transLVal), (yystack_[0].value.transExp));
       }
-#line 1031 "parser.cc"
+#line 1033 "parser.cc"
     break;
 
   case 53: // callExp: id LPAREN RPAREN
-#line 440 "holeyc.yy"
+#line 442 "holeyc.yy"
                   { 
         std::list<ExpNode*>* emptylist = new std::list<ExpNode*>();
         (yylhs.value.transCallExp) = new CallExpNode((yystack_[2].value.transID), emptylist);
       }
-#line 1040 "parser.cc"
+#line 1042 "parser.cc"
     break;
 
   case 54: // callExp: id LPAREN actualsList RPAREN
-#line 445 "holeyc.yy"
+#line 447 "holeyc.yy"
                   { 
 			  (yylhs.value.transCallExp) = new CallExpNode((yystack_[3].value.transID), (yystack_[1].value.transExpList)); // $1 -> id, $3 -> std::list<ExpNode* >*
       }
-#line 1048 "parser.cc"
+#line 1050 "parser.cc"
     break;
 
   case 55: // actualsList: exp
-#line 450 "holeyc.yy"
+#line 452 "holeyc.yy"
                   { 
 			  std::list<ExpNode*>* result = new std::list<ExpNode*>();
 			  result->push_back((yystack_[0].value.transExp));
 			  (yylhs.value.transExpList) = result;
       }
-#line 1058 "parser.cc"
+#line 1060 "parser.cc"
     break;
 
   case 56: // actualsList: actualsList COMMA exp
-#line 456 "holeyc.yy"
+#line 458 "holeyc.yy"
                   { 
         (yystack_[2].value.transExpList)->push_back((yystack_[0].value.transExp));
         (yylhs.value.transExpList) = (yystack_[2].value.transExpList);
       }
-#line 1067 "parser.cc"
+#line 1069 "parser.cc"
     break;
 
   case 57: // term: lval
-#line 462 "holeyc.yy"
+#line 464 "holeyc.yy"
       { 
         (yylhs.value.transExp) = (yystack_[0].value.transLVal);
       }
-#line 1075 "parser.cc"
+#line 1077 "parser.cc"
     break;
 
   case 58: // term: callExp
-#line 466 "holeyc.yy"
+#line 468 "holeyc.yy"
       { 
         (yylhs.value.transExp) = (yystack_[0].value.transCallExp);
       }
-#line 1083 "parser.cc"
+#line 1085 "parser.cc"
     break;
 
   case 59: // term: NULLPTR
-#line 471 "holeyc.yy"
+#line 473 "holeyc.yy"
                   { 
         Token * t = (yystack_[0].value.transToken);
         (yylhs.value.transExp) = new NullPtrNode(t->line(),t->col());
       }
-#line 1092 "parser.cc"
+#line 1094 "parser.cc"
     break;
 
   case 60: // term: INTLITERAL
-#line 476 "holeyc.yy"
+#line 478 "holeyc.yy"
                   { 
         IntLitToken * t = (yystack_[0].value.transIntToken);
         (yylhs.value.transExp) = new IntLitNode(t);
       }
-#line 1101 "parser.cc"
+#line 1103 "parser.cc"
     break;
 
   case 61: // term: STRLITERAL
-#line 481 "holeyc.yy"
+#line 483 "holeyc.yy"
                   { 
         StrToken * t = (yystack_[0].value.transStrToken);
         (yylhs.value.transExp) = new StrLitNode(t);
       }
-#line 1110 "parser.cc"
+#line 1112 "parser.cc"
     break;
 
   case 62: // term: CHARLIT
-#line 486 "holeyc.yy"
+#line 488 "holeyc.yy"
                   { 
         CharLitToken * t = (yystack_[0].value.transCharToken);
         (yylhs.value.transExp) = new CharLitNode(t);
       }
-#line 1119 "parser.cc"
+#line 1121 "parser.cc"
     break;
 
   case 63: // term: TRUE
-#line 491 "holeyc.yy"
+#line 493 "holeyc.yy"
                   {         
         (yylhs.value.transExp) = new TrueNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col());
       }
-#line 1127 "parser.cc"
+#line 1129 "parser.cc"
     break;
 
   case 64: // term: FALSE
-#line 495 "holeyc.yy"
+#line 497 "holeyc.yy"
                   {         
         (yylhs.value.transExp) = new FalseNode((yystack_[0].value.transToken)->line(), (yystack_[0].value.transToken)->col());
       }
-#line 1135 "parser.cc"
+#line 1137 "parser.cc"
     break;
 
   case 65: // term: LPAREN exp RPAREN
-#line 499 "holeyc.yy"
+#line 501 "holeyc.yy"
                   { 
         (yylhs.value.transExp) = new NestedExpNode((yystack_[2].value.transToken)->line(),(yystack_[2].value.transToken)->col(), (yystack_[1].value.transExp));
       }
-#line 1143 "parser.cc"
+#line 1145 "parser.cc"
     break;
 
   case 66: // lval: id
-#line 504 "holeyc.yy"
+#line 506 "holeyc.yy"
                   {
         (yylhs.value.transLVal) = (yystack_[0].value.transID);
 		  }
-#line 1151 "parser.cc"
+#line 1153 "parser.cc"
     break;
 
   case 67: // lval: id LBRACE exp RBRACE
-#line 508 "holeyc.yy"
+#line 510 "holeyc.yy"
                   {
 			  (yylhs.value.transLVal) = new IndexNode((yystack_[3].value.transID)->line(), (yystack_[3].value.transID)->col(), (yystack_[3].value.transID), (yystack_[1].value.transExp));
 		  }
-#line 1159 "parser.cc"
+#line 1161 "parser.cc"
     break;
 
   case 68: // lval: AT id
-#line 512 "holeyc.yy"
+#line 514 "holeyc.yy"
                   {
-        (yystack_[0].value.transID)->myIsAt = true;
-		    (yylhs.value.transLVal) = (yystack_[0].value.transID); // $2 here is already an IDNode
+        (yylhs.value.transLVal) = new DerefNode((yystack_[0].value.transID)->line(), (yystack_[0].value.transID)->col(), (yystack_[0].value.transID));
 		  }
-#line 1168 "parser.cc"
+#line 1169 "parser.cc"
     break;
 
   case 69: // lval: CARAT id
-#line 517 "holeyc.yy"
+#line 518 "holeyc.yy"
                   {
-        (yystack_[0].value.transID)->myIsCarat = true;
-		    (yylhs.value.transLVal) = (yystack_[0].value.transID); // How to pass isCarat?
+        (yylhs.value.transLVal) = new RefNode((yystack_[0].value.transID)->line(), (yystack_[0].value.transID)->col(), (yystack_[0].value.transID));
 		  }
 #line 1177 "parser.cc"
     break;
@@ -1182,7 +1182,7 @@ namespace holeyc {
         size_t tLine = (yystack_[0].value.transIDToken)->line();
         size_t tCol = (yystack_[0].value.transIDToken)->col();
         IDToken * t = (yystack_[0].value.transIDToken);
-		    (yylhs.value.transID) = new IDNode(t,false,false);
+		    (yylhs.value.transID) = new IDNode(t);
 		  }
 #line 1188 "parser.cc"
     break;
@@ -1777,10 +1777,10 @@ namespace holeyc {
        0,   181,   181,   187,   194,   200,   206,   213,   220,   225,
      229,   233,   237,   241,   245,   250,   257,   261,   266,   273,
      280,   287,   293,   296,   302,   306,   311,   317,   323,   327,
-     333,   339,   345,   351,   357,   363,   369,   373,   377,   381,
-     385,   389,   393,   397,   401,   405,   409,   413,   417,   421,
-     425,   429,   434,   439,   444,   449,   455,   461,   465,   470,
-     475,   480,   485,   490,   494,   498,   503,   507,   511,   516,
+     333,   340,   346,   353,   359,   365,   371,   375,   379,   383,
+     387,   391,   395,   399,   403,   407,   411,   415,   419,   423,
+     427,   431,   436,   441,   446,   451,   457,   463,   467,   472,
+     477,   482,   487,   492,   496,   500,   505,   509,   513,   517,
      522
   };
 

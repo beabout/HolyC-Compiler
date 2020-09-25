@@ -116,11 +116,11 @@ private:
 
 class ExpNode : public ASTNode {
   public:
-    ExpNode(size_t line, size_t col)
-    : ASTNode(line, col){
+    ExpNode(size_t line, size_t col, bool isParens = true)
+    : ASTNode(line, col), hasParens(isParens){
     }
     virtual void unparse(std::ostream& out, int indent) override = 0;
-
+    bool hasParens;
 };
 
 class NestedExpNode : public ExpNode {
@@ -195,10 +195,11 @@ class LValNode : public ExpNode
 class DerefNode : public LValNode
 {
   public:
-      DerefNode(size_t line, size_t col) 
-    : LValNode(line, col) {
+      DerefNode(size_t line, size_t col, IDNode* idnode) 
+    : LValNode(line, col), myIDNode(idnode) {
     }
  // private:
+  void unparse(std::ostream& out, int indent);
   IDNode* myIDNode;
 };
 
@@ -217,9 +218,10 @@ class IndexNode : public LValNode
 class RefNode : public LValNode
 {
   public:
-      RefNode(size_t line, size_t col) 
-    : LValNode(line, col) {
+      RefNode(size_t line, size_t col, IDNode* idnode) 
+    : LValNode(line, col), myIDNode(idnode) {
     }
+    void unparse(std::ostream &out, int indent);
  // private:
     IDNode* myIDNode;
 };
@@ -558,13 +560,11 @@ class IntLitNode : public ExpNode
 **/
 class IDNode : public LValNode{
   public:
-    IDNode(IDToken *token, bool isAt, bool isCarat)
-    : LValNode(token->line(), token->col()), myIsAt(isAt), myIsCarat(isCarat), myStrVal(token->value())
+    IDNode(IDToken *token)
+    : LValNode(token->line(), token->col()), myStrVal(token->value())
     {
     }
     void unparse(std::ostream& out, int indent);
-    bool myIsAt;
-    bool myIsCarat;
     /** The name of the identifier **/
     std::string myStrVal;
 };

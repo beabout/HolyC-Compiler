@@ -75,12 +75,12 @@ true 		    { return makeBareToken(TokenKind::TRUE); }
 "!"	 	        { return makeBareToken(TokenKind::NOT); }
 "&&"          { return makeBareToken(TokenKind::AND); }
 "||"          { return makeBareToken(TokenKind::OR); }
-"=="          { return makeBareToken(TokenKind::NOTEQUALS); }
-"!="          { return makeBareToken(TokenKind::EQUALS); }
+"!="          { return makeBareToken(TokenKind::NOTEQUALS); }
+"=="          { return makeBareToken(TokenKind::EQUALS); }
 "<"		        { return makeBareToken(TokenKind::LESS); }
 "<="          { return makeBareToken(TokenKind::LESSEQ); }
-">"		        { return makeBareToken(TokenKind::LESS); }
-">="          { return makeBareToken(TokenKind::LESSEQ); }
+">"		        { return makeBareToken(TokenKind::GREATER); }
+">="          { return makeBareToken(TokenKind::GREATEREQ); }
 "="		        { return makeBareToken(TokenKind::ASSIGN); }
 \'\\[tn\\]	  { return makeCharLitToken(yytext); }
 \'\\\t	  	{ return makeCharLitToken("'\t"); }

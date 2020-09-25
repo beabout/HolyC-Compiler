@@ -334,6 +334,7 @@ stmt		: varDecl SEMICOLON
 		  { 
         size_t tLine = $3->line();
         size_t tCol = $3->col();
+		    $3->hasParens = false;
 			  $$ = new IfStmtNode(tLine, tCol, $3, $6);
 		  }
 		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
@@ -346,6 +347,7 @@ stmt		: varDecl SEMICOLON
 		  { 
         size_t tLine = $3->line();
         size_t tCol = $3->col();
+		$3->hasParens = false;
         $$ = new WhileStmtNode(tLine, tCol, $3, $6);
       }
 		| RETURN exp SEMICOLON
@@ -510,13 +512,11 @@ lval		: id
 		  }
 		| AT id
 		  {
-        $2->myIsAt = true;
-		    $$ = $2; // $2 here is already an IDNode
+        $$ = new DerefNode($2->line(), $2->col(), $2);
 		  }
 		| CARAT id
 		  {
-        $2->myIsCarat = true;
-		    $$ = $2; // How to pass isCarat?
+        $$ = new RefNode($2->line(), $2->col(), $2);
 		  }
 
 id		: ID
@@ -524,7 +524,7 @@ id		: ID
         size_t tLine = $1->line();
         size_t tCol = $1->col();
         IDToken * t = $1;
-		    $$ = new IDNode(t,false,false);
+		    $$ = new IDNode(t);
 		  }
 
 %%

@@ -347,9 +347,9 @@ static yyconst flex_int16_t yy_accept[150] =
        60,   60,   23,   24,   31,   28,   26,   30,   32,   52,
        25,   38,   42,   40,   17,   51,   51,   51,   51,   19,
        20,   18,   51,   51,   51,   51,   51,   51,   51,   51,
-       51,   21,   60,   22,   58,   57,   37,   54,   53,   56,
+       51,   21,   60,   22,   58,   57,   36,   54,   53,   56,
        59,   34,   49,   48,   50,   49,   46,   27,   29,   52,
-       39,   36,   41,   51,   51,   51,   51,   51,   51,   51,
+       39,   37,   41,   51,   51,   51,   51,   51,   51,   51,
        51,    8,   51,   51,   51,   51,   51,   35,   56,   54,
        47,   44,   45,   43,   51,   51,   51,   51,   51,   51,
        51,    1,   51,   51,   51,   51,   56,   55,   56,   54,
@@ -933,12 +933,12 @@ YY_RULE_SETUP
 case 40:
 YY_RULE_SETUP
 #line 82 "holeyc.l"
-{ return makeBareToken(TokenKind::LESS); }
+{ return makeBareToken(TokenKind::GREATER); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 83 "holeyc.l"
-{ return makeBareToken(TokenKind::LESSEQ); }
+{ return makeBareToken(TokenKind::GREATEREQ); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
