@@ -27,19 +27,9 @@ class SemSymbol {
     * k, the kind of symbol (either 'v' for variable or 'f' for function)
     * t, the (variable type) or (function return type) of symbol (either 'int', 'char', 'void', 'std::string', etc)
     */
-    SemSymbol(char k, std::string t) {
-      myKind = k;
-      myType = t;
-    }
-    
-    char kind() {
-      return myKind; 
-    }
-
-    std::string type() {
-      return myType;
-    }
-    
+    SemSymbol(char k, std::string t);
+    char kind();
+    std::string type();
   private: 
     char myKind;
     std::string myType;
@@ -58,16 +48,8 @@ class ScopeTable {
 		// and/or returning information to indicate
 		// that the symbol does not exist within the
 		// current scope.
-    bool symbolPresent(std::string t) { 
-      HashMap<std::string, SemSymbol *>::iterator it; 
-      return symbols->contains(t);
-    }
-
-    void addSymbol(char k, std::string t) {
-      SemSymbol * symbol = new SemSymbol(k, t);
-      std::pair<std::string, SemSymbol *> pair = std::pair<std::string, SemSymbol *>(t, symbol);
-      symbols->insert(pair);
-    }
+    bool symbolPresent(std::string t);
+    void addSymbol(char k, std::string t);
 
   private:
 		HashMap<std::string, SemSymbol *> * symbols;
