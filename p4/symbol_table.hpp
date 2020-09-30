@@ -22,6 +22,27 @@ class SemSymbol {
 	// each semantic symbol should track
 	// (i.e. the kind of the symbol (either a variable or function)
 	// and functions to get/set those fields
+  public: 
+    /* params:
+    * k, the kind of symbol (either 'v' for variable or 'f' for function)
+    * t, the (variable type) or (function return type) of symbol (either 'int', 'char', 'void', 'std::string', etc)
+    */
+    SemSymbol(char k, std::string t) {
+      myKind = k;
+      myType = t;
+    }
+    
+    char kind() {
+      return myKind; 
+    }
+
+    std::string type() {
+      return myType;
+    }
+    
+  private: 
+    char myKind;
+    std::string myType;
 };
 
 //A single scope. The symbol table is broken down into a 
@@ -37,7 +58,18 @@ class ScopeTable {
 		// and/or returning information to indicate
 		// that the symbol does not exist within the
 		// current scope.
-	private:
+    bool symbolPresent(std::string t) { 
+      HashMap<std::string, SemSymbol *>::iterator it; 
+      return symbols->contains(t);
+    }
+
+    void addSymbol(char k, std::string t) {
+      SemSymbol * symbol = new SemSymbol(k, t);
+      std::pair<std::string, SemSymbol *> pair = std::pair<std::string, SemSymbol *>(t, symbol);
+      symbols->insert(pair);
+    }
+
+  private:
 		HashMap<std::string, SemSymbol *> * symbols;
 };
 
@@ -47,6 +79,8 @@ class SymbolTable{
 		//TODO: add functions to create a new ScopeTable
 		// when a new scope is entered, drop a ScopeTable
 		// when a scope is exited, etc. 
+    void dropScope();
+    void addScope();
 	private:
 		std::list<ScopeTable *> * scopeTableChain;
 };
