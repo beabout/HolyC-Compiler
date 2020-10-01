@@ -19,7 +19,7 @@ public:
 		return nameAnalysis;
 	}
 
-	ProgramNode * ast;
+	ProgramNode * ast = nullptr;
 
 private:
 	NameAnalysis(){

@@ -14,12 +14,27 @@ namespace holeyc{
     scopeTableChain = new std::list<ScopeTable *>();
   }
 
-  void SymbolTable::dropScope()
-  {
+  void SymbolTable::dropScope(){
   }
   
-  void SymbolTable::addScope()
-  {
+  void SymbolTable::addScope(ScopeTable * s){
+    scopeTableChain->push_front(s);
+  }
+
+  ScopeTable * SymbolTable::currentScope() {
+    return scopeTableChain->front();
+  }
+
+  bool SymbolTable::isInScopeChain(IDNode *id) {
+    bool idIsPresent = false;
+    std::string name = id->getName();
+    for (auto scopeTable : *scopeTableChain){
+      idIsPresent = scopeTable->symbolPresent(name);
+      if(idIsPresent == true){
+        return idIsPresent;
+      }
+    }
+    return idIsPresent;
   }
 
   /*
@@ -31,33 +46,19 @@ namespace holeyc{
     symbols = new HashMap<std::string, SemSymbol *>();
   }
 
-  bool ScopeTable::symbolPresent(std::string t)
+  bool ScopeTable::symbolPresent(std::string name)
   {
-    HashMap<std::string, SemSymbol *>::iterator it;
-    return symbols->contain(t);
+    return symbols->contains(name);
   }
 
-  void ScopeTable::addSymbol(char k, std::string t)
+  void ScopeTable::addSymbol(SemSymbol* sym)
   {
-    SemSymbol *symbol = new SemSymbol(k, t);
-    std::pair<std::string, SemSymbol *> pair = std::pair<std::string, SemSymbol *>(t, symbol);
-    symbols->insert(pair);
+    // SemSymbol *symbol = new SemSymbol(k, t);
+    // std::pair<std::string, SemSymbol *> pair = std::pair<std::string, SemSymbol *>(t, symbol);
+    // symbols->insert(pair);
   }
 
   /*
   ********** Semantic Table Methods **********
   */
-
-  SemSymbol::SemSymbol(char k, std::string t){
-    myKind = k;
-    myType = t;
-  }
-
-  char SemSymbol::kind(){
-    return myKind;
-  }
-
-  std::string SemSymbol::type(){
-    return myType;
-  }
 }
