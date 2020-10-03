@@ -48,7 +48,8 @@ namespace holeyc{
 
   bool ScopeTable::symbolPresent(std::string name)
   {
-    return symbols->contains(name);
+    return true;
+    // return symbols->contains(name);
   }
 
   void ScopeTable::addSymbol(SemSymbol* sym)
@@ -59,6 +60,6 @@ namespace holeyc{
   }
 
   /*
-  ********** Semantic Table Methods **********
+  ********** Semantic Symbol Methods **********
   */
 }

@@ -5,19 +5,18 @@
 #                          ]
 
 int a; # Create Scope Table A, push (int a) to Scope Table 
-
 # Scope (table) B
 # fn()'s scope 
 
 # Check scope, push (bool fn()) to current Scope Table 
-bool fn(){ # Enter new scope, Create new Scope Table 
-  TOCONSOLE "oop"; 
-} # Leave scope, Pop Current Scope table
+#bool fn(){ # Enter new scope, Create new Scope Table 
+#  TOCONSOLE "oop"; 
+#} # Leave scope, Pop Current Scope table
 
 # Scope (table) C 
 # main()'s scope
 
 int main(){ # Enter new scope, Create new Scope Table
-  fn(); # Start with current Scope Table for the fn() definition, iterate through other Scope Tables if not found in Current Scope. Return false if cannot find.  
+ # fn(); # Start with current Scope Table for the fn() definition, iterate through other Scope Tables if not found in Current Scope. Return false if cannot find.  
   a = 3; # Start with current Scope Table for the a definition, iterate through other Scope Tables if not found in Current Scope. Return false if cannot find.  
 }

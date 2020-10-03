@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <list>
+#include <ostream>
 #include "ast.hpp" // <-- Include if you need to access Nodes like 'TypeNode * myType;' 
 
 //Use an alias template so that we can use
@@ -32,8 +33,8 @@ class SemSymbol {
       myDecl = decl;
       myKind = kind;
     };
-    virtual std::string myIDToS();
-    virtual std::string myTypeToS();
+    virtual IDNode* myID() = 0;
+    virtual std::string myTypeToS() = 0;
 
   private: 
     DeclNode* myDecl; 
@@ -47,12 +48,14 @@ class VarSymbol : public SemSymbol {
     VarSymbol(VarDeclNode* decl)
     : SemSymbol('v',decl), myDecl(decl){};
     
-    std::string myIDToS(){
-      return myDecl->ID()->getName();
+    IDNode* myID() override{
+      return myDecl->ID();
     }
     
-    std::string myTypeToS(){
-      return myDecl->getTypeNode()->getMyString();
+    std::string myTypeToS() override{
+      //std::ostream out = std::ostream();
+      //return myDecl->getTypeNode()->unparse(out, 0);
+      return "TODO";
     }
   private: 
     VarDeclNode* myDecl;
@@ -63,12 +66,13 @@ class FnSymbol : public SemSymbol {
     FnSymbol(FnDeclNode* decl)
     : SemSymbol('f',decl), myDecl(decl){};
     
-    std::string myIDToS(){
-      return myDecl->ID()->getName();
+    IDNode* myID() override {
+      return myDecl->ID();
     }
 
-    std::string myTypeToS(){
-      return myDecl->getTypeNode()->getMyString();
+    std::string myTypeToS() override {
+      //return myDecl->getTypeNode()->unparse();
+      return "TODO: Print type of variable.";
     }
   private:
     FnDeclNode* myDecl;
