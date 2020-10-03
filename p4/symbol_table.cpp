@@ -14,6 +14,10 @@ namespace holeyc{
     scopeTableChain = new std::list<ScopeTable *>();
   }
 
+  bool SymbolTable::lookUp(std::string key){
+    return scopeTableChain->front()->symAlreadyDefined(key);
+  }
+
   void SymbolTable::dropScope(){
   }
   
@@ -27,9 +31,8 @@ namespace holeyc{
 
   bool SymbolTable::isInScopeChain(IDNode *id) {
     bool idIsPresent = false;
-    std::string name = id->getName();
     for (auto scopeTable : *scopeTableChain){
-      idIsPresent = scopeTable->symbolPresent(name);
+      idIsPresent = scopeTable->symbolPresent(id);
       if(idIsPresent == true){
         return idIsPresent;
       }
@@ -46,17 +49,33 @@ namespace holeyc{
     symbols = new HashMap<std::string, SemSymbol *>();
   }
 
-  bool ScopeTable::symbolPresent(std::string name)
+  bool ScopeTable::symbolPresent(IDNode *id)
   {
-    return true;
-    // return symbols->contains(name);
+    bool symbolIsPresent = false;
+    for ( auto it = symbols->begin(); it != symbols->end(); ++it){
+      if (it->first == id->getName()){
+        id->SetSymbol(it->second);
+        symbolIsPresent = true;
+      }
+    }
+    return symbolIsPresent;
   }
 
-  void ScopeTable::addSymbol(SemSymbol* sym)
+  bool ScopeTable::symAlreadyDefined(std::string key){
+    bool symbolIsPresent = false;
+    for (auto it = symbols->begin(); it != symbols->end(); ++it){
+      if (it->first == key){
+        symbolIsPresent = true;
+      }
+    }
+    return symbolIsPresent;
+  }
+
+  void ScopeTable::addSymbol(std::string name, SemSymbol* sym)
   {
-    // SemSymbol *symbol = new SemSymbol(k, t);
-    // std::pair<std::string, SemSymbol *> pair = std::pair<std::string, SemSymbol *>(t, symbol);
-    // symbols->insert(pair);
+     //SemSymbol *symbol = new SemSymbol(k, t);
+     std::pair<std::string, SemSymbol *> pair = std::pair<std::string, SemSymbol *>(name, sym);
+     symbols->insert(pair);
   }
 
   /*

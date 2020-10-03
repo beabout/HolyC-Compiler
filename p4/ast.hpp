@@ -76,10 +76,11 @@ public:
 class IDNode : public LValNode{
 public:
 	IDNode(size_t lIn, size_t cIn, std::string nameIn)
-	: LValNode(lIn, cIn), name(nameIn){}
+	: LValNode(lIn, cIn), name(nameIn), mySymbol(nullptr) {}
 	std::string getName(){ return name; }
 	void unparse(std::ostream& out, int indent) override;
 	bool nameAnalysis(SymbolTable *) override;
+	void SetSymbol(SemSymbol* sem){mySymbol = sem;}
 private:
 	std::string name;
 	SemSymbol * mySymbol;
@@ -123,7 +124,7 @@ class TypeNode : public ASTNode{
 public:
 	TypeNode(size_t l, size_t c) : ASTNode(l, c){ }
 	virtual void unparse(std::ostream&, int) override = 0;
-	// virtual std::string getMyString() = 0;
+	virtual std::string getMyString() = 0;
 	virtual bool nameAnalysis(SymbolTable *) override = 0;
 };
 
@@ -134,7 +135,7 @@ public:
 
 	}
 	void unparse(std::ostream& out, int indent) override;
-	std::string getMyString() {return "Char";}
+	std::string getMyString() override {return "Char";}
 	bool nameAnalysis(SymbolTable *) override;
 private:
 	bool isPtr;
@@ -458,7 +459,7 @@ public:
 	VoidTypeNode(size_t l, size_t c) : TypeNode(l, c){
 	}
 	void unparse(std::ostream& out, int indent) override;
-	std::string getMyString() {return "Void";}
+	std::string getMyString() override {return "Void";}
 	bool nameAnalysis(SymbolTable *) override;
 };
 
@@ -467,7 +468,7 @@ public:
 	IntTypeNode(size_t l, size_t c, bool ptrIn): TypeNode(l, c), isPtr(ptrIn){
 	}
 	void unparse(std::ostream& out, int indent) override;
-	std::string getMyString() {return "Int";}
+	std::string getMyString() override {return "Int";}
 	bool nameAnalysis(SymbolTable *) override;
 
 private:
@@ -479,7 +480,7 @@ public:
 	BoolTypeNode(size_t l, size_t c, bool ptrIn): TypeNode(l, c), isPtr(ptrIn) { 
 	}
 	void unparse(std::ostream& out, int indent) override;
-	std::string getMyString() {return "Bool";}
+	std::string getMyString() override {return "Bool";}
 	bool nameAnalysis(SymbolTable *) override;
 
 private:

@@ -31,16 +31,16 @@ class SemSymbol {
     */
     SemSymbol(char kind, DeclNode* decl){
       myDecl = decl;
-      myKind = kind;
+      myKind = kind; 
     };
     virtual IDNode* myID() = 0;
     virtual std::string myTypeToS() = 0;
 
   private: 
     DeclNode* myDecl; 
+    // Consider having a TypeNode * ?
     char myKind;
 
-    // Consider having a TypeNode * ?
 };
 
 class VarSymbol : public SemSymbol {
@@ -52,10 +52,9 @@ class VarSymbol : public SemSymbol {
       return myDecl->ID();
     }
     
+    // a (Int)
     std::string myTypeToS() override{
-      //std::ostream out = std::ostream();
-      //return myDecl->getTypeNode()->unparse(out, 0);
-      return "TODO";
+      return this->myDecl->getTypeNode()->getMyString();
     }
   private: 
     VarDeclNode* myDecl;
@@ -69,11 +68,18 @@ class FnSymbol : public SemSymbol {
     IDNode* myID() override {
       return myDecl->ID();
     }
-
-    std::string myTypeToS() override {
-      //return myDecl->getTypeNode()->unparse();
-      return "TODO: Print type of variable.";
+    // fn (param1Type, param2Type, ..., paramNType->returnType)
+    std::string myTypeToS() override{
+      std::string s = "";
+      for (auto vardecl : *this->myDecl->getFormals()){
+        s += vardecl->getTypeNode()->getMyString();
+        s += ",";
+      }
+      s += " -> ";
+      s += this->myDecl->getTypeNode()->getMyString();
+      return s;
     }
+
   private:
     FnDeclNode* myDecl;
 };
@@ -92,12 +98,13 @@ public:
   // and/or returning information to indicate
   // that the symbol does not exist within the
   // current scope.
-  bool symbolPresent(std::string t);
-  void addSymbol(SemSymbol* sym);
+  bool symbolPresent(IDNode* id);
+  bool symAlreadyDefined(std::string key);
+  void addSymbol(std::string name, SemSymbol * sym);
 
-private:
-  HashMap<std::string, SemSymbol *> * symbols;
-};
+  private:
+    HashMap<std::string, SemSymbol *> *symbols;
+  };
 
 class SymbolTable{
 	public:
@@ -105,7 +112,7 @@ class SymbolTable{
 		//TODO: add functions to create a new ScopeTable
 		// when a new scope is entered, drop a ScopeTable
 		// when a scope is exited, etc. 
-    bool lookUp(); // Should take a key value and return true/false if variable/fn has already been declared.
+    bool lookUp(std::string key); // Should take a key value and return true/false if variable/fn has already been declared.
 
     void dropScope(); // This will pop front once we have left a scope.
 

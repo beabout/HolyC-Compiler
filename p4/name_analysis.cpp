@@ -27,19 +27,28 @@ bool ProgramNode::nameAnalysis(SymbolTable * symTab){
 
 bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 	bool nameAnalysisOk = true;
-	// throw new ToDoError("[DELETE ME] I'm a varDecl"
-	// 	" you should add the information from my"	
-	// 	" subtree to the symbolTable as a new"	
-	// 	" entry in the current scope table"
-	// );
+  // ERROR: Invalid type in declaration.
+  if(this->getTypeNode()->getMyString() == "Void"){
+    // throw new ToDoError("[DELETE ME] I'm an fnDecl."
+    // 	" you should add and make current a new"
+    // 	" scope table for my body"
+    std::cout << this->line() << "," << this->col() << ": Invalid type in declaration\n";
+    nameAnalysisOk = false; 
+  }
+  // ERROR: Multiply declared identifier
+  else if(symTab->lookUp(this->ID()->getName())) {
+    std::cout << this->line() << "," << this->col() << ": Multiply declared identifier\n";
+    nameAnalysisOk = false; 
+  } else {
+    VarSymbol * vS = new VarSymbol(this);
+    this->myID->SetSymbol(vS);
+    symTab->currentScope()->addSymbol(this->myID->getName(), vS);
+    
 
-  VarSymbol * vS = new VarSymbol(this);
-  symTab->currentScope()->addSymbol(vS);
-  
-
-	// Create a new entry in the symbol table inside the last scope.
-	TypeNode * type_node = this->getTypeNode();
-	return nameAnalysisOk;
+    // Create a new entry in the symbol table inside the last scope.
+    TypeNode * type_node = this->getTypeNode();
+  }
+  return nameAnalysisOk;
 }
 
 bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
@@ -55,7 +64,7 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 	// );
 
   FnSymbol * fS = new FnSymbol(this);
-  symTab->currentScope()->addSymbol(fS);
+  symTab->currentScope()->addSymbol(this->myID->getName(),fS);
 
   // Create a new scope table and append it to the end of the symbol table.
   ScopeTable * scope = new ScopeTable();
@@ -71,30 +80,14 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
     // Assignments <- check SymbolTable for IDs
     // Var Decls <- add to scope (call nameAnalysis)
     res = body->nameAnalysis(symTab) && res;
-    // VarDeclNode(); DONE
-    // AssignStmtNode(); 
-    // PostDecStmtNode();
-    // PostIncStmtNode();
-    // FromConsoleStmtNode();
-    // ToConsoleStmtNode();
-    // IfStmtNode();
-    // IfElseStmtNode();
-    // WhileStmtNode();
-    // ReturnStmtNode(); 
-    // CallStmtNode(); DONE 
   }
   return nameAnalysisOk;
 }
 
 bool FormalDeclNode::nameAnalysis(SymbolTable * symTab){
   bool nameAnalysisOk = true;
-  throw new ToDoError("[DELETE ME] I'm a varDecl"
-                      " you should add the information from my"
-                      " subtree to the symbolTable as a new"
-                      " entry in the current scope table");
-
   VarSymbol * vS = new VarSymbol(this);
-  symTab->currentScope()->addSymbol(vS);
+  symTab->currentScope()->addSymbol(this->ID()->getName(), vS);
 
   // Create a new entry in the symbol table inside the last scope.
   TypeNode * type_node = this->getTypeNode();
@@ -114,16 +107,18 @@ bool FormalDeclNode::nameAnalysis(SymbolTable * symTab){
 // CLB: Do not ned this, we will expect varDecl to deal with it's ID but not actually call nameanalysis on it 
 bool IDNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true; 
-  // nameAnalysisOk = symTab->isInScopeChain(this);
+  nameAnalysisOk = symTab->isInScopeChain(this);
   if(nameAnalysisOk){
     // print ID and ID's type.
-    std::string toPrint = name; 
-    toPrint += " " + this->mySymbol->myTypeToS() + "\n";
-    std::cout << toPrint;
+    std::string toPrint = getName(); 
+    if(mySymbol != nullptr){
+      toPrint += " (" + mySymbol->myTypeToS() + ")";
+    }
+    std::cout << toPrint << std::endl;
   }
   else{
     // ERROR: Undeclared identifier.
-    std::cout << "L,C: Undeclared Identifier\n";
+    std::cout << this->line() << "," << this->col() << ": Undeclared Identifier\n";
   }
   return nameAnalysisOk; 
 }
