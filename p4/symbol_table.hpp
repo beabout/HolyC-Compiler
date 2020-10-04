@@ -71,9 +71,16 @@ class FnSymbol : public SemSymbol {
     // fn (param1Type, param2Type, ..., paramNType->returnType)
     std::string myTypeToS() override{
       std::string s = "";
+      int size = this->myDecl->getFormals()->size();
+      int count = 0;
       for (auto vardecl : *this->myDecl->getFormals()){
         s += vardecl->getTypeNode()->getMyString();
-        s += ",";
+        count++;
+        if(count < size)
+        {
+          s += ",";
+        }
+        
       }
       s += " -> ";
       s += this->myDecl->getTypeNode()->getMyString();

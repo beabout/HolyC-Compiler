@@ -19,6 +19,7 @@ namespace holeyc{
   }
 
   void SymbolTable::dropScope(){
+    scopeTableChain->pop_front();
   }
   
   void SymbolTable::addScope(ScopeTable * s){

@@ -1,0 +1,11 @@
+int a;
+int thing(void c){
+}
+bool fn(){
+	TOCONSOLE "oop";
+	thing = 4;
+}
+int main(){
+	fn();
+	a = 3;
+}
