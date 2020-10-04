@@ -20,33 +20,16 @@ namespace holeyc{
 // exist for the lifetime of a scope in the 
 // symbol table. 
 class SemSymbol {
-	//TODO add the fields that 
-	// each semantic symbol should track
-	// (i.e. the kind of the symbol (either a variable or function)
-	// and functions to get/set those fields
   public: 
-    /* params:
-    * k, the kind of symbol (either 'v' for variable or 'f' for function)
-    * t, the (variable type) or (function return type) of symbol (either 'int', 'char', 'void', 'std::string', etc)
-    */
-    SemSymbol(char kind, DeclNode* decl){
-      myDecl = decl;
-      myKind = kind; 
-    };
+    SemSymbol(DeclNode* decl);
     virtual IDNode* myID() = 0;
     virtual std::string myTypeToS() = 0;
-
-  private: 
-    DeclNode* myDecl; 
-    // Consider having a TypeNode * ?
-    char myKind;
-
 };
 
 class VarSymbol : public SemSymbol {
   public: 
     VarSymbol(VarDeclNode* decl)
-    : SemSymbol('v',decl), myDecl(decl){};
+    : SemSymbol(decl), myDecl(decl){};
     
     IDNode* myID() override{
       return myDecl->ID();
@@ -63,7 +46,7 @@ class VarSymbol : public SemSymbol {
 class FnSymbol : public SemSymbol {
   public: 
     FnSymbol(FnDeclNode* decl)
-    : SemSymbol('f',decl), myDecl(decl){};
+    : SemSymbol(decl), myDecl(decl){};
     
     IDNode* myID() override {
       return myDecl->ID();
