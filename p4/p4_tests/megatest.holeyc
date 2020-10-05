@@ -1,4 +1,4 @@
-int a; intptr b; bool c; boolptr d; char e; charptr f; void g;
+int a; intptr b; bool c; boolptr d; char e; charptr f; void v;
 
 int main(int argc, charptr argv)
 {
@@ -9,8 +9,7 @@ int main(int argc, charptr argv)
 }
 
 int main(int num){
-  while(((b == 5) <= a) < (4)){a++; 
-}
+ 
   int num; 
   b = 'c;
   a = 2; 

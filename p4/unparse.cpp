@@ -1,6 +1,6 @@
 #include "ast.hpp"
 #include "errors.hpp"
-
+#include "symbol_table.hpp"
 namespace holeyc{
 
 static void doIndent(std::ostream& out, int indent){

@@ -36,16 +36,15 @@ bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 	bool nameAnalysisOk = true;
   // ERROR: Invalid type in declaration.
   if(this->getTypeNode()->getMyString() == "void"){
-    std::cerr << this->line() << "," << this->col() << ": Invalid type in declaration\n";
+    std::cerr <<  "FATAL [" << this->getTypeNode()->line() << "," << this->getTypeNode()->col() << "]: Invalid type in declaration\n";
     nameAnalysisOk = false; 
   }
   // ERROR: Multiply declared identifier
   if(symTab->lookUp(this->ID()->getName())) {
-    std::cerr << this->line() << "," << this->col() << ": Multiply declared identifier\n";
+    std::cerr <<  "FATAL [" << this->ID()->line() << "," << this->ID()->col() << "]: Multiply declared identifier\n";
     nameAnalysisOk = false; 
   } else {
     VarSymbol * vS = new VarSymbol(this);
-    this->myID->SetSymbol(vS);
     symTab->currentScope()->addSymbol(this->myID->getName(), vS);
     // Create a new entry in the symbol table inside the last scope.
     TypeNode * type_node = this->getTypeNode();
@@ -56,7 +55,8 @@ bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 	bool nameAnalysisOk = true;
   if(symTab->lookUp(this->ID()->getName())){
-    std::cerr << this->line() << "," << this->col() << ": Multiply declared identifier\n";
+    std::cerr <<  "FATAL [" << this->ID()->line() << "," << this->ID()->col() << "]: Multiply declared identifier\n";
+    nameAnalysisOk = false;
   } else {  
     FnSymbol * fS = new FnSymbol(this);
     symTab->currentScope()->addSymbol(this->myID->getName(), fS);
@@ -65,20 +65,10 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
   // Create a new scope table and append it to the end of the symbol table.
   ScopeTable * scope = new ScopeTable();
   symTab->addScope(scope);
-  int formal_size = myFormals->size();
-  int count = 0;
   for (auto formal : *myFormals){ 
-    // formal = FormalDeclNode : public VarDeclNode
     nameAnalysisOk = formal->nameAnalysis(symTab) && nameAnalysisOk;
-    count++;
-    if(count != formal_size)
-    {
-    }
   }
   for (auto body : *myBody){
-    // Function Decls <- add to scope (call nameAnalysis)
-    // Assignments <- check SymbolTable for IDs
-    // Var Decls <- add to scope (call nameAnalysis)    
     nameAnalysisOk = body->nameAnalysis(symTab) && nameAnalysisOk;
   }  
   symTab->dropScope();
@@ -88,18 +78,17 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 bool FormalDeclNode::nameAnalysis(SymbolTable * symTab){
   bool nameAnalysisOk = true;
   // ERROR: Invalid type in declaration.
-  if (this->getTypeNode()->getMyString() == "Void"){
-    std::cerr << this->line() << "," << this->col() << ": Invalid type in declaration\n";
+  if (this->getTypeNode()->getMyString() == "void"){
+    std::cerr <<  "FATAL [" << this->getTypeNode()->line() << "," << this->getTypeNode()->col() << "]: Invalid type in declaration\n";
     nameAnalysisOk = false;
   }
   // ERROR: Multiply declared identifier
   if (symTab->lookUp(this->ID()->getName())){
-    std::cerr << this->line() << "," << this->col() << ": Multiply declared identifier\n";
+    std::cerr <<  "FATAL [" << this->ID()->line() << "," << this->ID()->col() << "]: Multiply declared identifier\n";
     nameAnalysisOk = false;
   }
   else{
     VarSymbol * vS = new VarSymbol(this);
-    this->ID()->SetSymbol(vS);
     symTab->currentScope()->addSymbol(this->ID()->getName(), vS);
     // Create a new entry in the symbol table inside the last scope.
     TypeNode *type_node = this->getTypeNode();
@@ -122,16 +111,10 @@ bool FormalDeclNode::nameAnalysis(SymbolTable * symTab){
 bool IDNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true; 
   nameAnalysisOk = symTab->isInScopeChain(this);
-  if(nameAnalysisOk){
-    // print ID and ID's type.
-    std::string toPrint = getName(); 
-    if(mySymbol != nullptr){
-      toPrint += "(" + mySymbol->myTypeToS() + ")";
-    }
-  }
-  else{
+  if(!nameAnalysisOk){
     // ERROR: Undeclared identifier.
-    std::cerr << this->line() << "," << this->col() << ": Undeclared Identifier\n";
+    std::cerr << "FATAL [" << this->line() << "," << this->col() << "]: Undeclared Identifier\n";
+    nameAnalysisOk = false;
   }
   return nameAnalysisOk; 
 }
@@ -161,9 +144,6 @@ bool IndexNode::nameAnalysis(SymbolTable * symTab){
 // }
 bool CharTypeNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true; 
-  if(isPtr){
-  } else {
-  }
   return nameAnalysisOk; 
 }
 bool VoidTypeNode::nameAnalysis(SymbolTable *symTab) { 
@@ -172,16 +152,10 @@ bool VoidTypeNode::nameAnalysis(SymbolTable *symTab) {
 }
 bool IntTypeNode::nameAnalysis(SymbolTable *symTab) { 
   bool nameAnalysisOk = true; 
-  if(isPtr){
-  }else{
-  }
   return nameAnalysisOk; 
 }
 bool BoolTypeNode::nameAnalysis(SymbolTable *symTab) { 
   bool nameAnalysisOk = true; 
-  if(isPtr){
-  } else {
-  }
   return nameAnalysisOk; 
 }
 
@@ -264,8 +238,8 @@ bool CallStmtNode::nameAnalysis(SymbolTable *symTab) {
   return nameAnalysisOk;
 }
 bool BinaryExpNode::nameAnalysis(SymbolTable *symTab) {
-  throw new ToDoError("This function should have"
-                      "been overriden in the subclass!");
+  bool nameAnalysisOk = true;
+  return nameAnalysisOk;
 }
 bool CallExpNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;
@@ -278,78 +252,78 @@ bool CallExpNode::nameAnalysis(SymbolTable * symTab){
 bool PlusNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool MinusNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;
   nameAnalysisOk =  myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool TimesNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool DivideNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool AndNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool OrNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-   nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool EqualsNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool NotEqualsNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool LessNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool LessEqNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool GreaterNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool GreaterEqNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;  
   nameAnalysisOk = myExp1->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && myExp2->nameAnalysis(symTab);
+  nameAnalysisOk = myExp2->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk; 
 }
 bool UnaryExpNode::nameAnalysis(SymbolTable * symTab){
-  throw new ToDoError("This function should have"
-                      "been overriden in the subclass!");
+  bool nameAnalysisOk = true;
+  return nameAnalysisOk;
 }
 bool NegNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true;   
@@ -366,7 +340,7 @@ bool NotNode::nameAnalysis(SymbolTable * symTab){
 bool AssignExpNode::nameAnalysis(SymbolTable * symTab){ 
   bool nameAnalysisOk = true; 
   nameAnalysisOk = myDst->nameAnalysis(symTab);
-  nameAnalysisOk = nameAnalysisOk && mySrc->nameAnalysis(symTab);
+  nameAnalysisOk = mySrc->nameAnalysis(symTab) && nameAnalysisOk;
   return nameAnalysisOk;
 }
 
@@ -399,20 +373,3 @@ bool FalseNode::nameAnalysis(SymbolTable * symTab){
 }
 
 }
-
-// int fn(bool a, int c){
-//   bool a;
-//   int c;
-//   int f; 
-//   c = 3; 
-//   f = c; 
-//   a = false; 
-// }
-
-// Scope 
-//   - add bool a, 
-//   - add int c, 
-//   - add int f, 
-//   - check for variables as needed. 
-//   - add other decls if needed. 
-//   - loop through last two steps.

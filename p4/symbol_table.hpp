@@ -14,14 +14,13 @@ using HashMap = std::unordered_map<K, V>;
 using namespace std;
 
 namespace holeyc{
-
-//A semantic symbol, which represents a single
-// variable, function, etc. Semantic symbols 
-// exist for the lifetime of a scope in the 
-// symbol table. 
-class SemSymbol {
+  //A semantic symbol, which represents a single
+  // variable, function, etc. Semantic symbols
+  // exist for the lifetime of a scope in the
+  // symbol table.
+class SemSymbol{
   public: 
-    SemSymbol(DeclNode* decl);
+    SemSymbol(DeclNode* decl){};
     virtual IDNode* myID() = 0;
     virtual std::string myTypeToS() = 0;
 };
