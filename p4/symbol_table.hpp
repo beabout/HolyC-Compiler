@@ -64,7 +64,7 @@ class FnSymbol : public SemSymbol {
         }
         
       }
-      s += " -> ";
+      s += "->";
       s += this->myDecl->getTypeNode()->getMyString();
       return s;
     }
