@@ -26,9 +26,6 @@ bool ProgramNode::nameAnalysis(SymbolTable * symTab){
 	for (auto global : *myGlobals){ // Iterate through varDecls and fnDecls 
 		res = global->nameAnalysis(symTab) && res;
 	}
-  if(res){
-    this->unparse(std::cout, 0);
-  }
 	return res;
 }
 
