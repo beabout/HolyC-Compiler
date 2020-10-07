@@ -89,6 +89,21 @@ static holeyc::NameAnalysis * doNameAnalysis(std::ifstream * input){
 	return holeyc::NameAnalysis::build(ast);
 }
 
+static void outputAST(ASTNode * ast, const char * outPath){
+  if (strcmp(outPath, "--") == 0){
+    ast->unparse(std::cout, 0);
+  }
+  else{
+    std::ofstream outStream(outPath);
+    if (!outStream.good()){
+      std::string msg = "Bad output file ";
+      msg += outPath;
+      throw new holeyc::InternalError(msg.c_str());
+    }
+    ast->unparse(outStream, 0);
+  }
+}
+
 int main(int argc, char * argv[]){
 	if (argc <= 1){ usageAndDie(); }
 	std::ifstream * input = new std::ifstream(argv[1]);
@@ -156,8 +171,10 @@ int main(int argc, char * argv[]){
 			doUnparsing(input, unparseFile);
 		}
 		if (nameFile){
-			if (doNameAnalysis(input) != nullptr){
-				return 0;
+      holeyc::NameAnalysis *na = doNameAnalysis(input);
+      if (na != nullptr){
+        outputAST(na->ast,nameFile);
+        return 0;
 			}
 			std::cerr << "Name Analysis Failed\n";
 			return 1;
