@@ -32,15 +32,18 @@ bool ProgramNode::nameAnalysis(SymbolTable * symTab){
 bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 	bool nameAnalysisOk = true;
   // ERROR: Invalid type in declaration.
-  if(this->getTypeNode()->getMyString() == "void"){
-    std::cerr <<  "FATAL [" << this->getTypeNode()->line() << "," << this->getTypeNode()->col() << "]: Invalid type in declaration\n";
-    nameAnalysisOk = false; 
+  if ((this->getTypeNode()->getMyString() == "void") || (symTab->lookUp(this->ID()->getName()))){
+    if (this->getTypeNode()->getMyString() == "void"){
+      std::cerr << "FATAL [" << this->getTypeNode()->line() << "," << this->getTypeNode()->col() << "]: Invalid type in declaration\n";
+      nameAnalysisOk = false;
+    }
+    // ERROR: Multiply declared identifier
+    if (symTab->lookUp(this->ID()->getName())){
+      std::cerr << "FATAL [" << this->ID()->line() << "," << this->ID()->col() << "]: Multiply declared identifier\n";
+      nameAnalysisOk = false;
+    }
   }
-  // ERROR: Multiply declared identifier
-  if(symTab->lookUp(this->ID()->getName())) {
-    std::cerr <<  "FATAL [" << this->ID()->line() << "," << this->ID()->col() << "]: Multiply declared identifier\n";
-    nameAnalysisOk = false; 
-  } else {
+  else{
     VarSymbol * vS = new VarSymbol(this);
     symTab->currentScope()->addSymbol(this->myID->getName(), vS);
     // Create a new entry in the symbol table inside the last scope.
@@ -75,14 +78,16 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 bool FormalDeclNode::nameAnalysis(SymbolTable * symTab){
   bool nameAnalysisOk = true;
   // ERROR: Invalid type in declaration.
-  if (this->getTypeNode()->getMyString() == "void"){
-    std::cerr <<  "FATAL [" << this->getTypeNode()->line() << "," << this->getTypeNode()->col() << "]: Invalid type in declaration\n";
-    nameAnalysisOk = false;
-  }
-  // ERROR: Multiply declared identifier
-  if (symTab->lookUp(this->ID()->getName())){
-    std::cerr <<  "FATAL [" << this->ID()->line() << "," << this->ID()->col() << "]: Multiply declared identifier\n";
-    nameAnalysisOk = false;
+  if ((this->getTypeNode()->getMyString() == "void") || (symTab->lookUp(this->ID()->getName()))){
+    if (this->getTypeNode()->getMyString() == "void"){
+      std::cerr << "FATAL [" << this->getTypeNode()->line() << "," << this->getTypeNode()->col() << "]: Invalid type in declaration\n";
+      nameAnalysisOk = false;
+    }
+    // ERROR: Multiply declared identifier
+    if (symTab->lookUp(this->ID()->getName())){
+      std::cerr <<  "FATAL [" << this->ID()->line() << "," << this->ID()->col() << "]: Multiply declared identifier\n";
+      nameAnalysisOk = false;
+    }
   }
   else{
     VarSymbol * vS = new VarSymbol(this);
