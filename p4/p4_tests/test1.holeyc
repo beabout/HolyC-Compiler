@@ -1,11 +1,7 @@
 int a; 
 
-int thing(void c, int d){
-
-}
-
-int thing(bool c){
-
+int thing(bool c, int d){
+  return c; 
 }
 
 bool fn(){
@@ -14,9 +10,15 @@ bool fn(){
   bool t;
   t = "whatever";
   charptr wow;
+  int x;
   if(true){
+    int x; 
+    x = 3;
     TOCONSOLE "oop2";
+  } else {
+    x = 4;
   }
+  x = 3;
 } 
 
 int main(){ 

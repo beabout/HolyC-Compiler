@@ -1,11 +1,24 @@
 int a;
-int thing(void c){
+int thing(bool c, int d){
+	return c(bool);
 }
 bool fn(){
 	TOCONSOLE "oop";
-	thing = 4;
+	thing(bool,int->int) = 4;
+	bool t;
+	t(bool) = "whatever";
+	charptr wow;
+	int x;
+	if (true){
+		int x;
+		x(int) = 3;
+		TOCONSOLE "oop2";
+	} else {
+		x(int) = 4;
+	}
+	x(int) = 3;
 }
 int main(){
-	fn();
-	a = 3;
+	fn(->bool)();
+	a(int) = 3;
 }
