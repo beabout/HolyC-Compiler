@@ -30,20 +30,20 @@ void ProgramNode::typeAnalysis(TypeAnalysis * ta){
 	// the entire tree, getting the types for
 	// each element in turn and adding them
 	// to the ta object's hashMap
-	for (auto global : *myGlobals){
-		global->typeAnalysis(ta);
-	}
-
+  for (auto global : *myGlobals){
+    global->typeAnalysis(ta,BasicType::produce(VOID));
+  }
 	//The type of the program node will never
 	// be needed. We can just set it to VOID
 	//(Alternatively, we could make our type 
 	// be error if the DeclListNode is an error)
-	ta->nodeType(this, BasicType::produce(VOID));
+  ta->nodeType(this, BasicType::produce(VOID));
 }
 
-void FnDeclNode::typeAnalysis(TypeAnalysis * ta){
+void FnDeclNode::typeAnalysis(TypeAnalysis *ta, DataType * retType)
+{
 
-	//HINT: you might want to change the signature for
+  //HINT: you might want to change the signature for
 	// typeAnalysis on FnBodyNode to take a second
 	// argument which is the type of the current 
 	// function. This will help you to know at a 
@@ -51,17 +51,26 @@ void FnDeclNode::typeAnalysis(TypeAnalysis * ta){
 	// the current function
 
 	//Note: this function may need extra code
-
+	const DataType* return_type = this->getRetTypeNode()->getType();
+	const std::list<DataType*>* formal_type_list = new std::list<DataType*>();
+	for(auto formal : *myFormals){
+		// push datatype of formal to list.
+		DataType* data_type = formal->getTypeNode()->getType();
+    	formal_type_list->push_back(data_type);
+	}
+	FnType* fn_type = new FnType(formal_type_list, return_type);
+  ta->setCurrentFnType(fn_type);
 	for (auto stmt : *myBody){
-		stmt->typeAnalysis(ta);
+    // stmt could be a return stmt. Must know Fn return type.
+		stmt->typeAnalysis(ta,this->getRetTypeNode()->getType());
 	}
 }
 
-void StmtNode::typeAnalysis(TypeAnalysis * ta){
+void StmtNode::typeAnalysis(TypeAnalysis * ta, DataType * retType){
 	TODO("Implement me in the subclass");
 }
 
-void AssignStmtNode::typeAnalysis(TypeAnalysis * ta){
+void AssignStmtNode::typeAnalysis(TypeAnalysis * ta, DataType *retType){
 	myExp->typeAnalysis(ta);
 
 	//It can be a bit of a pain to write 
@@ -119,11 +128,11 @@ void AssignExpNode::typeAnalysis(TypeAnalysis * ta){
 	ta->nodeType(this, ErrorType::produce());
 }
 
-void DeclNode::typeAnalysis(TypeAnalysis * ta){
+void DeclNode::typeAnalysis(TypeAnalysis * ta, DataType *retType){
 	TODO("Override me in the subclass");
 }
 
-void VarDeclNode::typeAnalysis(TypeAnalysis * ta){
+void VarDeclNode::typeAnalysis(TypeAnalysis * ta, DataType *retType){
 	// VarDecls always pass type analysis, since they 
 	// are never used in an expression. You may choose
 	// to type them void (like this), as discussed in class
@@ -135,12 +144,114 @@ void IDNode::typeAnalysis(TypeAnalysis * ta){
 	// yield the type of their symbol (which
 	// depends on their definition)
 	ta->nodeType(this, this->getSymbol()->getDataType());
-}
 
-void IntLitNode::typeAnalysis(TypeAnalysis * ta){
-	// IntLits never fail their type analysis and always
-	// yield the type INT
 	ta->nodeType(this, BasicType::produce(INT));
 }
 
+void LValNode::typeAnalysis(TypeAnalysis * ta){
+  
 }
+
+void FromConsoleStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType){
+
+}
+
+void ToConsoleStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType){
+
+}
+
+void IfStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType){
+
+}
+
+void IfElseStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType){
+
+}
+
+void WhileStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType){
+
+}
+
+void RefNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+void DerefNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+void IndexNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+void BinaryExpNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+void ReturnStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType){
+	if( (myExp == nullptr) && !(retType->isVoid()) )
+	{
+		// error
+	}
+  // Check if myExp has same return type as retType
+  // myExp->retType() == retType
+  // else ERROR
+}
+
+void TypeNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+void PostIncStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType)
+{
+}
+
+void PostDecStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType)
+{
+}
+
+void IntLitNode::typeAnalysis(TypeAnalysis *ta)
+{
+}
+
+void CharLitNode::typeAnalysis(TypeAnalysis * ta)
+{
+}
+
+void StrLitNode::typeAnalysis(TypeAnalysis * ta)
+{
+}
+
+void NullPtrNode::typeAnalysis(TypeAnalysis * ta)
+{
+}
+
+void TrueNode::typeAnalysis(TypeAnalysis * ta)
+{
+}
+
+void FalseNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+void CallStmtNode::typeAnalysis(TypeAnalysis *ta, DataType *retType)
+{
+}
+
+void CharTypeNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+void FormalDeclNode::typeAnalysis(TypeAnalysis *ta, DataType *retType)
+{
+}
+
+void NegNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+void NotNode::typeAnalysis(TypeAnalysis *ta){
+
+}
+
+}// end of namespace

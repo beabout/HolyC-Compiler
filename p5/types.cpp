@@ -52,5 +52,4 @@ DataType * IntTypeNode::getType() {
 	}
 }
 
-
 } //End namespace
