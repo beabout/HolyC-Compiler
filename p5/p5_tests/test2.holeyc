@@ -1,0 +1,27 @@
+int a; 
+
+int thing(bool c, int d){
+  return c; 
+}
+
+bool fn(){
+  TOCONSOLE "oop";
+  thing = 4;
+  bool t;
+  t = "whatever";
+  charptr wow;
+  int x;
+  if(true){
+    int x; 
+    x = 3;
+    TOCONSOLE "oop2";
+  } else {
+    x = 4;
+  }
+  x = 3;
+} 
+
+int main(){ 
+  fn(); 
+  a = 3; 
+}
