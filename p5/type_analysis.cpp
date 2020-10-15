@@ -193,22 +193,50 @@ void IfStmtNode::typeAnalysis(TypeAnalysis *ta){
 }
 
 void IfElseStmtNode::typeAnalysis(TypeAnalysis *ta){
-
+  myCond->typeAnalysis(ta);
+    if(ta->nodeType(myCond) != BasicType::produce(BOOL)){
+    ta->badIfCond(myCond->line(), myCond->col());
+    ta->nodeType(this, ErrorType::produce());
+  }
+  else
+  {
+    	for(auto stmt : *myBodyTrue){
+        stmt->typeAnalysis(ta);
+	    }
+      for(auto stmt : *myBodyFalse){
+        stmt->typeAnalysis(ta);
+	    }
+  }
+  ta->nodeType(this, BasicType::produce(VOID));
 }
-
+// literally identical to IfStmtNode
 void WhileStmtNode::typeAnalysis(TypeAnalysis *ta){
-
+  myCond->typeAnalysis(ta);
+  if(ta->nodeType(myCond) != BasicType::produce(BOOL)){
+    ta->badIfCond(myCond->line(), myCond->col());
+    ta->nodeType(this, ErrorType::produce());
+  }
+  else
+  {
+    	for(auto stmt : *myBody){
+        stmt->typeAnalysis(ta);
+	    }
+  }
+  ta->nodeType(this, BasicType::produce(VOID));
 }
 
 void RefNode::typeAnalysis(TypeAnalysis *ta){
-
+  myID->typeAnalysis(ta);
 }
 
 void DerefNode::typeAnalysis(TypeAnalysis *ta){
-
+  myID->typeAnalysis(ta);
 }
 
 void IndexNode::typeAnalysis(TypeAnalysis *ta){
+  myBase->typeAnalysis(ta);
+  myOffset->typeAnalysis(ta);
+  //TODO: errors
 
 }
 
