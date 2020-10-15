@@ -1,4 +1,9 @@
 int fn(int a, bool b){
   a++;
+  if(b){
+    a = 4 + 4;
+  } else {
+    a = 3 + 3;
+  }
   return a;
 }

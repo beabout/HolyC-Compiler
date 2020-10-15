@@ -334,6 +334,7 @@ public:
 	: ExpNode(l, c), myID(id), myArgs(argsIn){ }
 	void unparse(std::ostream& out, int indent) override;
 	bool nameAnalysis(SymbolTable * symTab) override;
+	void typeAnalysis(TypeAnalysis* ta) override;
 private:
 	IDNode * myID;
 	std::list<ExpNode *> * myArgs;

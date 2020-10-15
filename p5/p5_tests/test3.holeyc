@@ -1,0 +1,6 @@
+int b;
+int main(int c){
+  int a;
+  a = 9;
+  main(a);
+}
