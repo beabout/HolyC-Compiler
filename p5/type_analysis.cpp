@@ -9,10 +9,10 @@ namespace holeyc{
 
 TypeAnalysis * TypeAnalysis::build(NameAnalysis * nameAnalysis){
 	//To emphasize that type analysis depends on name analysis
-	// being complete, a name analysis must be supplied for 
+	// being complete, a name analysis must be supplied for
 	// type analysis to be performed.
 	TypeAnalysis * typeAnalysis = new TypeAnalysis();
-	auto ast = nameAnalysis->ast;	
+	auto ast = nameAnalysis->ast;
 	typeAnalysis->ast = ast;
 
 	ast->typeAnalysis(typeAnalysis);
@@ -35,7 +35,7 @@ void ProgramNode::typeAnalysis(TypeAnalysis * ta){
   }
 	//The type of the program node will never
 	// be needed. We can just set it to VOID
-	//(Alternatively, we could make our type 
+	//(Alternatively, we could make our type
 	// be error if the DeclListNode is an error)
   ta->nodeType(this, BasicType::produce(VOID));
 
@@ -44,8 +44,8 @@ void ProgramNode::typeAnalysis(TypeAnalysis * ta){
 void FnDeclNode::typeAnalysis(TypeAnalysis *ta){
   //HINT: you might want to change the signature for
 	// typeAnalysis on FnBodyNode to take a second
-	// argument which is the type of the current 
-	// function. This will help you to know at a 
+	// argument which is the type of the current
+	// function. This will help you to know at a
 	// return statement whether the return type matches
 	// the current function
 	DataType* return_type = this->getRetTypeNode()->getType();
@@ -66,7 +66,7 @@ void FnDeclNode::typeAnalysis(TypeAnalysis *ta){
   for (auto stmt : *myBody){
     // stmt could be a return stmt. Must know Fn return type.
     stmt->typeAnalysis(ta);
-    // if we have a ReturnStmtNode, it should return the fn return type. 
+    // if we have a ReturnStmtNode, it should return the fn return type.
     // Access via getCurrentFnType() inside each StmtNode
   }
 }
@@ -78,7 +78,7 @@ void StmtNode::typeAnalysis(TypeAnalysis * ta){
 void AssignStmtNode::typeAnalysis(TypeAnalysis * ta){
 	myExp->typeAnalysis(ta);
 
-	//It can be a bit of a pain to write 
+	//It can be a bit of a pain to write
 	// "const DataType *" everywhere, so here
 	// the use of auto is used instead to tell the
 	// compiler to figure out what the subType variable
@@ -99,7 +99,7 @@ void ExpNode::typeAnalysis(TypeAnalysis * ta){
 }
 
 void AssignExpNode::typeAnalysis(TypeAnalysis * ta){
-	//TODO: Note that this function is incomplete. 
+	//TODO: Note that this function is incomplete.
 	// and needs additional code
 
 	//Do typeAnalysis on the subexpressions
@@ -109,36 +109,28 @@ void AssignExpNode::typeAnalysis(TypeAnalysis * ta){
 	const DataType * tgtType = ta->nodeType(myDst);
 	const DataType * srcType = ta->nodeType(mySrc);
 
-	//While incomplete, this gives you one case for 
+	//While incomplete, this gives you one case for
 	// assignment: if the types are exactly the same
 	// it is usually ok to do the assignment. One
 	// exception is that if both types are function
 	// names, it should fail type analysis
 	if (tgtType == srcType){
-    // if (myDst->isFn()){
-    // } else {  
+    if (tgtType->asFn() || srcType->asFn()){
+      // Throw error, cannot assign function
+    } else {
        ta->nodeType(this, tgtType);
-    //   return;
-    // }
-	}
-  else
-  {
+    }
+    return;
+  } else {
 	//Some functions are already defined for you to
 	// report type errors. Note that these functions
 	// also tell the typeAnalysis object that the
 	// analysis has failed, meaning that main.cpp
 	// will print "Type check failed" at the end
-	ta->badAssignOpr(this->line(), this->col()); // <- problem here
-
-
-	//Note that reporting an error does not set the
-	// type of the current node, so setting the node
-	// type must be done
+	ta->badAssignOpr(this->line(), this->col());
 	ta->nodeType(this, ErrorType::produce());
+  return;
   }
-
-	
-
 }
 
 void DeclNode::typeAnalysis(TypeAnalysis * ta){
@@ -146,16 +138,16 @@ void DeclNode::typeAnalysis(TypeAnalysis * ta){
 }
 
 void VarDeclNode::typeAnalysis(TypeAnalysis * ta){
-	// VarDecls always pass type analysis, since they 
+	// VarDecls always pass type analysis, since they
 	// are never used in an expression. You may choose
 	// to type them void (like this), as discussed in class
-  
+
   ta->nodeType(this->myID, this->myType->getType());
 	ta->nodeType(this, BasicType::produce(VOID));
 }
 
 void FormalDeclNode::typeAnalysis(TypeAnalysis *ta){
-  this->ID()->typeAnalysis(ta);
+  ta->nodeType(this->ID(), this->getTypeNode()->getType());
   ta->nodeType(this, BasicType::produce(VOID));
 }
 
@@ -163,10 +155,9 @@ void IDNode::typeAnalysis(TypeAnalysis * ta){
 	// IDs never fail type analysis and always
 	// yield the type of their symbol (which
 	// depends on their definition)
-  
+
   // This will always be called in a use, not a definition
   ta->nodeType(this, this->getSymbol()->getDataType());
-  // ta->nodeType(this);
 }
 
 void LValNode::typeAnalysis(TypeAnalysis * ta){
@@ -175,23 +166,44 @@ void LValNode::typeAnalysis(TypeAnalysis * ta){
 
 void FromConsoleStmtNode::typeAnalysis(TypeAnalysis *ta){
   myDst->typeAnalysis(ta);
-  ta->nodeType(this, BasicType::produce(VOID)); // <- I suppose this is void..
+  if (ta->nodeType(myDst)->asFn()){
+    // ERROR: trying to read a function from console.
+    ta->readFn(myDst->line(), myDst->col());
+    ta->nodeType(this, ErrorType::produce());
+    return;
+  }
+  else
+  {
+    ta->nodeType(this, BasicType::produce(VOID)); // <- I suppose this is void..
+    return;
+  }
 }
 
 void ToConsoleStmtNode::typeAnalysis(TypeAnalysis *ta){
   mySrc->typeAnalysis(ta);
-  if (ta->nodeType(mySrc) != PtrType::produce(BasicType::CHAR(), 0) || ta->nodeType(mySrc) != BasicType::produce(CHAR)){
-    // error
-    // TODO: what error to report??
-    ta->nodeType(this, ErrorType::produce());
+  const DataType * my_src_type = ta->nodeType(mySrc);
+  if (my_src_type->asFn()){
+    if (my_src_type->asFn()->getReturnType() == BasicType::produce(VOID)){
+      // attempt to write void 
+      ta->badWriteVoid(mySrc->line(), mySrc->col());
+      ta->nodeType(this, ErrorType::produce());
+      return;
+    }
+    else {
+      // ERROR: attempting to output a function
+      ta->badWriteVoid(mySrc->line(), mySrc->col());
+      ta->nodeType(this, ErrorType::produce());
+      return;
+    }
+  } else {
+    ta->nodeType(this, BasicType::produce(VOID)); // <- I suppose this is void..
     return;
   }
-  ta->nodeType(this, BasicType::produce(VOID)); // <- I suppose this is void..
 }
 
 void IfStmtNode::typeAnalysis(TypeAnalysis *ta){
   myCond->typeAnalysis(ta);
-  if(ta->nodeType(myCond) != BasicType::produce(BOOL)){
+  if(ta->nodeType(myCond) != BasicType::produce(BOOL) && ta->nodeType(myCond) != ErrorType::produce()){
     ta->badIfCond(myCond->line(), myCond->col());
     ta->nodeType(this, ErrorType::produce());
   }
@@ -205,7 +217,7 @@ void IfStmtNode::typeAnalysis(TypeAnalysis *ta){
 
 void IfElseStmtNode::typeAnalysis(TypeAnalysis *ta){
   myCond->typeAnalysis(ta);
-  if(ta->nodeType(myCond) != BasicType::produce(BOOL)){
+  if(ta->nodeType(myCond) != BasicType::produce(BOOL) && ta->nodeType(myCond) != ErrorType::produce()){
     ta->badIfCond(myCond->line(), myCond->col());
     ta->nodeType(this, ErrorType::produce());
   }
@@ -222,12 +234,11 @@ void IfElseStmtNode::typeAnalysis(TypeAnalysis *ta){
 // literally identical to IfStmtNode
 void WhileStmtNode::typeAnalysis(TypeAnalysis *ta){
   myCond->typeAnalysis(ta);
-  if(ta->nodeType(myCond) != BasicType::produce(BOOL)){
+  if (ta->nodeType(myCond) != BasicType::produce(BOOL) && ta->nodeType(myCond)!= ErrorType::produce()){
     ta->badIfCond(myCond->line(), myCond->col());
     ta->nodeType(this, ErrorType::produce());
   }
-  else
-  {
+  else{
     	for(auto stmt : *myBody){
         stmt->typeAnalysis(ta);
 	    }
@@ -235,19 +246,22 @@ void WhileStmtNode::typeAnalysis(TypeAnalysis *ta){
   ta->nodeType(this, BasicType::produce(VOID));
 }
 
+// ^
 void RefNode::typeAnalysis(TypeAnalysis *ta){
   myID->typeAnalysis(ta);
+  ta->nodeType(this, BasicType::produce(VOID)); // should this return void? prolly not. 
 }
 
+// @
 void DerefNode::typeAnalysis(TypeAnalysis *ta){
   myID->typeAnalysis(ta);
+  ta->nodeType(this, BasicType::produce(VOID)); // should this return void? prolly not.
 }
 
 void IndexNode::typeAnalysis(TypeAnalysis *ta){
   myBase->typeAnalysis(ta);
   myOffset->typeAnalysis(ta);
-  //TODO: errors
-
+  ta->nodeType(this, BasicType::produce(VOID)); // should this return void? prolly not.
 }
 
 void BinaryExpNode::typeAnalysis(TypeAnalysis *ta){
@@ -317,7 +331,7 @@ void CharLitNode::typeAnalysis(TypeAnalysis * ta){
 }
 
 void StrLitNode::typeAnalysis(TypeAnalysis * ta){
-  ta->nodeType(this, PtrType::produce(BasicType::CHAR(),0));
+  ta->nodeType(this, PtrType::produce(BasicType::CHAR(),1));
 }
 
 void NullPtrNode::typeAnalysis(TypeAnalysis * ta){
@@ -332,24 +346,55 @@ void FalseNode::typeAnalysis(TypeAnalysis *ta){
   ta->nodeType(this, BasicType::produce(BOOL));
 }
 
-void CallStmtNode::typeAnalysis(TypeAnalysis *ta){
+// Need to throw errors when:
+// 1. Calling a function with the wrong number of arguments.
+// 2. Calling a function with argument(s) of the wrong type. DONE.
+void CallStmtNode::typeAnalysis(TypeAnalysis *ta)
+{
   myCallExp->typeAnalysis(ta);
   ta->nodeType(this, BasicType::produce(VOID));
 }
 
 void CallExpNode::typeAnalysis(TypeAnalysis *ta){
-  // uses badArgMatch
-  DataType* data_type = myID->getSymbol()->getDataType();
-  FnType* myFunction = dynamic_cast<FnType*>(data_type); // scary cast
-  
-  for(auto formal_type : *(myFunction->getFormalTypes())){
-     // do nothing
+  DataType* data_type = myID->getSymbol()->getDataType(); // FnType < DataType
+
+  if(! data_type->asFn())
+  {
+    ta->badCallee(this->line(), this-> col());
+    ta->nodeType(this, ErrorType::produce());
+    return;
   }
+
+  const FnType* myFunction = data_type->asFn();
+  
+
+  // we need to compare types of myArgs and
+  // myFunction->getFormalTypes(). They must all match,
+  // else it is a badArgMatch.
+
+  if(myFunction->getFormalTypes()->size() != myArgs->size())
+  {
+    ta->badArgCount(this->line(), this->col());
+    ta->nodeType(this, ErrorType::produce());
+    return;
+  }
+
+  int idx = 0;
+  for(auto formal_type : *(myFunction->getFormalTypes())){
+    at(myArgs, idx)->typeAnalysis(ta); // call typeAnalysis for given argument.
+    if (formal_type != ta->nodeType(at(myArgs, idx))){
+      ta->badArgMatch(at(myArgs, idx)->line(), at(myArgs, idx)->col()); // types don't line up right.
+      ta->nodeType(this, ErrorType::produce());
+      return;
+    }
+    idx+=1;
+  }
+  ta->nodeType(this, BasicType::produce(VOID));
 }
 
 void CharTypeNode::typeAnalysis(TypeAnalysis *ta){
   // We access CharTypeNode's TypeNode, not it's TypeAnalysis
-  ta->nodeType(this, BasicType::produce(VOID)); 
+  ta->nodeType(this, BasicType::produce(VOID));
 }
 
 void NegNode::typeAnalysis(TypeAnalysis *ta){
@@ -361,7 +406,7 @@ void NegNode::typeAnalysis(TypeAnalysis *ta){
     return;
   } else {
     // Or return VOID, don't think it matters
-    ta->nodeType(this, BasicType::produce(INT)); 
+    ta->nodeType(this, BasicType::produce(INT));
     return;
   }
 }
@@ -372,7 +417,7 @@ void NotNode::typeAnalysis(TypeAnalysis *ta){
   if(ta->nodeType(myExp) != BasicType::produce(BOOL)){
     ta->badLogicOpd(myExp->line(), myExp->col());
     ta->nodeType(this, ErrorType::produce());
-    return; 
+    return;
   } else {
     // do good things
     ta->nodeType(this, BasicType::produce(VOID));
@@ -524,15 +569,9 @@ void EqualsNode::typeAnalysis(TypeAnalysis * ta){
 
   const DataType *lhs = ta->nodeType(myExp1);
   const DataType *rhs = ta->nodeType(myExp2);
-  if ((lhs != BasicType::produce(BOOL)) || (rhs != BasicType::produce(BOOL))){
-    if (lhs != BasicType::produce(BOOL)){
-      ta->badRelOpd(myExp1->line(), myExp1->col());
-      ta->nodeType(this, ErrorType::produce());
-    }
-    if (rhs != BasicType::produce(BOOL)){
-      ta->badRelOpd(myExp2->line(), myExp2->col());
-      ta->nodeType(this, ErrorType::produce());
-    }
+  if (lhs != rhs){
+    ta->badEqOpr(this->line(), this->col());
+    ta->nodeType(this, ErrorType::produce());
     return;
   } else {
     // if you made it this far you passed.
@@ -547,15 +586,9 @@ void NotEqualsNode::typeAnalysis(TypeAnalysis * ta){
 
   const DataType *lhs = ta->nodeType(myExp1);
   const DataType *rhs = ta->nodeType(myExp2);
-  if ((lhs != BasicType::produce(BOOL)) || (rhs != BasicType::produce(BOOL))){
-    if (lhs != BasicType::produce(BOOL)){
-      ta->badRelOpd(myExp1->line(), myExp1->col());
-      ta->nodeType(this, ErrorType::produce());
-    }
-    if (rhs != BasicType::produce(BOOL)){
-      ta->badRelOpd(myExp2->line(), myExp2->col());
-      ta->nodeType(this, ErrorType::produce());
-    }
+  if (lhs != rhs){
+    ta->badEqOpr(this->line(), this->col());
+    ta->nodeType(this, ErrorType::produce());
     return;
   } else {
     // if you made it this far you passed.
@@ -570,12 +603,12 @@ void LessNode::typeAnalysis(TypeAnalysis * ta){
 
   const DataType *lhs = ta->nodeType(myExp1);
   const DataType *rhs = ta->nodeType(myExp2);
-  if ((lhs != BasicType::produce(BOOL)) || (rhs != BasicType::produce(BOOL))){
-    if (lhs != BasicType::produce(BOOL)){
+  if ((lhs != BasicType::produce(INT)) || (rhs != BasicType::produce(INT))){
+    if (lhs != BasicType::produce(INT)){
       ta->badRelOpd(myExp1->line(), myExp1->col());
       ta->nodeType(this, ErrorType::produce());
     }
-    if (rhs != BasicType::produce(BOOL)){
+    if (rhs != BasicType::produce(INT)){
       ta->badRelOpd(myExp2->line(), myExp2->col());
       ta->nodeType(this, ErrorType::produce());
     }
@@ -593,12 +626,12 @@ void LessEqNode::typeAnalysis(TypeAnalysis * ta){
 
   const DataType *lhs = ta->nodeType(myExp1);
   const DataType *rhs = ta->nodeType(myExp2);
-  if ((lhs != BasicType::produce(BOOL)) || (rhs != BasicType::produce(BOOL))){
-    if (lhs != BasicType::produce(BOOL)){
+  if ((lhs != BasicType::produce(INT)) || (rhs != BasicType::produce(INT))){
+    if (lhs != BasicType::produce(INT)){
       ta->badRelOpd(myExp1->line(), myExp1->col());
       ta->nodeType(this, ErrorType::produce());
     }
-    if (rhs != BasicType::produce(BOOL)){
+    if (rhs != BasicType::produce(INT)){
       ta->badRelOpd(myExp2->line(), myExp2->col());
       ta->nodeType(this, ErrorType::produce());
     }
@@ -616,12 +649,12 @@ void GreaterNode::typeAnalysis(TypeAnalysis * ta){
 
   const DataType *lhs = ta->nodeType(myExp1);
   const DataType *rhs = ta->nodeType(myExp2);
-  if ((lhs != BasicType::produce(BOOL)) || (rhs != BasicType::produce(BOOL))){
-    if (lhs != BasicType::produce(BOOL)){
+  if ((lhs != BasicType::produce(INT)) || (rhs != BasicType::produce(INT))){
+    if (lhs != BasicType::produce(INT)){
       ta->badRelOpd(myExp1->line(), myExp1->col());
       ta->nodeType(this, ErrorType::produce());
     }
-    if (rhs != BasicType::produce(BOOL)){
+    if (rhs != BasicType::produce(INT)){
       ta->badRelOpd(myExp2->line(), myExp2->col());
       ta->nodeType(this, ErrorType::produce());
     }
@@ -639,12 +672,12 @@ void GreaterEqNode::typeAnalysis(TypeAnalysis * ta){
 
   const DataType *lhs = ta->nodeType(myExp1);
   const DataType *rhs = ta->nodeType(myExp2);
-  if ((lhs != BasicType::produce(BOOL)) || (rhs != BasicType::produce(BOOL))){
-    if (lhs != BasicType::produce(BOOL)){
+  if ((lhs != BasicType::produce(INT)) || (rhs != BasicType::produce(INT))){
+    if (lhs != BasicType::produce(INT)){
       ta->badRelOpd(myExp1->line(), myExp1->col());
       ta->nodeType(this, ErrorType::produce());
     }
-    if (rhs != BasicType::produce(BOOL)){
+    if (rhs != BasicType::produce(INT)){
       ta->badRelOpd(myExp2->line(), myExp2->col());
       ta->nodeType(this, ErrorType::produce());
     }
@@ -653,6 +686,6 @@ void GreaterEqNode::typeAnalysis(TypeAnalysis * ta){
   // if you made it this far you passed.
     ta->nodeType(this, BasicType::produce(BOOL));
     return;
-  }  
+  }
 }
 }// end of namespace

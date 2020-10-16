@@ -1,9 +1,19 @@
+int foo(){
+  return 1;
+}
+
+int bar(){
+  return 1;
+}
+
 int fn(int a, bool b){
   a++;
-  if(b){
+  if('c < 'b){
     a = 4 + 4;
   } else {
-    a = 3 + 3;
+    a = 3 / 3;
   }
+  intptr i;
+  i++;
   return a;
 }

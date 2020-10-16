@@ -14,6 +14,13 @@ template <typename K, typename V>
 using HashMap = std::unordered_map<K, V>;
 #endif
 
+template<typename T>
+static T* at(std::list<T*>* list, int index){
+	auto list_front = list->begin();
+    std::advance(list_front, index);
+    T* result = *list_front;
+	return result;
+}
 
 namespace holeyc{
 

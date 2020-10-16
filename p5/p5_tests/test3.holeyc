@@ -1,6 +1,15 @@
 int b;
 int main(int c){
+  if(true != 7)
+  {
+    return 9;
+  }
+  charptr str;
+  str = "string";
+  char t;
+  t = ^str;
   int a;
+  bool b;
   a = 9;
   main(a);
 }
