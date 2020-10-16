@@ -6,14 +6,22 @@ int bar(){
   return 1;
 }
 
-int fn(int a, bool b){
-  a++;
-  if('c < 'b){
-    a = 4 + 4;
-  } else {
-    a = 3 / 3;
-  }
-  intptr i;
-  i++;
-  return a;
+int fn(){
+  bool c;
+  bool f;
+  f = false;
+  c = (f == 3);
 }
+
+#int fn(int a, bool b){
+#  #intptr i;
+#  #i[1] = 3;
+#  a++;
+#  if(b == b){
+#   a = 4 + 4;
+# } else {
+#    a = 3 / 3;
+#  }
+ # bar = 3;
+ # return a;
+#}

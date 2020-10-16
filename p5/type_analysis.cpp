@@ -5,6 +5,16 @@
 #include "name_analysis.hpp"
 #include "type_analysis.hpp"
 
+// arithmetic operand (opd) : When the operand would never work for the expression calling it (ex. applying a function name to an equality f == bool)
+// fn() == void 
+
+// arithmetic operator (opr) : When the operands are valid types (int, bool) but the types are different. 
+// 3 == 3 OK
+// Bool == Bool OK
+// 3 == Bool Operator error
+
+
+
 namespace holeyc{
 
 TypeAnalysis * TypeAnalysis::build(NameAnalysis * nameAnalysis){
@@ -234,16 +244,24 @@ void IfElseStmtNode::typeAnalysis(TypeAnalysis *ta){
 // literally identical to IfStmtNode
 void WhileStmtNode::typeAnalysis(TypeAnalysis *ta){
   myCond->typeAnalysis(ta);
-  if (ta->nodeType(myCond) != BasicType::produce(BOOL) && ta->nodeType(myCond)!= ErrorType::produce()){
+  if (ta->nodeType(myCond)->asFn() && (ta->nodeType(myCond)->asFn()->getReturnType() != BasicType::produce(BOOL))){
+    // then its a function and we need to see if its return type is bool.
+      ta->badIfCond(myCond->line(), myCond->col());
+      ta->nodeType(this, ErrorType::produce());
+      return;
+  }
+  else if (ta->nodeType(myCond) != BasicType::produce(BOOL) && ta->nodeType(myCond)!= ErrorType::produce()){
     ta->badIfCond(myCond->line(), myCond->col());
     ta->nodeType(this, ErrorType::produce());
+    return;
   }
   else{
-    	for(auto stmt : *myBody){
-        stmt->typeAnalysis(ta);
-	    }
+    for(auto stmt : *myBody){
+      stmt->typeAnalysis(ta);
+    }
+    ta->nodeType(this, BasicType::produce(VOID));
+    return;
   }
-  ta->nodeType(this, BasicType::produce(VOID));
 }
 
 // ^
@@ -259,9 +277,34 @@ void DerefNode::typeAnalysis(TypeAnalysis *ta){
 }
 
 void IndexNode::typeAnalysis(TypeAnalysis *ta){
+  // 1. is my id some kind of ptr?
+  // 2. does my offset somehow evaluate to an integer?
   myBase->typeAnalysis(ta);
   myOffset->typeAnalysis(ta);
-  ta->nodeType(this, BasicType::produce(VOID)); // should this return void? prolly not.
+
+  const DataType *deref_base = ta->nodeType(myBase)->asBasic();
+
+
+  if(ta->nodeType(myOffset)->isInt())
+  {
+    ta->nodeType(this, deref_base); // should this return void? 
+  }else{
+    ta->badIndex(myOffset->line(), myOffset->col());
+    ta->nodeType(this, ErrorType::produce()); 
+    //return;
+  }
+
+  if(ta->nodeType(myBase)->isPtr()){
+    ta->nodeType(this, deref_base); // should this return void? 
+  } else {
+    ta->badPtrBase(myBase->line(), myBase->col());
+    ta->nodeType(this, ErrorType::produce());
+    //return;
+  }
+
+
+
+
 }
 
 void BinaryExpNode::typeAnalysis(TypeAnalysis *ta){
@@ -276,15 +319,16 @@ void ReturnStmtNode::typeAnalysis(TypeAnalysis *ta){
   const FnType * fn_type = ta->getCurrentFnType();
   // This error throws when you return nothing but the function isn't void.
   if(myExp == nullptr){
-    if (!(fn_type->isVoid())){
-      ta->badNoRet(this->myExp->line(), this->myExp->col());
+    if (fn_type->getReturnType() != BasicType::produce(VOID)){
+      ta->badNoRet(this->line(), this->col());
       ta->nodeType(this, ErrorType::produce());
+      return;
     }
     return;
   } else {
     myExp->typeAnalysis(ta);
     // This error throws when you return something but the function is void.
-    if(fn_type->isVoid()){
+    if(fn_type->getReturnType()== BasicType::produce(VOID)){
       ta->extraRetValue(this->myExp->line(), this->myExp->col());
       ta->nodeType(this, ErrorType::produce());
       return;
@@ -322,16 +366,28 @@ void PostDecStmtNode::typeAnalysis(TypeAnalysis *ta){
   ta->nodeType(this,ta->nodeType(myLVal));
 }
 
+void IntTypeNode::typeAnalysis(TypeAnalysis *ta){
+  ta->nodeType(this, PtrType::produce(BasicType::INT(), 1));
+}
+
+void BoolTypeNode::typeAnalysis(TypeAnalysis *ta){
+  ta->nodeType(this, PtrType::produce(BasicType::BOOL(), 1));
+}
+
+void CharTypeNode::typeAnalysis(TypeAnalysis *ta){
+  ta->nodeType(this, PtrType::produce(BasicType::CHAR(), 1));
+}
+
+void StrLitNode::typeAnalysis(TypeAnalysis *ta){
+  ta->nodeType(this, PtrType::produce(BasicType::CHAR(), 1));
+}
+
 void IntLitNode::typeAnalysis(TypeAnalysis *ta){
   ta->nodeType(this, BasicType::produce(INT));
 }
 
 void CharLitNode::typeAnalysis(TypeAnalysis * ta){
   ta->nodeType(this, BasicType::produce(CHAR));
-}
-
-void StrLitNode::typeAnalysis(TypeAnalysis * ta){
-  ta->nodeType(this, PtrType::produce(BasicType::CHAR(),1));
 }
 
 void NullPtrNode::typeAnalysis(TypeAnalysis * ta){
@@ -352,22 +408,18 @@ void FalseNode::typeAnalysis(TypeAnalysis *ta){
 void CallStmtNode::typeAnalysis(TypeAnalysis *ta)
 {
   myCallExp->typeAnalysis(ta);
-  ta->nodeType(this, BasicType::produce(VOID));
+  ta->nodeType(this, ta->nodeType(myCallExp));
 }
 
 void CallExpNode::typeAnalysis(TypeAnalysis *ta){
   DataType* data_type = myID->getSymbol()->getDataType(); // FnType < DataType
-
-  if(! data_type->asFn())
-  {
+  if(!data_type->asFn()){
     ta->badCallee(this->line(), this-> col());
     ta->nodeType(this, ErrorType::produce());
     return;
   }
 
   const FnType* myFunction = data_type->asFn();
-  
-
   // we need to compare types of myArgs and
   // myFunction->getFormalTypes(). They must all match,
   // else it is a badArgMatch.
@@ -389,12 +441,9 @@ void CallExpNode::typeAnalysis(TypeAnalysis *ta){
     }
     idx+=1;
   }
-  ta->nodeType(this, BasicType::produce(VOID));
-}
 
-void CharTypeNode::typeAnalysis(TypeAnalysis *ta){
-  // We access CharTypeNode's TypeNode, not it's TypeAnalysis
-  ta->nodeType(this, BasicType::produce(VOID));
+  // its type should = myID->getReturnType();
+  ta->nodeType(this, myID->getSymbol()->getDataType()->asFn()->getReturnType());
 }
 
 void NegNode::typeAnalysis(TypeAnalysis *ta){

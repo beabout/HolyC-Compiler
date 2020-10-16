@@ -92,7 +92,7 @@ public:
 	void badPtrBase(size_t line, size_t col){
 		hasError = true;
 		Report::fatal(line, col, "Attempt to index"
-		  "a non-pointer type"
+		  " a non-pointer type"
 		);
 	}
 	void badArgCount(size_t line, size_t col){

@@ -146,6 +146,8 @@ public:
 	}
 	virtual BaseType getBaseType() const { return myBaseType; }
 	virtual std::string getString() const override;
+  virtual const BasicType * asBasic() const override { return this; }
+
 private:
 	BasicType(BaseType base) 
 	: myBaseType(base){ }

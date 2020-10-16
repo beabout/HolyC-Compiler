@@ -1,0 +1,64 @@
+int a;
+int b;
+int c;
+char d;
+char e;
+char f;
+bool g;
+bool h;
+bool i;
+
+void func_four()
+{
+  a = 99;
+  b = 7;
+  c = 42;
+  while(b < a)
+  {
+    b++;
+    if(b > c)
+    {
+      return;
+    }
+  }
+}
+
+
+
+bool func_two()
+{
+    if(a > b)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+int func_z(int param_int)
+{
+    while(func_two())
+    {
+        b++;
+    }
+    return b;
+}
+
+char func_three()
+{
+    return 'a;
+}
+
+# func_one is like main
+int func_one(int param_int)
+{
+    # calls func_four which initializes stuff.
+    func_four();
+    # returns the value of func_z with param a.
+    return func_z(a);
+}
+
+
+

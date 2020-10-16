@@ -149,7 +149,7 @@ public:
 	: TypeNode(lIn, cIn), isPtr(isPtrIn){}
 	void unparse(std::ostream& out, int indent) override;
 	virtual DataType * getType() override;
-	virtual void typeAnalysis(TypeAnalysis *) override;
+	void typeAnalysis(TypeAnalysis *) override;
 private:
 	bool isPtr;
 };
@@ -493,6 +493,7 @@ public:
 	IntTypeNode(size_t l, size_t c, bool ptrIn): TypeNode(l, c), isPtr(ptrIn){}
 	void unparse(std::ostream& out, int indent) override;
 	virtual DataType * getType() override;
+	void typeAnalysis(TypeAnalysis *ta) override;
 private:
 	const bool isPtr;
 };
@@ -502,6 +503,7 @@ public:
 	BoolTypeNode(size_t l, size_t c, bool ptrIn): TypeNode(l, c), isPtr(ptrIn) { }
 	void unparse(std::ostream& out, int indent) override;
 	virtual DataType * getType() override;
+	void typeAnalysis(TypeAnalysis *ta) override;
 private:
 	const bool isPtr;
 };
