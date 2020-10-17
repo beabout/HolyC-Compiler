@@ -244,7 +244,7 @@ void IfElseStmtNode::typeAnalysis(TypeAnalysis *ta){
 void WhileStmtNode::typeAnalysis(TypeAnalysis *ta){
   myCond->typeAnalysis(ta);
   if (ta->nodeType(myCond)->asFn() && (ta->nodeType(myCond)->asFn()->getReturnType() != BasicType::produce(BOOL))){
-    // then its a function and we need to see if its return type is bool.
+      // then its a function and we need to see if its return type is bool.
       ta->badIfCond(myCond->line(), myCond->col());
       ta->nodeType(this, ErrorType::produce());
       return;
@@ -266,44 +266,63 @@ void WhileStmtNode::typeAnalysis(TypeAnalysis *ta){
 // ^
 void RefNode::typeAnalysis(TypeAnalysis *ta){
   myID->typeAnalysis(ta);
-  ta->nodeType(this, ta->nodeType(myID)); // returning the type of it's ID makes sense here. 
-  // Need to also do some pointer analysis stuff :/ 
+  const DataType* this_ptr = ta->nodeType(myID); // returning the type of it's ID makes sense here. 
+  if(this_ptr->asPtr()){
+    const DataType * incremented_type = this_ptr->asPtr()->incLevel(); 
+    ta->nodeType(this, incremented_type);
+    return;
+  }
+  else{
+    DataType* new_ptr = PtrType::produce(ta->nodeType(myID)->asBasic(), 1);
+    ta->nodeType(this, new_ptr);
+    return;
+  }
 }
 
-// @
 void DerefNode::typeAnalysis(TypeAnalysis *ta){
   myID->typeAnalysis(ta);
-  ta->nodeType(this, ta->nodeType(myID)); // returning the type of it's ID makes sense here. 
-  // Need to also do some pointer analysis stuff :/ 
+  const DataType* this_ptr = ta->nodeType(myID); // some pointer
+  if(this_ptr->asPtr()){
+    const DataType * decremented_type = this_ptr->asPtr()->decLevel(); 
+    ta->nodeType(this, decremented_type);
+    return;
+  } else if(this_ptr->asFn()) {
+    ta->fnDeref(myID->line(), myID->col());
+    ta->nodeType(this, ErrorType::produce());
+    return;
+  }
+  else{
+    /* To: Dr. Davidson
+     * From: Clay & Evan
+     * Hey, this particular error is not in the 
+     * type_analysis.hpp. We made up our own error. 
+     * Please grade accordingly :)
+    */
+    ta->baseDeref(myID->line(), myID->col());
+    ta->nodeType(this, ErrorType::produce());
+    return;
+  }
 }
 
 void IndexNode::typeAnalysis(TypeAnalysis *ta){
-  // 1. is my id some kind of ptr?
-  // 2. does my offset somehow evaluate to an integer?
   myBase->typeAnalysis(ta);
   myOffset->typeAnalysis(ta);
+  const DataType *deref_base = PtrType::derefType(ta->nodeType(myBase));
 
-  const DataType *deref_base = ta->nodeType(myBase)->asBasic();
-
-  if(ta->nodeType(myOffset)->isInt()){
-    ta->nodeType(this, deref_base);
-  }else{
+  if(!ta->nodeType(myOffset)->isInt()){
     ta->badIndex(myOffset->line(), myOffset->col());
-    ta->nodeType(this, ErrorType::produce()); 
-    //return;
+    ta->nodeType(this, ErrorType::produce());
+    return;
   }
-
-  if(ta->nodeType(myBase)->isPtr()){
-    ta->nodeType(this, deref_base);
-  } else {
+  else if (!ta->nodeType(myBase)->isPtr()){
     ta->badPtrBase(myBase->line(), myBase->col());
     ta->nodeType(this, ErrorType::produce());
-    //return;
+    return;
   }
-
-
-
-
+  else{
+    ta->nodeType(this, deref_base);
+    return;
+  }
 }
 
 void BinaryExpNode::typeAnalysis(TypeAnalysis *ta){
@@ -366,17 +385,26 @@ void PostDecStmtNode::typeAnalysis(TypeAnalysis *ta){
 
 void IntTypeNode::typeAnalysis(TypeAnalysis *ta){
   if(isPtr){
-  } else {
     ta->nodeType(this, PtrType::produce(BasicType::INT(), 1));
+  } else {
+    ta->nodeType(this, BasicType::INT());
   }
 }
 
 void BoolTypeNode::typeAnalysis(TypeAnalysis *ta){
-  ta->nodeType(this, PtrType::produce(BasicType::BOOL(), 1));
+  if(isPtr) {
+    ta->nodeType(this, PtrType::produce(BasicType::BOOL(), 1));
+  } else {
+    ta->nodeType(this, (BasicType::BOOL()));
+  }
 }
 
 void CharTypeNode::typeAnalysis(TypeAnalysis *ta){
-  ta->nodeType(this, PtrType::produce(BasicType::CHAR(), 1));
+  if(isPtr) {
+    ta->nodeType(this, PtrType::produce(BasicType::CHAR(), 1));
+  } else {
+    ta->nodeType(this, (BasicType::CHAR()));
+  }
 }
 
 void StrLitNode::typeAnalysis(TypeAnalysis *ta){

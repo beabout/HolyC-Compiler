@@ -189,6 +189,13 @@ public:
 		Report::fatal(line, col,
 			"Attempt to dereference a function");
 	}
+  
+  void baseDeref(size_t line, size_t col){
+    hasError = true;
+    Report::fatal(line, col,
+      "Attempt to dereference a non-pointer type");
+  }
+
 private:
 	HashMap<const ASTNode *, const DataType *> nodeToType;
 	const FnType * currentFnType;

@@ -194,7 +194,12 @@ public:
 
 	/* Remove a level of indirection to the pointer type */
 	DataType * decLevel() const{
-		return PtrType::produce(myBasicType, myLevel - 1);
+		if( (myLevel - 1) <= 0 ){
+			return BasicType::produce(myBasicType->getBaseType());
+		}
+		else{
+			return PtrType::produce(myBasicType, myLevel - 1);
+		}
 	}
 
 	static DataType * derefType(const DataType * type){

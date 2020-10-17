@@ -9,13 +9,17 @@ bool bar(bool b){
 int fn(){
   bool c;
   bool f;
-  f = 43;
-  c = (f == 3);
-  bar = c;
+  #f = 43;
+  #c = (f == 3);
+  #bar = c;
 }
 
 int blaber(int a, bool b){
   intptr i;
+  a = b;
+  a = @i;
+  a = b;
   i[1] = 3;
+  a = b;
   a++;
 }
