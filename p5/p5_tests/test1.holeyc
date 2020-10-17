@@ -2,26 +2,20 @@ int foo(){
   return 1;
 }
 
-int bar(){
-  return 1;
+bool bar(bool b){
+  return b;
 }
 
 int fn(){
   bool c;
   bool f;
-  f = false;
+  f = 43;
   c = (f == 3);
+  bar = c;
 }
 
-#int fn(int a, bool b){
-#  #intptr i;
-#  #i[1] = 3;
-#  a++;
-#  if(b == b){
-#   a = 4 + 4;
-# } else {
-#    a = 3 / 3;
-#  }
- # bar = 3;
- # return a;
-#}
+int blaber(int a, bool b){
+  intptr i;
+  i[1] = 3;
+  a++;
+}

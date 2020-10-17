@@ -1,0 +1,22 @@
+int a;
+int b;
+int c;
+char z;
+
+int main(int argc, char argv)
+{
+    a = 0 / z;
+    a = 0 * z;
+    a = 0 - z;
+    a = 0 + z;
+    z = a;
+    #a = z++;
+
+}
+
+#FATAL [8,13]: Arithmetic operator applied to invalid operand
+#FATAL [9,13]: Arithmetic operator applied to invalid operand
+#FATAL [10,13]: Arithmetic operator applied to invalid operand
+#FATAL [11,13]: Arithmetic operator applied to invalid operand
+#FATAL [12,7]: Invalid assignment operation
+#Type Analysis Failed
