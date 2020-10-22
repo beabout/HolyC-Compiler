@@ -45,7 +45,7 @@ std::string Procedure::toString(bool verbose){
 
 	res += enter->toString(verbose) + "\n";
 	for (auto quad : bodyQuads){
-		res += "\t" + quad->toString(verbose) + "\n";
+		res += quad->toString(verbose) + "\n";
 	}
 	res += leave->toString(verbose) + "\n";
 	return res;
