@@ -4,58 +4,35 @@ int foo(int pam, int an_pam){
   return pam;
 }
 
-int fart(bool f, int c, char x){
-  f = true && false;
-  foo(c,7);
-  #c = foo(c, 7);
-  TOCONSOLE c;
-  if(f && true){
-    return 0;
-  } else {
-    TOCONSOLE 3;
+int bar(int one, int two, int three)
+{
+  one = 100;
+  two = 200;
+  three = 300;
+  while(true)
+  {
+    if(one < two)
+    {
+      while(one < two)
+      {
+        one++;
+      }
+    }
+    while(three > one)
+    {
+      one++;
+    }
+    while(one != 1)
+    {
+      one--;
+    }
+    if(one == 1)
+    {
+      return one;
+    }
+    else
+    {
+      return 0;
+    }
   }
-  #while(c < 4){
-  #  TOCONSOLE "ey";
-  #}
 }
-
-# [BEGIN GLOBALS]
-# b
-# [END GLOBALS]
-# [BEGIN foo LOCALS]
-# pam (formal)
-# an_pam (formal)
-# [END foo LOCALS]
-# lbl_fun_foo: enter foo
-#             getarg 1 [pam]
-#             getarg 2 [an_pam]
-#             setret [pam]
-#             goto lbl_0
-# lbl_0:      leave foo
-# [BEGIN fart LOCALS]
-# f (formal)
-# c (formal)
-# x (formal)
-# tmp0 (tmp)
-# tmp1 (tmp)
-# tmp2 (tmp)
-# [END fart LOCALS]
-# lbl_fun_fart: enter fart
-#             getarg 1 [f]
-#             getarg 2 [c]
-#             getarg 3 [x]
-#             [tmp0] := 1 AND8 0
-#             [f] := [tmp0]
-#             setarg 1 [c]
-#             setarg 2 7
-#             call foo
-#             OUTPUT [c]
-#             [tmp2] := [f] AND8 1
-#             IFZ [tmp2] GOTO lbl_2
-#             setret 0
-#             goto lbl_1
-#             goto lbl_3
-# lbl_2:      nop
-#             OUTPUT 3
-# lbl_3:      nop
-# lbl_1:      leave fart

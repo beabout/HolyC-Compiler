@@ -33,7 +33,8 @@ class Opd{
 public:
 	Opd(OpdWidth widthIn) : myWidth(widthIn){}
 	virtual std::string toString() = 0;
-	virtual OpdWidth getWidth(){ return myWidth; }
+  virtual std::string toStringBracket() = 0;
+  virtual OpdWidth getWidth(){ return myWidth; }
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
 			if (basic->isChar()){ return BYTE; }
@@ -51,7 +52,11 @@ class SymOpd : public Opd{
 public:
 	SymOpd(OpdWidth width) : Opd(width){}
   virtual std::string toString() override{
-		return mySym->getName();
+		return (mySym->getName());
+	}
+
+	virtual std::string toStringBracket() override{
+		return ("[" + mySym->getName() + "]");
 	}
 	const SemSymbol * getSym(){ return mySym; }
 private:
@@ -61,6 +66,7 @@ private:
 	SemSymbol * mySym;
 	friend class Procedure;
 	friend class IRProgram;
+	friend class IDNode;
 };
 
 class LitOpd : public holeyc::Opd{
@@ -70,6 +76,10 @@ public:
 	std::string toString() override{
 		return val;
 	}
+  virtual std::string toStringBracket() override{
+    return val;
+  }
+
 private:
 	std::string val;
 };
@@ -79,8 +89,12 @@ public:
 	AuxOpd(std::string valIn, OpdWidth width) 
 	: Opd(width), val(valIn) { }
 	std::string toString() override{
-		return val;
+		return(val);
 	}
+  virtual std::string toStringBracket() override{
+    return ("[" + val + "]");
+  }
+
 private:
 	std::string val;
 };

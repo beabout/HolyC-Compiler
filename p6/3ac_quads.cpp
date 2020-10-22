@@ -62,7 +62,7 @@ std::string LeaveQuad::repr(){
 }
 
 std::string AssignQuad::repr(){
-	return dst->toString() + " := " + src->toString();
+	return "[" + dst->toString() + "] := " + src->toString();
 	
 }
 
@@ -117,10 +117,10 @@ std::string BinOpQuad::repr(){
 		opString = " GTE64 ";
 		break;
 	}
-	return "[" + dst->toString() + "] " + " := " 
-		+ src1->toString()
+	return dst->toStringBracket() + " := " 
+		+ src1->toStringBracket()
 		+ opString
-		+ src2->toString();
+		+ src2->toStringBracket();
 }
 
 UnaryOpQuad::UnaryOpQuad(Opd * dstIn, UnaryOp opIn, Opd * srcIn)
@@ -169,7 +169,7 @@ JmpIfQuad::JmpIfQuad(Opd * cndIn, Label * tgtIn)
 
 std::string JmpIfQuad::repr(){
 	std::string res = "IFZ ";
-	res += cnd->toString();
+	res += cnd->toStringBracket();
 	res += " GOTO ";
 	res += tgt->toString();
 	return res;
@@ -197,7 +197,7 @@ SetArgQuad::SetArgQuad(size_t indexIn, Opd * opdIn)
 
 std::string SetArgQuad::repr(){
 	std::string res = "";
-	res += "setarg " + std::to_string(index) + " " + opd->toString(); 
+	res += "setarg " + std::to_string(index) + " " + opd->toStringBracket(); 
 	return res;
 }
 
@@ -207,7 +207,7 @@ GetArgQuad::GetArgQuad(size_t indexIn, Opd * opdIn)
 
 std::string GetArgQuad::repr(){
 	std::string res = "";
-	res += "getarg " + std::to_string(index) + " [" + opd->toString() + "]"; 
+	res += "getarg " + std::to_string(index) + " " + opd->toStringBracket(); 
 	return res;
 }
 
@@ -218,7 +218,7 @@ SetRetQuad::SetRetQuad(Opd * opdIn)
 std::string SetRetQuad::repr(){
 	std::string res = "";
 	// ORACLE DOESN'T MATCH THIS ONE -> res += "setret " + std::to_string(index) + " " + opd->toString();
-  res += "setret " + opd->toString();
+  res += "setret " + opd->toStringBracket();
   return res;
 }
 

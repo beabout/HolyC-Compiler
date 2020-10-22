@@ -93,6 +93,7 @@ public:
 };
 
 class IDNode : public LValNode{
+	
 public:
 	IDNode(size_t lIn, size_t cIn, std::string nameIn)
 	: LValNode(lIn, cIn), name(nameIn){}
@@ -104,9 +105,11 @@ public:
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
 	virtual Opd * flatten(Procedure * proc) override;
+	
 private:
 	std::string name;
 	SemSymbol * mySymbol = nullptr;
+	
 };
 
 class RefNode : public LValNode{

@@ -18,8 +18,6 @@ void FnDeclNode::to3AC(IRProgram * prog){
     param_idx += 1;
     formal->to3AC(new_proc);
   	SymOpd *op = new_proc->getSymOpd(formal->ID()->getSymbol());
-    // SymOpd *op = new SymOpd(formal->ID()->getSymbol(), prog->opWidth(this));
-    // SymOpd *op = new SymOpd(OpdWidth::QUADWORD);
     GetArgQuad * formal_quad = new GetArgQuad(param_idx,op); // int indexIn, opd* opdIn
     new_proc->addQuad(formal_quad);
   }
@@ -62,37 +60,37 @@ Opd * StrLitNode::flatten(Procedure * proc){
 }
 
 Opd * CharLitNode::flatten(Procedure * proc){
-	TODO(Implement me)
+	return new LitOpd(std::to_string(myVal), QUADWORD);
 }
 
 Opd * NullPtrNode::flatten(Procedure * proc){
 	return new LitOpd("0", ADDR);
-	TODO(Implement me)
 }
 
 Opd * TrueNode::flatten(Procedure * proc){
-	//TODO(Implement me)
 	return new LitOpd("1", proc->getProg()->opWidth(this));
 }
 
 Opd * FalseNode::flatten(Procedure * proc){
-	//TODO(Implement me)
 	return new LitOpd("0", proc->getProg()->opWidth(this));
 }
 
 Opd * AssignExpNode::flatten(Procedure * proc){
-  // Still need to check if RHS is function. If so, need to: 
-  //  - add setres
-  //  - add a tmp
-	Opd* rhs = mySrc->flatten(proc);
-  Opd *dst = myDst->flatten(proc);
-	AssignQuad* quad = new AssignQuad(dst, rhs);
-	proc->addQuad(quad);
-	return dst;
+  Opd * tmp = mySrc->flatten(proc);
+  Opd * lhs = myDst->flatten(proc);
+  if(mySrc->nodeKind() == "CallExp"){
+    // then we need to do temp = getres
+    GetRetQuad * ret = new GetRetQuad(tmp);    
+    proc->addQuad(ret);
+  }
+  AssignQuad* quad = new AssignQuad(lhs, tmp);
+  proc->addQuad(quad);
+  return tmp;
 }
 
 Opd * LValNode::flatten(Procedure * proc){
 	TODO(Implement me)
+  // piazza says not to worry about this.
 }
 
 Opd * DerefNode::flatten(Procedure * proc){
@@ -106,16 +104,16 @@ Opd * RefNode::flatten(Procedure * proc){
 Opd * CallExpNode::flatten(Procedure * proc){
   // c = foo(1); <-- WE NEED A tmp
   // foo(1); <-- WE DON'T NEED A tmp
-
   size_t arg_idx = 0;
   for(auto arg : *myArgs){
     arg_idx+=1;
     SetArgQuad * quad = new SetArgQuad(arg_idx, arg->flatten(proc));
     proc->addQuad(quad);
   }
-  CallQuad* call = new CallQuad(  myID->getSymbol() );
+  CallQuad* call = new CallQuad(myID->getSymbol());
   proc->addQuad(call);
-  return proc->getSymOpd(myID->getSymbol());
+  Opd * tmp = proc->makeTmp(proc->getProg()->opWidth(this));
+  return tmp;
 }
 
 Opd * NegNode::flatten(Procedure * proc){
@@ -214,27 +212,20 @@ Opd *GreaterEqNode::flatten(Procedure *proc){
   return dst;
 }
 
-void AssignStmtNode::to3AC(Procedure *proc)
-{
-  // TODO(Implement me)
-  // flatten myExp
-  // then do stuff
-  // Opd* lhs = something
-	// Opd* rhs = myExp->flatten(proc);
-  // Opd *dst = new AuxOpd("todo",OpdWidth::QUADWORD);
-	// AssignQuad* quad = new AssignQuad(dst, rhs);
+void AssignStmtNode::to3AC(Procedure *proc){
   myExp->flatten(proc);
 }
 
 void PostIncStmtNode::to3AC(Procedure *proc){
-  // TODO(Implement me)
-  myLVal->flatten(proc);
+  LitOpd* one = new LitOpd("1", proc->getProg()->opWidth(this));
+  BinOpQuad *quad = new BinOpQuad(myLVal->flatten(proc), BinOp::ADD, myLVal->flatten(proc),one);
+  proc->addQuad(quad);
 }
 
-void PostDecStmtNode::to3AC(Procedure *proc)
-{
-  // TODO(Implement me)
-  myLVal->flatten(proc);
+void PostDecStmtNode::to3AC(Procedure *proc){
+  LitOpd * one = new LitOpd("1", proc->getProg()->opWidth(this));
+  BinOpQuad *quad = new BinOpQuad(myLVal->flatten(proc), BinOp::SUB, myLVal->flatten(proc), one);
+  proc->addQuad(quad);
 }
 
 void FromConsoleStmtNode::to3AC(Procedure *proc){
@@ -256,58 +247,67 @@ void IfStmtNode::to3AC(Procedure *proc){
   for(auto stmt : *myBody){
     stmt->to3AC(proc);
   }
-  // [tmp2] : = [f] AND8 1 
-  // IFZ[tmp2] GOTO lbl_2
-  // setret 0 goto lbl_1
-  // lbl_2 : nop
-  // lbl_3 : nop
   NopQuad* nq = new NopQuad();
   nq->addLabel(my_lbl);
   proc->addQuad(nq);
-
   // now leave label
   // this should print -
   // lbl thing: nop
 }
 
 void IfElseStmtNode::to3AC(Procedure *proc){
-  Opd* my_opd = myCond->flatten(proc); // [f] AND8 1
-  Label * my_lbl = proc->makeLabel(); // lbl_2
+  Opd *my_opd = myCond->flatten(proc); 
+  Label * my_lbl = proc->makeLabel();
   JmpIfQuad* j = new JmpIfQuad(my_opd, my_lbl); 
   proc->addQuad(j);
   for(auto stmt : *myBodyTrue){
     stmt->to3AC(proc);
   }
-  
-  // jump here also
-  Label * my_lbl_2 = proc->makeLabel();
-  JmpQuad* j2 = new JmpQuad(my_lbl_2);
+  Label *my_lbl_2 = proc->makeLabel();
+  JmpQuad *j2 = new JmpQuad(my_lbl_2);
   proc->addQuad(j2);
 
+  // beginning of else
   NopQuad* nq = new NopQuad();
   nq->addLabel(my_lbl);
   proc->addQuad(nq);
-  
 
   for(auto stmt : *myBodyFalse){
     stmt->to3AC(proc);
   }
-
-  // will jump to here 
+  
+  // end of if
   NopQuad* nq2 = new NopQuad();
-  nq->addLabel(my_lbl_2);
+  nq2->addLabel(my_lbl_2);
   proc->addQuad(nq2);
 }
 
-void WhileStmtNode::to3AC(Procedure *proc){
+void WhileStmtNode::to3AC(Procedure * proc){
   NopQuad *nq = new NopQuad();
-  Label *leave = proc->makeLabel(); // EG: changed from getLeaveLabel
-  nq->addLabel(leave);
+  Label *start = proc->makeLabel(); // EG: changed from getLeaveLabel
+  Label *end = proc->makeLabel(); // EG: changed from getLeaveLabel
+  nq->addLabel(start);
   proc->addQuad(nq);
-  myCond->flatten(proc);
+  Opd * my_opd = myCond->flatten(proc);
+
+  // jump if to skip to end
+  JmpIfQuad* j = new JmpIfQuad(my_opd, end); 
+  proc->addQuad(j);
+
+
   for(auto stmt : *myBody){
     stmt->to3AC(proc);
   }
+
+  // jumpifquad back to first label
+  JmpQuad* j2 = new JmpQuad(start); 
+  proc->addQuad(j2);
+
+  // end of while
+  NopQuad *nq2 = new NopQuad();
+  nq2->addLabel(end);
+  proc->addQuad(nq2);
+
 }
 
 void CallStmtNode::to3AC(Procedure *proc){
@@ -337,11 +337,9 @@ void VarDeclNode::to3AC(Procedure *proc)
   proc->gatherLocal(sym);
 }
 
-void VarDeclNode::to3AC(IRProgram *prog)
-{
+void VarDeclNode::to3AC(IRProgram *prog){
   SemSymbol *sym = ID()->getSymbol();
-  if (sym == nullptr)
-  {
+  if (sym == nullptr){
     throw new InternalError("null sym");
   }
 
@@ -352,7 +350,9 @@ void VarDeclNode::to3AC(IRProgram *prog)
 // context (DeclNodes protect descent)
 Opd *IDNode::flatten(Procedure *proc){
   // for now do nothing?
-  	return new LitOpd("[" + getName() + "]", proc->getProg()->opWidth(this));
+  SemSymbol * sym = getSymbol();
+  SymOpd * id_sym = new SymOpd(sym, proc->getProg()->opWidth(this));
+  return id_sym;
 }
 
 }// end of file

@@ -1,0 +1,65 @@
+[BEGIN GLOBALS]
+b
+[END GLOBALS]
+[BEGIN foo LOCALS]
+pam (formal)
+an_pam (formal)
+[END foo LOCALS]
+lbl_fun_foo: enter foo
+getarg 1 [pam]
+getarg 2 [an_pam]
+setret [pam]
+goto lbl_0
+lbl_0: leave foo
+[BEGIN bar LOCALS]
+one (formal)
+two (formal)
+three (formal)
+tmp0 (tmp)
+tmp1 (tmp)
+tmp2 (tmp)
+tmp3 (tmp)
+tmp4 (tmp)
+[END bar LOCALS]
+lbl_fun_bar: enter bar
+getarg 1 [one]
+getarg 2 [two]
+getarg 3 [three]
+[one] := 100
+[two] := 200
+[three] := 300
+lbl_2: nop
+IFZ 1 GOTO lbl_3
+[tmp0] := [one] LT64 [two]
+IFZ [tmp0] GOTO lbl_4
+lbl_5: nop
+[tmp1] := [one] LT64 [two]
+IFZ [tmp1] GOTO lbl_6
+[one] := [one] ADD64 1
+goto lbl_5
+lbl_6: nop
+lbl_4: nop
+lbl_7: nop
+[tmp2] := [three] GT64 [one]
+IFZ [tmp2] GOTO lbl_8
+[one] := [one] ADD64 1
+goto lbl_7
+lbl_8: nop
+lbl_9: nop
+[tmp3] := [one] NEQ64 1
+IFZ [tmp3] GOTO lbl_10
+[one] := [one] SUB64 1
+goto lbl_9
+lbl_10: nop
+[tmp4] := [one] EQ64 1
+IFZ [tmp4] GOTO lbl_11
+setret [one]
+goto lbl_1
+goto lbl_12
+lbl_11: nop
+setret 0
+goto lbl_1
+lbl_12: nop
+goto lbl_2
+lbl_3: nop
+lbl_1: leave bar
