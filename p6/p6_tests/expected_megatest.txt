@@ -1,0 +1,77 @@
+[BEGIN GLOBALS]
+global_int
+global_char
+global_bool
+str_1 "too few command line arguments"
+str_0 "too many command line arguments"
+[END GLOBALS]
+[BEGIN try_to_init LOCALS]
+[END try_to_init LOCALS]
+lbl_fun_try_to_init: enter try_to_init
+[global_int] := 999
+[global_char] := c
+[global_bool] := 1
+setret [global_bool]
+goto lbl_0
+lbl_0: leave try_to_init
+[BEGIN RunTheProgram LOCALS]
+init (local)
+triangle_area (local)
+side_one (local)
+side_two (local)
+side_three (local)
+tmp0 (tmp)
+tmp1 (tmp)
+tmp2 (tmp)
+tmp3 (tmp)
+tmp4 (tmp)
+tmp5 (tmp)
+tmp6 (tmp)
+[END RunTheProgram LOCALS]
+lbl_fun_RunTheProgram: enter RunTheProgram
+call try_to_init
+getres [tmp0]
+[init] := [tmp0]
+IFZ [init] GOTO lbl_2
+lbl_3: nop
+[tmp1] := [global_int] GT64 10
+IFZ [tmp1] GOTO lbl_4
+[global_int] := [global_int] SUB64 1
+goto lbl_3
+lbl_4: nop
+[triangle_area] := 0
+[side_one] := [global_int]
+[tmp2] := [global_int] ADD64 1
+[side_two] := [tmp2]
+[tmp3] := [global_int] DIV64 2
+[tmp4] := [global_int] SUB64 [tmp3]
+[side_two] := [tmp4]
+[tmp5] := [side_one] MULT64 [side_two]
+[tmp6] := [tmp5] MULT64 [side_three]
+[triangle_area] := [tmp6]
+goto lbl_1
+lbl_2: nop
+lbl_1: leave RunTheProgram
+[BEGIN main LOCALS]
+argv (formal)
+argc (formal)
+tmp0 (tmp)
+tmp1 (tmp)
+[END main LOCALS]
+lbl_main: enter main
+getarg 1 [argv]
+getarg 2 [argc]
+[tmp0] := [argc] GT64 3
+IFZ [tmp0] GOTO lbl_6
+OUTPUT [str_0]
+goto lbl_7
+lbl_6: nop
+[tmp1] := [argc] LT64 3
+IFZ [tmp1] GOTO lbl_8
+OUTPUT [str_1]
+goto lbl_9
+lbl_8: nop
+call RunTheProgram
+lbl_9: nop
+lbl_7: nop
+lbl_5: leave main

@@ -1,0 +1,12 @@
+void fn(int global_int){
+  bool b;
+  b = true;
+  global_int = 1;
+  int side_one;
+  int side_two;
+  side_one = global_int;
+  side_two = global_int + 1;
+  side_two = global_int - (global_int / 2);
+  b = (true && !b);
+  return;
+}

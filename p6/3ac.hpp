@@ -67,6 +67,7 @@ private:
 	friend class Procedure;
 	friend class IRProgram;
 	friend class IDNode;
+  friend class CallExpNode;
 };
 
 class LitOpd : public holeyc::Opd{
@@ -137,7 +138,7 @@ private:
 class UnaryOpQuad : public Quad {
 public:
 	UnaryOpQuad(Opd * dstIn, UnaryOp opIn, Opd * srcIn);
-	std::string repr() override ;
+	std::string repr() override;
 private:
 	Opd * dst;
 	UnaryOp op;

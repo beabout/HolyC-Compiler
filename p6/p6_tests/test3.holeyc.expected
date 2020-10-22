@@ -20,15 +20,13 @@ lbl_fun_fn: enter fn
 getarg 1 [c]
 setarg 1 [c]
 call increment
-getret tmp0
-[c] := tmp0
+getres [tmp0]
+[c] := [tmp0]
 [tmp1] := [c] GT64 4
 IFZ [tmp1] GOTO lbl_2
-OUTPUT c
+OUTPUT [c]
 [c] := 12
 lbl_2: nop
-INPUT c
-setret []
+INPUT [c]
 goto lbl_1
 lbl_1: leave fn
-

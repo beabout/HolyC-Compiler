@@ -62,7 +62,7 @@ std::string LeaveQuad::repr(){
 }
 
 std::string AssignQuad::repr(){
-	return "[" + dst->toString() + "] := " + src->toString();
+	return dst->toStringBracket() + " := " + src->toStringBracket();
 	
 }
 
@@ -135,9 +135,9 @@ std::string UnaryOpQuad::repr(){
 	case NOT:
 		opString = "NOT8 ";
 	}
-	return dst->toString() + " := " 
+	return dst->toStringBracket() + " := " 
 		+ opString
-		+ src->toString();
+		+ src->toStringBracket();
 }
 
 IntrinsicQuad::IntrinsicQuad(Intrinsic intrinsic, Opd * opd) 
@@ -147,10 +147,10 @@ std::string IntrinsicQuad::repr(){
 	std::string res;
 	switch (myIntrinsic){
 	case INPUT:
-		res = "INPUT " + myArg->toString();
+		res = "INPUT " + myArg->toStringBracket();
 		break;
 	case OUTPUT:
-		res = "OUTPUT " + myArg->toString();
+		res = "OUTPUT " + myArg->toStringBracket();
 		break;
 	}
 	return res;
@@ -187,7 +187,7 @@ GetRetQuad::GetRetQuad(Opd * opdIn)
 
 std::string GetRetQuad::repr(){
 	std::string res = "";
-	res += "getret " + opd->toString(); 
+	res += "getret " + opd->toStringBracket(); 
 	return res;
 }
 

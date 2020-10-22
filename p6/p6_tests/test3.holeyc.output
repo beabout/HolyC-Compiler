@@ -28,7 +28,6 @@ OUTPUT c
 [c] := 12
 lbl_2: nop
 INPUT c
-setret []
 goto lbl_1
 lbl_1: leave fn
 
