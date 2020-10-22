@@ -50,7 +50,7 @@ private:
 class SymOpd : public Opd{
 public:
 	SymOpd(OpdWidth width) : Opd(width){}
-	virtual std::string toString() override{
+  virtual std::string toString() override{
 		return mySym->getName();
 	}
 	const SemSymbol * getSym(){ return mySym; }
@@ -92,7 +92,7 @@ enum UnaryOp{
 	NEG, NOT
 };
 enum Intrinsic {
-	OUTPUT, INPUT
+	OUTPUT, INPUT // TOCONSOLE, FROMCONSOLE
 };
 
 class Quad{

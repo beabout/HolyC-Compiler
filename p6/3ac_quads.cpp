@@ -117,7 +117,7 @@ std::string BinOpQuad::repr(){
 		opString = " GTE64 ";
 		break;
 	}
-	return dst->toString() + " := " 
+	return "[" + dst->toString() + "] " + " := " 
 		+ src1->toString()
 		+ opString
 		+ src2->toString();
@@ -207,7 +207,7 @@ GetArgQuad::GetArgQuad(size_t indexIn, Opd * opdIn)
 
 std::string GetArgQuad::repr(){
 	std::string res = "";
-	res += "getarg " + std::to_string(index) + " " + opd->toString(); 
+	res += "getarg " + std::to_string(index) + " [" + opd->toString() + "]"; 
 	return res;
 }
 
@@ -217,8 +217,9 @@ SetRetQuad::SetRetQuad(Opd * opdIn)
 
 std::string SetRetQuad::repr(){
 	std::string res = "";
-	res += "setret " + std::to_string(index) + " " + opd->toString(); 
-	return res;
+	// ORACLE DOESN'T MATCH THIS ONE -> res += "setret " + std::to_string(index) + " " + opd->toString();
+  res += "setret " + opd->toString();
+  return res;
 }
 
 }

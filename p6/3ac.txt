@@ -1,0 +1,40 @@
+[BEGIN GLOBALS]
+b
+[END GLOBALS]
+[BEGIN foo LOCALS]
+pam (formal)
+an_pam (formal)
+[END foo LOCALS]
+lbl_fun_foo: enter foo
+getarg 1 [pam]
+getarg 2 [an_pam]
+setret [pam]
+goto lbl_0
+lbl_0: leave foo
+[BEGIN fart LOCALS]
+f (formal)
+c (formal)
+x (formal)
+tmp0 (tmp)
+tmp1 (tmp)
+[END fart LOCALS]
+lbl_fun_fart: enter fart
+getarg 1 [f]
+getarg 2 [c]
+getarg 3 [x]
+[tmp0]  := 1 AND8 0
+[f] := tmp0
+setarg 1 [c]
+setarg 2 7
+call foo
+OUTPUT [c]
+[tmp1]  := [f] AND8 1
+IFZ tmp1 GOTO lbl_2
+setret 0
+goto lbl_1
+goto lbl_3
+lbl_2,lbl_3: nop
+OUTPUT 3
+nop
+lbl_1: leave fart
+
