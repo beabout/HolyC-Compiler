@@ -5,24 +5,46 @@
 namespace holeyc{
 
 void IRProgram::allocGlobals(){
-	TODO(Implement me)
+	// TODO(Implement me)
+  // CLB: give a label to each global 
+  // ex.  g1 myLoc: gbl-g1
+  if(!globals.empty()){
+    for (auto it = globals.begin(); it != globals.end(); ++it){
+      // gotta do something with these
+      it->first;  // SemSymbol
+      it->second; // SymOpd
+    }
+  }
 }
 
 void IRProgram::datagenX64(std::ostream& out){
 	TODO(Write out data section)
+  out << ".data\n";
 	//Put this directive after you write out strings
 	// so that everything is aligned to a quadword value
 	// again
+  
+  // write out .data here 
+  // Drew: "Make sure your code is x64 aligned."
 	out << ".align 8\n";
-	
 }
 
 void IRProgram::toX64(std::ostream& out){
-	TODO(Implement me)
+	// for auto x in procedures
+	// for auto y in quads ( this happens inside procedure->toX64(out) )
+	// quad->toX64 
+	for(auto procedure : this->procs){
+		procedure->toX64(out);
+	}
 }
 
 void Procedure::allocLocals(){
-	TODO(Implement me)
+  if (!locals.empty()){
+    for (auto it = locals.begin(); it != locals.end(); ++it){
+      it->first;  // SemSymbol
+      it->second; // SymOpd
+    }
+  }
 }
 
 void Procedure::toX64(std::ostream& out){
@@ -101,23 +123,39 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 }
 
 void CallQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	out << "callq " << "fn_" << this->callee->getName() << "\n"; // i think - Evan
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+//	    pushq %rbp			# we always do this on enter fn.
+//		movq %rsp, %rbp		# we always do this on enter fn.
+//		addq $16, %rbp		# we always do this on enter fn.
+	out << "pushq %rbp\n";
+	out << "movq %rsp, %rbp\n";
+	out << "addq $16, %rbp\n";
+
+	//TODO(Implement me)
 }
 
 void LeaveQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+//	fn_leave_bar: 	add $8, %rsp # restore stack pointer // i think this may also be essentially popq
+//				    popq %rbp	 # pop base pointer
+//				    retq		 # return
+	out << "add $8, %rsp\n"; // <- this may be popq instead, depends on oracle.
+	out << "popq %rbp\n";
+	out << "retq\n";
+	//TODO(Implement me)
 }
 
 void SetArgQuad::codegenX64(std::ostream& out){
 	TODO(Implement me)
+
 }
 
 void GetArgQuad::codegenX64(std::ostream& out){
-	//We don't actually need to do anything here
+	// We don't actually need to do anything here
+  // CLB: This would be a simple "movq" method which is probably 
+  // already taken care of elsewhere.
 }
 
 void SetRetQuad::codegenX64(std::ostream& out){
@@ -130,10 +168,12 @@ void GetRetQuad::codegenX64(std::ostream& out){
 
 void SymOpd::genLoad(std::ostream & out, std::string regStr){
 	TODO(Implement me)
+	// i think we probably movq from memory to regStr
 }
 
 void SymOpd::genStore(std::ostream& out, std::string regStr){
 	TODO(Implement me)
+	// i think we probably movq from regStr to memory
 }
 
 void AuxOpd::genLoad(std::ostream & out, std::string regStr){
