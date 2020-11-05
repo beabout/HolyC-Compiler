@@ -20,10 +20,8 @@ void IRProgram::allocGlobals(){
   if(!globals.empty()){
     for (auto it = globals.begin(); it != globals.end(); ++it){
       it->first;  // SemSymbol
-	  // glb_name .quad [value]
-	  // we need to somehow print out << "glb_" + it->first->getName() + "\n";
       it->second; // SymOpd
-      // set the label for this global 
+      
       
     }
   }
