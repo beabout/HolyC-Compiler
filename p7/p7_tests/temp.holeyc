@@ -1,0 +1,13 @@
+int main() {
+  int a;
+  a = 1; 
+  int x; 
+  x = 1; 
+  while(a < 5){
+    x = 2 + x * x;
+    TOCONSOLE x;
+    TOCONSOLE "\n";
+    a++;
+  }
+  return 0;
+}

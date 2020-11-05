@@ -6,13 +6,25 @@ namespace holeyc{
 
 void IRProgram::allocGlobals(){
 	// TODO(Implement me)
-  // CLB: give a label to each global 
-  // ex.  g1 myLoc: gbl-g1
+  // CLB: give a label to each global
+  // ex.  For global g, we need to give it a label: 
+  // - In .data section: gbl_g: .quad 0 
+  // - In .text section: movq $4, (gbl_g)
+
+  // GenStore takes a register, the contents of that register go into memory
+  // i.e movq %rax, -24(%rbp)
+
+  // GenLoad takes a register, to store some contents of memory in
+  // i.e movq -24(%rbp), %rax
+  
   if(!globals.empty()){
     for (auto it = globals.begin(); it != globals.end(); ++it){
-      // gotta do something with these
       it->first;  // SemSymbol
+	  // glb_name .quad [value]
+	  // we need to somehow print out << "glb_" + it->first->getName() + "\n";
       it->second; // SymOpd
+      // set the label for this global 
+      
     }
   }
 }
@@ -23,7 +35,7 @@ void IRProgram::datagenX64(std::ostream& out){
 	//Put this directive after you write out strings
 	// so that everything is aligned to a quadword value
 	// again
-  
+  this->allocGlobals();
   // write out .data here 
   // Drew: "Make sure your code is x64 aligned."
 	out << ".align 8\n";
@@ -39,6 +51,9 @@ void IRProgram::toX64(std::ostream& out){
 }
 
 void Procedure::allocLocals(){
+  // CLB: give a label to each local
+  // don't forget to add the offset.
+  // ex.  g1 myLoc: gbl-g1
   if (!locals.empty()){
     for (auto it = locals.begin(); it != locals.end(); ++it){
       it->first;  // SemSymbol
@@ -73,6 +88,22 @@ void Quad::codegenLabels(std::ostream& out){
 	}
 }
 
+void ToConsoleStmtNode::codegenx64(std::ostream& out)
+{
+	// source:
+	// https://stackoverflow.com/questions/27594297/how-to-print-a-string-to-the-terminal-in-x86-64-assembly-nasm-without-syscall
+	///section .data
+    //string1 db  0xa, "  Hello StackOverflow!!!", 0xa, 0xa, 0
+	out << ".data\n"; // put the string to print in the data section
+	out << unique_name +  " db  0xa, " + this->mySrc->toString() + ", 0xa, 0xa, 0";
+	out << ".text\n";
+	out << "movq string, %rsi\n"; // # put the string in rsi
+	out << "movq $1, %rax\n"; // # put 1 in rax to get the right syscall?
+	out << "movq %rax, %rdi\n"; // # set destination to stdout
+	out << "syscall\n"; // # call syscall
+	TODO(Implement me)
+}
+
 void BinOpQuad::codegenX64(std::ostream& out){
 	TODO(Implement me)
 }
@@ -82,6 +113,7 @@ void UnaryOpQuad::codegenX64(std::ostream& out){
 }
 
 void AssignQuad::codegenX64(std::ostream& out){
+  this->myDst->getSymbol()->getLoc();
 	src->genLoad(out, "%rax");
 	dst->genStore(out, "%rax");
 }
