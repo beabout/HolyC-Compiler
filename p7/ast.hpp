@@ -234,6 +234,17 @@ public:
 	std::list<FormalDeclNode *> * getFormals() const{
 		return myFormals;
 	}
+
+	int num_of_variables() {
+		int result = myFormals->size();
+		for(auto statement : * myBody){
+			if(statement->nodeKind() == "VarDecl"){
+        result++;
+      }
+		}
+		return result; 
+	}
+
 	void unparse(std::ostream& out, int indent) override;
 	virtual std::string nodeKind() override { return "FnDecl"; }
 	virtual bool nameAnalysis(SymbolTable * symTab) override;
