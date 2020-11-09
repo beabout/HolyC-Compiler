@@ -12,6 +12,12 @@ bool ProgramNode::nameAnalysis(SymbolTable * symTab){
 	for (auto decl : *myGlobals){
 		res = decl->nameAnalysis(symTab) && res;
 	}
+  // CLB - Check if a main function was defined.
+  SemSymbol * main_fn = symTab->find("main");
+  if (!(main_fn && main_fn->kindToString(main_fn->getKind()) == "fn")) {
+    std::cerr << "Expected a main function to be defined." << std::endl;
+    res = false;
+  }
 	//Leave the global scope
 	symTab->leaveScope();
 	return res;
