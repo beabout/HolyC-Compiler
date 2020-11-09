@@ -86,21 +86,21 @@ void Quad::codegenLabels(std::ostream& out){
 	}
 }
 
-void ToConsoleStmtNode::codegenx64(std::ostream& out)
-{
-	// source:
-	// https://stackoverflow.com/questions/27594297/how-to-print-a-string-to-the-terminal-in-x86-64-assembly-nasm-without-syscall
-	///section .data
-    //string1 db  0xa, "  Hello StackOverflow!!!", 0xa, 0xa, 0
-	out << ".data\n"; // put the string to print in the data section
-	out << unique_name +  " db  0xa, " + this->mySrc->toString() + ", 0xa, 0xa, 0";
-	out << ".text\n";
-	out << "movq string, %rsi\n"; // # put the string in rsi
-	out << "movq $1, %rax\n"; // # put 1 in rax to get the right syscall?
-	out << "movq %rax, %rdi\n"; // # set destination to stdout
-	out << "syscall\n"; // # call syscall
-	TODO(Implement me)
-}
+// void ToConsoleStmtNode::codegenx64(std::ostream& out)
+// {
+// 	// source:
+// 	// https://stackoverflow.com/questions/27594297/how-to-print-a-string-to-the-terminal-in-x86-64-assembly-nasm-without-syscall
+// 	///section .data
+//     //string1 db  0xa, "  Hello StackOverflow!!!", 0xa, 0xa, 0
+// 	out << ".data\n"; // put the string to print in the data section
+// 	out << unique_name +  " db  0xa, " + this->mySrc->toString() + ", 0xa, 0xa, 0";
+// 	out << ".text\n";
+// 	out << "movq string, %rsi\n"; // # put the string in rsi
+// 	out << "movq $1, %rax\n"; // # put 1 in rax to get the right syscall?
+// 	out << "movq %rax, %rdi\n"; // # set destination to stdout
+// 	out << "syscall\n"; // # call syscall
+// 	TODO(Implement me)
+// }
 
 void BinOpQuad::codegenX64(std::ostream& out){
 	TODO(Implement me)
@@ -111,7 +111,7 @@ void UnaryOpQuad::codegenX64(std::ostream& out){
 }
 
 void AssignQuad::codegenX64(std::ostream& out){
-  this->myDst->getSymbol()->getLoc();
+  // this->dst->getSym()->getLoc();
 	src->genLoad(out, "%rax");
 	dst->genStore(out, "%rax");
 }
@@ -157,21 +157,25 @@ void CallQuad::codegenX64(std::ostream& out){
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
-//	    pushq %rbp			# we always do this on enter fn.
-//		movq %rsp, %rbp		# we always do this on enter fn.
-//		addq $16, %rbp		# we always do this on enter fn.
-	out << "pushq %rbp\n";
+  //	    pushq %rbp			# we always do this on enter fn.
+  //		movq %rsp, %rbp		# we always do this on enter fn.
+  //		addq $16, %rbp		# we always do this on enter fn.
+	int bits = 1 * 8;
+  out << "pushq %rbp\n";
 	out << "movq %rsp, %rbp\n";
 	out << "addq $16, %rbp\n";
+  out << "subq $" << bits << ", %rsp\n";
 
-	//TODO(Implement me)
+  //TODO(Implement me)
 }
 
 void LeaveQuad::codegenX64(std::ostream& out){
 //	fn_leave_bar: 	add $8, %rsp # restore stack pointer // i think this may also be essentially popq
 //				    popq %rbp	 # pop base pointer
 //				    retq		 # return
-	out << "add $8, %rsp\n"; // <- this may be popq instead, depends on oracle.
+  
+  int bits = 1 * 8;
+	out << "add $" << bits << " , %rsp\n"; // 
 	out << "popq %rbp\n";
 	out << "retq\n";
 	//TODO(Implement me)

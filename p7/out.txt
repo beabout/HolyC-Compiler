@@ -1,0 +1,3 @@
+lbl_main: pushq %rbp
+movq %rsp, %rbp
+addq $16, %rbp
