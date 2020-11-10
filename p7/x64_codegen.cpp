@@ -43,7 +43,6 @@ void IRProgram::datagenX64(std::ostream& out){
 	// so that everything is aligned to a quadword value
 	// again
   this->allocGlobals();
-  // write out .data here 
   // Drew: "Make sure your code is x64 aligned."
 	out << ".align 8\n";
   out << ".globl main\n";
@@ -77,8 +76,10 @@ void Procedure::allocLocals(){
 void Procedure::toX64(std::ostream& out){
 	//Allocate all locals
 	allocLocals();
-
-	enter->codegenLabels(out);
+  
+  out << "fun_" << myName << ":" << "\n";
+	
+  // enter->codegenLabels(out);
 	enter->codegenX64(out);
 	for (auto quad : *bodyQuads){
 		quad->codegenLabels(out);
@@ -105,18 +106,20 @@ void BinOpQuad::codegenX64(std::ostream &out){
   std::string bin_op_command = "";
   std::string reg_1  = "%rax";
   std::string reg_2  = "%rbx";
-  std::string movq_1 = "movq " + src1->locString() + ", " + reg_1 + "\n"; // load Opd1 into register
-  std::string movq_2 = "movq " + src2->locString() + ", " + reg_2 + "\n"; // load Opd2 into register
+  src1->genLoad(out, "thing");
+  src2->genLoad(out, "thing");
+  std::string movq_1 = "movq " + src1->getMemoryLoc() + ", " + reg_1 + "\n"; // load Opd1 into register
+  std::string movq_2 = "movq " + src2->getMemoryLoc() + ", " + reg_2 + "\n"; // load Opd2 into register
 
   switch (op)
   {
   case ADD:
     bin_op_command += "addq " + reg_1 + ", " + reg_2 + "\n";
-    bin_op_command += "movq " + reg_2 + ", " + dst->locString() + "\n";
+    bin_op_command += "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
     break;
   case SUB:
     bin_op_command += "subq " + reg_1 + ", " + reg_2 + "\n";
-    bin_op_command += "movq " + reg_2 + ", " + dst->locString() + "\n";
+    bin_op_command += "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
     break;
   case DIV:
     movq_1 = "movq $0, %rdx\n" + movq_1;
@@ -129,11 +132,11 @@ void BinOpQuad::codegenX64(std::ostream &out){
     break;
   case OR:
     bin_op_command += "orq " + reg_1 + ", " + reg_2 + "\n";
-    bin_op_command += "movq " + reg_2 + ", " + dst->locString() + "\n";
+    bin_op_command += "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
     break;
   case AND:
     bin_op_command += "andq " + reg_1 + ", " + reg_2 + "\n";
-    bin_op_command += "movq " + reg_2 + ", " + dst->locString() + "\n";
+    bin_op_command += "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
     break;
   case EQ:
     bin_op_command += "sete %al\n"; // incomplete
@@ -164,7 +167,7 @@ void BinOpQuad::codegenX64(std::ostream &out){
 void UnaryOpQuad::codegenX64(std::ostream& out){
   std::string reg_1 = "%rcx";
   std::string command = "";
-  out << "movq " + src->locString() + ", " + reg_1 + "\n";
+  out << "movq " + src->getMemoryLoc() + ", " + reg_1 + "\n";
   switch(op){
     case NOT: 
       command += "notq";
@@ -174,7 +177,7 @@ void UnaryOpQuad::codegenX64(std::ostream& out){
       break; 
   }
   out << command + " " + reg_1 + "\n";
-  out << "movq " + reg_1 + ", " + dst->locString() + "\n"; // DO WE NEED TO DO THIS: store result into the destination Opd 
+  out << "movq " + reg_1 + ", " + dst->getMemoryLoc() + "\n"; // DO WE NEED TO DO THIS: store result into the destination Opd
 }
 
 void AssignQuad::codegenX64(std::ostream& out){

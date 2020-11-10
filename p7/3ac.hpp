@@ -40,6 +40,7 @@ public:
 	virtual OpdWidth getWidth(){ return myWidth; }
 	virtual void genLoad(std::ostream& out, std::string dstReg) = 0;
 	virtual void genStore(std::ostream& out, std::string srcReg) = 0;
+  virtual std::string getMemoryLoc() = 0;
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
 			if (basic->isChar()){ return BYTE; }
@@ -83,7 +84,7 @@ private:
 	SemSymbol * mySym;
 	friend class Procedure;
 	friend class IRProgram;
-	std::string myLoc;
+	std::string myLoc; // where I am located in memory
 };
 
 class LitOpd : public Opd{
@@ -125,7 +126,7 @@ public:
 		myLoc = loc;
 	}
 	virtual std::string getMemoryLoc(){
-		return myLoc;
+		return myLoc; // where I am located in memory
 	}
 private:
 	std::string name;
@@ -175,9 +176,9 @@ public:
 	std::string repr() override ;
 	void codegenX64(std::ostream& out) override;
 private:
-	Opd * dst;
-	UnaryOp op;
-	Opd * src;
+  Opd * dst;
+  UnaryOp op;
+  Opd * src;
 };
 
 class AssignQuad : public Quad{
