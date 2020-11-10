@@ -106,68 +106,75 @@ void BinOpQuad::codegenX64(std::ostream &out){
   std::string bin_op_command = "";
   std::string reg_1  = "%rax";
   std::string reg_2  = "%rbx";
-  src1->genLoad(out, "thing");
-  src2->genLoad(out, "thing");
-  std::string movq_1 = "movq " + src1->getMemoryLoc() + ", " + reg_1 + "\n"; // load Opd1 into register
-  std::string movq_2 = "movq " + src2->getMemoryLoc() + ", " + reg_2 + "\n"; // load Opd2 into register
+  // src1->genLoad(out, "thing");
+  // src2->genLoad(out, "thing");
+  // std::string movq_1 = "movq " + src1->getMemoryLoc() + ", " + reg_1 + "\n"; // load Opd1 into register
+  // std::string movq_2 = "movq " + src2->getMemoryLoc() + ", " + reg_2 + "\n"; // load Opd2 into register
 
+  src1->genLoad(out, reg_1);
+  src2->genLoad(out, reg_2);
   switch (op)
   {
   case ADD:
-    bin_op_command += "addq " + reg_1 + ", " + reg_2 + "\n";
-    bin_op_command += "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
+    out << "addq " + reg_1 + ", " + reg_2 + "\n";
+    dst->genStore(out, reg_2);
+    //out << "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
     break;
   case SUB:
-    bin_op_command += "subq " + reg_1 + ", " + reg_2 + "\n";
-    bin_op_command += "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
+    out << "subq " + reg_1 + ", " + reg_2 + "\n";
+    dst->genStore(out, reg_2);
     break;
   case DIV:
-    movq_1 = "movq $0, %rdx\n" + movq_1;
-    reg_2 = "%r8";
-    bin_op_command += "idivq " + reg_2 + "\n";
+    out << "movq $0, %rdx\n";
+    out << "idivq " + reg_2 + "\n";
+    dst->genStore(out,reg_1);
     break;
   case MULT:
-    reg_2 = "%r11";
-    bin_op_command += "imulq " + reg_2 + "\n";
+    out << "imulq " + reg_2 + "\n";
+    dst->genStore(out,reg_1);
     break;
   case OR:
-    bin_op_command += "orq " + reg_1 + ", " + reg_2 + "\n";
-    bin_op_command += "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
+    out << "orq " + reg_1 + ", " + reg_2 + "\n";
+    dst->genStore(out, reg_2);
     break;
   case AND:
-    bin_op_command += "andq " + reg_1 + ", " + reg_2 + "\n";
-    bin_op_command += "movq " + reg_2 + ", " + dst->getMemoryLoc() + "\n";
+    out << "andq " + reg_1 + ", " + reg_2 + "\n";
+    dst->genStore(out, reg_2);
     break;
   case EQ:
-    bin_op_command += "sete %al\n"; // incomplete
+    out << "sete %al\n"; // incomplete
     break;
   case NEQ:
-    bin_op_command += "setne %al\n"; // incomplete
+    out << "setne %al\n"; // incomplete
     break;
   case LT:
-    bin_op_command += "setl %al\n"; // incomplete
+    out << "setl %al\n"; // incomplete
     break;
   case GT:
-    bin_op_command += "setg %al\n"; // incomplete
+    out << "setg %al\n"; // incomplete
     break;
   case LTE:
-    bin_op_command += "setle %al\n"; // incomplete
+    out << "setle %al\n"; // incomplete
     break;
   case GTE:
-    bin_op_command += "setge %al\n"; // incomplete
+    out << "setge %al\n"; // incomplete
     break;
   }
 
-  out << movq_1;
-  out << movq_2;
-  out << bin_op_command; // do the BinOp
+  //out << movq_1;
+  //out << movq_2;
+  //out << bin_op_command; // do the BinOp
 }
 
 // Covers Not, Neg
 void UnaryOpQuad::codegenX64(std::ostream& out){
+  // movq %rax, %rcx <-- what if --> movq -24(%rbp), %rcx
+  // notq %rcx
+  // movq %rcx, %r11
   std::string reg_1 = "%rcx";
   std::string command = "";
-  out << "movq " + src->getMemoryLoc() + ", " + reg_1 + "\n";
+  src->genLoad(out, reg_1);
+  //out << "movq " + src->getMemoryLoc() + ", " + reg_1 + "\n";
   switch(op){
     case NOT: 
       command += "notq";
@@ -177,7 +184,8 @@ void UnaryOpQuad::codegenX64(std::ostream& out){
       break; 
   }
   out << command + " " + reg_1 + "\n";
-  out << "movq " + reg_1 + ", " + dst->getMemoryLoc() + "\n"; // DO WE NEED TO DO THIS: store result into the destination Opd
+  dst->genStore(out, reg_1);
+  //out << "movq " + reg_1 + ", " + dst->getMemoryLoc() + "\n"; // DO WE NEED TO DO THIS: store result into the destination Opd
 }
 
 void AssignQuad::codegenX64(std::ostream& out){
@@ -279,25 +287,23 @@ void GetRetQuad::codegenX64(std::ostream& out){
 }
 
 void SymOpd::genLoad(std::ostream & out, std::string regStr){
-	TODO(Implement me)
-	// i think we probably movq from memory to regStr
+  out << "movq " + getMemoryLoc() + ", " + regStr << std::endl;
 }
 
 void SymOpd::genStore(std::ostream& out, std::string regStr){
-	TODO(Implement me)
-	// i think we probably movq from regStr to memory
+   out << "movq " + regStr + ", " + getMemoryLoc() << std::endl;
 }
 
 void AuxOpd::genLoad(std::ostream & out, std::string regStr){
-	TODO(Implement me)
+  out << "movq " + getMemoryLoc() + ", " + regStr << std::endl;
 }
 
 void AuxOpd::genStore(std::ostream& out, std::string regStr){
-	TODO(Implement me)
+  out << "movq " + regStr + ", " + getMemoryLoc() << std::endl;
 }
 
 void LitOpd::genLoad(std::ostream & out, std::string regStr){
-	TODO(Implement me)
+  out << "movq $" + valString() + ", " + regStr << std::endl;
 }
 
 void LitOpd::genStore(std::ostream& out, std::string regStr){

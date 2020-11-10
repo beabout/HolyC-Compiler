@@ -40,7 +40,6 @@ public:
 	virtual OpdWidth getWidth(){ return myWidth; }
 	virtual void genLoad(std::ostream& out, std::string dstReg) = 0;
 	virtual void genStore(std::ostream& out, std::string srcReg) = 0;
-  virtual std::string getMemoryLoc() = 0;
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
 			if (basic->isChar()){ return BYTE; }
@@ -52,6 +51,7 @@ public:
 		assert(false);
 	}
 private:
+	//std::string memoryLoc; // be it rax or -24(rbp)
 	OpdWidth myWidth;
 };
 
