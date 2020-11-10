@@ -19,16 +19,25 @@ void IRProgram::allocGlobals(){
   
   if(!globals.empty()){
     for (auto it = globals.begin(); it != globals.end(); ++it){
-      it->first;  // SemSymbol
-      it->second; // SymOpd
-      
-      
+      // - it->first  : SemSymbol *
+      // - it->second : SymOpd *
+      it->second->setMemoryLoc("gbl_" + it->first->getName()); // SymOpd
+      // add these to memory. 
+    }
+  }
+
+  if(!strings.empty()){
+    for (auto it = strings.begin(); it != strings.end(); ++it){
+      // - it->first  : AuxOpd * 
+      // - it->second : string
+      it->first->setMemoryLoc("str_" + it->first->getName());
+      // add these to memory.
     }
   }
 }
 
 void IRProgram::datagenX64(std::ostream& out){
-	TODO(Write out data section)
+	// TODO(Write out data section)
   out << ".data\n";
 	//Put this directive after you write out strings
 	// so that everything is aligned to a quadword value
@@ -37,12 +46,17 @@ void IRProgram::datagenX64(std::ostream& out){
   // write out .data here 
   // Drew: "Make sure your code is x64 aligned."
 	out << ".align 8\n";
+  out << ".globl main\n";
+  out << "main: nop\n";
 }
 
+// THIS IS WHERE THE PROGRAM STARTS
 void IRProgram::toX64(std::ostream& out){
 	// for auto x in procedures
 	// for auto y in quads ( this happens inside procedure->toX64(out) )
 	// quad->toX64 
+  this->datagenX64(out);
+  
 	for(auto procedure : this->procs){
 		procedure->toX64(out);
 	}
@@ -51,11 +65,11 @@ void IRProgram::toX64(std::ostream& out){
 void Procedure::allocLocals(){
   // CLB: give a label to each local
   // don't forget to add the offset.
-  // ex.  g1 myLoc: gbl-g1
+  int offset = -24; // CLB: Start at -24 because we need 16 bits for SBP and SIP
   if (!locals.empty()){
     for (auto it = locals.begin(); it != locals.end(); ++it){
-      it->first;  // SemSymbol
-      it->second; // SymOpd
+      it->second->setMemoryLoc(std::to_string(offset) + "(%rbp)");
+      offset = offset - 8;
     }
   }
 }
@@ -80,34 +94,87 @@ void Quad::codegenLabels(std::ostream& out){
 	size_t numLabels = labels.size();
 	size_t labelIdx = 0;
 	for ( Label * label : labels){
-		out << label->toString() << ": ";
+		out << label->toString() << ": "; 
 		if (labelIdx != numLabels - 1){ out << "\n"; }
 		labelIdx++;
 	}
 }
 
-// void ToConsoleStmtNode::codegenx64(std::ostream& out)
-// {
-// 	// source:
-// 	// https://stackoverflow.com/questions/27594297/how-to-print-a-string-to-the-terminal-in-x86-64-assembly-nasm-without-syscall
-// 	///section .data
-//     //string1 db  0xa, "  Hello StackOverflow!!!", 0xa, 0xa, 0
-// 	out << ".data\n"; // put the string to print in the data section
-// 	out << unique_name +  " db  0xa, " + this->mySrc->toString() + ", 0xa, 0xa, 0";
-// 	out << ".text\n";
-// 	out << "movq string, %rsi\n"; // # put the string in rsi
-// 	out << "movq $1, %rax\n"; // # put 1 in rax to get the right syscall?
-// 	out << "movq %rax, %rdi\n"; // # set destination to stdout
-// 	out << "syscall\n"; // # call syscall
-// 	TODO(Implement me)
-// }
+// Covers ADD, SUB, DIV, MULT, OR, AND, EQ, NEQ, LT, GT, LTE, GTE 
+void BinOpQuad::codegenX64(std::ostream &out){
+  std::string bin_op_command = "";
+  std::string reg_1  = "%rax";
+  std::string reg_2  = "%rbx";
+  std::string movq_1 = "movq " + src1->locString() + ", " + reg_1 + "\n"; // load Opd1 into register
+  std::string movq_2 = "movq " + src2->locString() + ", " + reg_2 + "\n"; // load Opd2 into register
 
-void BinOpQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+  switch (op)
+  {
+  case ADD:
+    bin_op_command += "addq " + reg_1 + ", " + reg_2 + "\n";
+    bin_op_command += "movq " + reg_2 + ", " + dst->locString() + "\n";
+    break;
+  case SUB:
+    bin_op_command += "subq " + reg_1 + ", " + reg_2 + "\n";
+    bin_op_command += "movq " + reg_2 + ", " + dst->locString() + "\n";
+    break;
+  case DIV:
+    movq_1 = "movq $0, %rdx\n" + movq_1;
+    reg_2 = "%r8";
+    bin_op_command += "idivq " + reg_2 + "\n";
+    break;
+  case MULT:
+    reg_2 = "%r11";
+    bin_op_command += "imulq " + reg_2 + "\n";
+    break;
+  case OR:
+    bin_op_command += "orq " + reg_1 + ", " + reg_2 + "\n";
+    bin_op_command += "movq " + reg_2 + ", " + dst->locString() + "\n";
+    break;
+  case AND:
+    bin_op_command += "andq " + reg_1 + ", " + reg_2 + "\n";
+    bin_op_command += "movq " + reg_2 + ", " + dst->locString() + "\n";
+    break;
+  case EQ:
+    bin_op_command += "sete %al\n"; // incomplete
+    break;
+  case NEQ:
+    bin_op_command += "setne %al\n"; // incomplete
+    break;
+  case LT:
+    bin_op_command += "setl %al\n"; // incomplete
+    break;
+  case GT:
+    bin_op_command += "setg %al\n"; // incomplete
+    break;
+  case LTE:
+    bin_op_command += "setle %al\n"; // incomplete
+    break;
+  case GTE:
+    bin_op_command += "setge %al\n"; // incomplete
+    break;
+  }
+
+  out << movq_1;
+  out << movq_2;
+  out << bin_op_command; // do the BinOp
 }
 
+// Covers Not, Neg
 void UnaryOpQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+  std::string reg_1 = "%rcx";
+  std::string command = "";
+  out << "movq " + src->locString() + ", " + reg_1 + "\n";
+  switch(op){
+    case NOT: 
+      command += "notq";
+      break; 
+    case NEG: 
+      command += "negq";
+      break; 
+  }
+  out << command + " " + reg_1 + "\n";
+  out << "movq " + reg_1 + ", " + dst->locString() + "\n"; // DO WE NEED TO DO THIS: store result into the destination Opd 
 }
 
 void AssignQuad::codegenX64(std::ostream& out){
@@ -126,13 +193,14 @@ void JmpQuad::codegenX64(std::ostream& out){
 }
 
 void JmpIfQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	out << "jmpe " << tgt->toString() << "\n";
 }
 
 void NopQuad::codegenX64(std::ostream& out){
 	out << "nop" << "\n";
 }
 
+// Covers ToConsole, FromConsole
 void IntrinsicQuad::codegenX64(std::ostream& out){
 	switch(myIntrinsic){
 	case OUTPUT:
@@ -152,33 +220,40 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 	}
 }
 
+// void ToConsoleStmtNode::codegenx64(std::ostream& out)
+// {
+// 	// source:
+// 	// https://stackoverflow.com/questions/27594297/how-to-print-a-string-to-the-terminal-in-x86-64-assembly-nasm-without-syscall
+// 	///section .data
+//     //string1 db  0xa, "  Hello StackOverflow!!!", 0xa, 0xa, 0
+// 	out << ".data\n"; // put the string to print in the data section
+// 	out << unique_name +  " db  0xa, " + this->mySrc->toString() + ", 0xa, 0xa, 0";
+// 	out << ".text\n";
+// 	out << "movq string, %rsi\n"; // # put the string in rsi
+// 	out << "movq $1, %rax\n"; // # put 1 in rax to get the right syscall?
+// 	out << "movq %rax, %rdi\n"; // # set destination to stdout
+// 	out << "syscall\n"; // # call syscall
+// 	TODO(Implement me)
+// }
+
 void CallQuad::codegenX64(std::ostream& out){
 	out << "callq " << "fn_" << this->callee->getName() << "\n"; // i think - Evan
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
-  //	    pushq %rbp			# we always do this on enter fn.
-  //		movq %rsp, %rbp		# we always do this on enter fn.
-  //		addq $16, %rbp		# we always do this on enter fn.
-	int bits = 1 * 8;
   out << "pushq %rbp\n";
 	out << "movq %rsp, %rbp\n";
 	out << "addq $16, %rbp\n";
-  out << "subq $" << bits << ", %rsp\n";
-
-  //TODO(Implement me)
+  out << "subq $" << this->myProc->localsSize() << ", %rsp\n";
 }
 
 void LeaveQuad::codegenX64(std::ostream& out){
 //	fn_leave_bar: 	add $8, %rsp # restore stack pointer // i think this may also be essentially popq
 //				    popq %rbp	 # pop base pointer
 //				    retq		 # return
-  
-  int bits = 1 * 8;
-	out << "add $" << bits << " , %rsp\n"; // 
+	out << "add $" << this->myProc->localsSize() << ", %rsp\n"; // 
 	out << "popq %rbp\n";
 	out << "retq\n";
-	//TODO(Implement me)
 }
 
 void SetArgQuad::codegenX64(std::ostream& out){

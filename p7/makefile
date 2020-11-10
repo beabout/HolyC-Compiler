@@ -1,7 +1,7 @@
 LEXER_TOOL := flex
 CXX ?= g++ # Set the C++ compiler to g++ iff it hasn't already been set
 CPP_SRCS := $(wildcard *.cpp) 
-OBJ_SRCS := parser.o lexer.o $(CPP_SRCS:.cpp=.o)
+OBJ_SRCS := parser.o lexer.o stdholeyc.o $(CPP_SRCS:.cpp=.o)
 DEPS := $(OBJ_SRCS:.o=.d)
 FLAGS=-pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Wuninitialized -Winit-self -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 -Wundef -Werror -Wno-unused -Wno-unused-parameter -Wno-deprecated-register
 
@@ -32,6 +32,9 @@ lexer.yy.cc: holeyc.l
 
 lexer.o: lexer.yy.cc
 	$(CXX) $(FLAGS) -Wno-sign-compare -Wno-sign-conversion -Wno-old-style-cast -Wno-switch-default -g -std=c++14 -c lexer.yy.cc -o lexer.o
+
+stdholeyc.o: stdholeyc.c 
+	$gcc -c -o $@ $<
 
 test: p6
 
