@@ -51,7 +51,7 @@ public:
 		assert(false);
 	}
 private:
-	//std::string memoryLoc; // be it rax or -24(rbp)
+	std::string memoryLoc; // be it rax or -24(rbp)
 	OpdWidth myWidth;
 };
 
@@ -67,7 +67,7 @@ public:
 		return mySym->getName();
 	}
 	const SemSymbol * getSym(){ return mySym; }
-	virtual void genLoad(std::ostream& out, std::string loc)
+  virtual void genLoad(std::ostream& out, std::string loc)
 		override;
 	virtual void genStore(std::ostream& out, std::string loc)
 		override;

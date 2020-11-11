@@ -1,4 +1,4 @@
-int main(int thing)
+int main()
 {
-  int another;
+  TOCONSOLE "Hello world";
 }

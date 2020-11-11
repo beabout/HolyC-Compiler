@@ -1,0 +1,7 @@
+int main(){
+  bool x; 
+  x = true; 
+  if(x){
+    TOCONSOLE "wuddup bih";
+  }
+}

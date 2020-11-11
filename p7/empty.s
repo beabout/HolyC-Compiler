@@ -1,12 +1,16 @@
 .data
+str_0: .asciz "Hello world"
 .align 8
 .globl main
+.text
 main: nop
 fun_main:
 pushq %rbp
 movq %rsp, %rbp
 addq $16, %rbp
-subq $16, %rsp
-lbl_0: add $16, %rsp
+subq $0, %rsp
+movq $str_0, %rdi
+callq printString
+lbl_0: addq $0, %rsp
 popq %rbp
 retq
