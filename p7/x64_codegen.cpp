@@ -52,6 +52,10 @@ void IRProgram::datagenX64(std::ostream& out){
     }
   }
 
+
+  
+
+
   //Put this directive after you write out strings
 	// so that everything is aligned to a quadword value
 	// again
@@ -59,7 +63,7 @@ void IRProgram::datagenX64(std::ostream& out){
 	out << ".align 8\n";
   out << ".globl main\n";
   out << ".text\n";
-  out << "main: nop\n";
+  //out << "main: jmp fun_main\n";
 }
 
 // THIS IS WHERE THE PROGRAM STARTS
@@ -84,12 +88,41 @@ void Procedure::allocLocals(){
       offset = offset - 8;
     }
   }
+
+  // Evan : Formals under heavy construction, masks and welding goggles required.
   if (!formals.empty()){
+    int counter = 1;
     for (auto it = formals.begin(); it != formals.end(); ++it){
-      (*it)->setMemoryLoc(std::to_string(offset) + "(%rbp)");
-      offset = offset - 8;
+      if(counter > 6){
+        switch(counter){
+          case 1:
+            (*it)->setMemoryLoc("%rdi");
+            break;
+          case 2:
+            (*it)->setMemoryLoc("%rsi");
+            break;
+          case 3:
+            (*it)->setMemoryLoc("%rdx");
+            break;
+          case 4:
+            (*it)->setMemoryLoc("%rcx");
+            break;
+          case 5:
+            (*it)->setMemoryLoc("%r8");
+            break;
+          case 6:             
+            (*it)->setMemoryLoc("%r9");
+            break;       
+        }
+      }
+      else{
+        (*it)->setMemoryLoc(std::to_string(offset) + "(%rbp)");
+        offset = offset - 8;
+      } 
+     counter++;
     }
   }
+
   if (!temps.empty()){
     for (auto it = temps.begin(); it != temps.end(); ++it){
       (*it)->setMemoryLoc(std::to_string(offset) + "(%rbp)");
@@ -102,7 +135,7 @@ void Procedure::toX64(std::ostream& out){
 	//Allocate all locals
 	allocLocals();
   
-  out << "fun_" << myName << ":" << "\n";
+  out << myName << ":" << "\n";
 	
   // enter->codegenLabels(out);
 	enter->codegenX64(out);
@@ -154,41 +187,41 @@ void BinOpQuad::codegenX64(std::ostream &out){
     break;
   case OR:
     out << "orq " + reg_1 + ", " + reg_2 + "\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, "%al");
     break;
   case AND:
     out << "andq " + reg_1 + ", " + reg_2 + "\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, "%al");
     break;
   case EQ:
     out << "cmpq " + reg_1 + ", " + reg_2 + "\n";
     out << "sete %al\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, "%al");
     break;
   case NEQ:
     out << "cmpq " + reg_1 + ", " + reg_2 + "\n";
     out << "setne %al\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, "%al");
     break;
   case LT:
-    out << "cmpq " + reg_1 + ", " + reg_2 + "\n";
+    out << "cmpq " + reg_2 + ", " + reg_1 + "\n";
     out << "setl %al\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, "%al");
     break;
   case GT:
-    out << "cmpq " + reg_1 + ", " + reg_2 + "\n";
+    out << "cmpq " + reg_2 + ", " + reg_1 + "\n";
     out << "setg %al\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, "%al");
     break;
   case LTE:
-    out << "cmpq " + reg_1 + ", " + reg_2 + "\n";
+    out << "cmpq " + reg_2 + ", " + reg_1 + "\n";
     out << "setle %al\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, "%al");
     break;
   case GTE:
-    out << "cmpq " + reg_1 + ", " + reg_2 + "\n";
+    out << "cmpq " + reg_2 + ", " + reg_1 + "\n";
     out << "setge %al\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, "%al");
     break;
   }
 }
@@ -199,7 +232,6 @@ void UnaryOpQuad::codegenX64(std::ostream& out){
   // notq %rcx
   // movq %rcx, %r11
   std::string reg_1 = "%rcx";
-  std::string command = "";
   src->genLoad(out, reg_1);
   switch(op){
     case NOT: 
@@ -227,8 +259,8 @@ void JmpQuad::codegenX64(std::ostream& out){
 }
 
 void JmpIfQuad::codegenX64(std::ostream& out){
-  cnd->genLoad(out, "%rax");
-  out << "cmpq $0, %rax\n";
+  cnd->genLoad(out, "%al");
+  out << "cmpb $0, %al\n";
 	out << "je " << tgt->toString() << "\n";
 }
 
@@ -258,7 +290,7 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 }
 
 void CallQuad::codegenX64(std::ostream& out){
-	out << "callq " << "fn_" << this->callee->getName() << "\n"; // i think - Evan
+	out << "callq " << this->callee->getName() << "\n"; // i think - Evan
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
@@ -280,8 +312,10 @@ void SetArgQuad::codegenX64(std::ostream& out){
 
 void GetArgQuad::codegenX64(std::ostream& out){
 	// We don't actually need to do anything here
-  // CLB: This would be a simple "movq" method which is probably 
-  // already taken care of elsewhere.
+  // CLB: This would be a simple "movq" method. 
+  // - If value is in stack, we don't need to do anything. 
+  // - Heap values do need to be moved though. 
+  out << "movq %rdi, -60(%rbp)\n";
 }
 
 void SetRetQuad::codegenX64(std::ostream& out){
@@ -295,32 +329,65 @@ void GetRetQuad::codegenX64(std::ostream& out){
 
 void SymOpd::genLoad(std::ostream & out, std::string regStr){
   std::string thing = "";
+  std::string mov_command = "movq"; 
   if(this->getWidth() == ADDR){
-    thing += "$";    
+    thing += "$";
   }
   thing += getMemoryLoc();
-  out << "movq " + thing + ", " + regStr << std::endl;
+  if(this->getWidth() == BYTE){
+    mov_command = "movb";
+  }
+  out << mov_command + " " + thing + ", " + regStr << std::endl;
 }
 
 void SymOpd::genStore(std::ostream& out, std::string regStr){
-   out << "movq " + regStr + ", " + getMemoryLoc() << std::endl;
+  std::string thing = "";
+  std::string mov_command = "movq";
+  if (this->getWidth() == ADDR){
+    thing += "$";
+  }
+  thing += getMemoryLoc();
+  if (this->getWidth() == BYTE){
+    mov_command = "movb";
+  }
+   out << mov_command + " " + regStr + ", " + thing << std::endl;
 }
+
+
 
 void AuxOpd::genLoad(std::ostream & out, std::string regStr){
   std::string thing = "";
+  std::string mov_command = "movq"; 
   if(this->getWidth() == ADDR){
-    thing += "$";    
+    thing += "$";
   }
   thing += getMemoryLoc();
-  out << "movq " + thing + ", " + regStr << std::endl;
+  if(this->getWidth() == BYTE){
+    mov_command = "movb";
+  }
+  out << mov_command + " " + thing + ", " + regStr << std::endl;
 }
 
 void AuxOpd::genStore(std::ostream& out, std::string regStr){
-  out << "movq " + regStr + ", " + getMemoryLoc() << std::endl;
+  std::string thing = "";
+  std::string mov_command = "movq";
+  if (this->getWidth() == ADDR){
+    thing += "$";
+  }
+  thing += getMemoryLoc();
+  if (this->getWidth() == BYTE){
+    mov_command = "movb";
+  }
+  out << mov_command + " " + regStr + ", " + thing << std::endl;
 }
 
 void LitOpd::genLoad(std::ostream & out, std::string regStr){
-  out << "movq $" + valString() + ", " + regStr << std::endl;
+  std::string mov_command = "movq"; 
+  if(regStr == "%al"){
+    mov_command = "movb";
+  }
+  out << mov_command + " $" + valString() + ", " + regStr << std::endl;
+
 }
 
 void LitOpd::genStore(std::ostream& out, std::string regStr){

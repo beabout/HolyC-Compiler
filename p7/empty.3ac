@@ -1,0 +1,40 @@
+[BEGIN GLOBALS]
+result
+str_1 "GOODBYE\n"
+str_0 "Hello\n"
+[END GLOBALS]
+[BEGIN SayHello LOCALS]
+tmp0 (tmp)
+tmp1 (tmp)
+[END SayHello LOCALS]
+lbl_SayHello: enter SayHello
+            [result] := 0
+            FROMCONSOLE [str_0]
+            FROMCONSOLE [result]
+lbl_1:      nop
+            [tmp0] := [result] LT64 4
+            IFZ [tmp0] GOTO lbl_2
+            FROMCONSOLE [result]
+            [tmp1] := [result] ADD64 1
+            [result] := [tmp1]
+            goto lbl_1
+lbl_2:      nop
+lbl_0:      leave SayHello
+[BEGIN SayGoodbye LOCALS]
+[END SayGoodbye LOCALS]
+lbl_SayGoodbye: enter SayGoodbye
+            FROMCONSOLE [str_1]
+lbl_3:      leave SayGoodbye
+[BEGIN main LOCALS]
+tmp0 (tmp)
+tmp1 (tmp)
+[END main LOCALS]
+lbl_main:   enter main
+            IFZ 1 GOTO lbl_5
+            call SayHello
+            goto lbl_6
+lbl_5:      nop
+            call SayGoodbye
+lbl_6:      nop
+lbl_4:      leave main
+

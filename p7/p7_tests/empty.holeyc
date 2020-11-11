@@ -1,4 +1,59 @@
+int result;
+
+int SayHello()
+{
+  result = 0; 
+  TOCONSOLE "Hello\n";
+  TOCONSOLE result; 
+  if(1 < 2){
+    TOCONSOLE "ASSERT: [LT PASSES].\n";
+  }
+  if(4 > 3){
+    TOCONSOLE "ASSERT: [GT PASSES].\n";
+  }
+  if(true && false){
+    TOCONSOLE "ASSERT: [AND FAILS].\n";
+
+  }
+  if(62 == 62){
+    TOCONSOLE "ASSERT: [EQ PASSES].\n";
+  }
+  if(51 != 51){
+     TOCONSOLE "ASSERT: [NEQ FAILS].\n";   
+  }
+  if(true || false){
+    TOCONSOLE "ASSERT: [OR PASSES].\n";
+  }
+  if(62 >= 52){
+    TOCONSOLE "ASSERT: [GTE PASSES].\n";
+  }
+  if(22 <= 2){
+    TOCONSOLE "ASSERT: [LTE FAILS].\n";
+  }
+}
+
+int SayGoodbye(){
+  TOCONSOLE "GOODBYE\n";
+}
+
 int main()
 {
-  TOCONSOLE "Hello world";
+  if(true)
+  {
+    SayHello();
+  } else {
+    SayGoodbye();
+  }
+  
 }
+
+
+#  SayHello: pushq %rbp 
+#            movq %rsp, %rbp
+#            addq $16, %rbp 
+#            subq $16, %rsp <-- allocate enough space for fn locals 
+#            movq $0, %rax
+#            movq %rax, (result's location)
+#            addq $16, %rsp <-- depends on subq above. 
+#            popq %rbp
+#            retq

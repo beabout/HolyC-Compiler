@@ -1,7 +1,9 @@
+bool hey; 
 int main(){
-  bool x; 
-  x = true; 
-  if(x){
+  hey = true; 
+  if(hey){
     TOCONSOLE "wuddup bih";
+  } else {
+    TOCONSOLE "in else bih"; 
   }
 }

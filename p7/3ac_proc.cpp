@@ -11,7 +11,7 @@ Procedure::Procedure(IRProgram * prog, std::string name)
 	if (myName.compare("main") == 0){
 		enter->addLabel(new Label("main"));
 	} else {
-		enter->addLabel(new Label("fun_" + myName));
+		enter->addLabel(new Label(myName));
 	}
 	leaveLabel = myProg->makeLabel();
 	leave->addLabel(leaveLabel);
@@ -115,6 +115,8 @@ size_t Procedure::localsSize() const{
 	for (auto formal : formals){
 		size += 8;
 	}
+  // Davidson said we might need this?
+  size += 16 - (size % 16);
 	return size;
 }
 
