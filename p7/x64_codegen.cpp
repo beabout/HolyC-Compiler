@@ -97,17 +97,14 @@ void Procedure::allocLocals(){
     int counter = 1;
     int size = formals.size();
     for (auto it = formals.begin(); it != formals.end(); ++it){
-      std::cout << counter << std::endl;
       if(counter <= 6){
         std::string offset_register = std::to_string(offset) + "(%rbp)";
         (*it)->setMemoryLoc(offset_register);
-        std::cout << offset_register << std::endl;
         offset = offset - 8;
         counter++;
       } else {
         int offset = (size - counter) * 8;
         std::string offset_register = std::to_string(offset) + "(%rbp)";
-        std::cout << offset_register << std::endl;
         (*it)->setMemoryLoc(offset_register);
         counter++;
       }
@@ -294,10 +291,8 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
     }
     if (myArg->getWidth() == BYTE){
       if(myArgsType == "char"){
-        std::cout << "should be char " << myArgsType << std::endl; 
         out << "callq getChar\n";
       } else {
-        std::cout << "should be bool " << myArgsType << std::endl;
         out << "callq getBool\n";
       }
       myArg->genStore(out, "%rax");
@@ -455,13 +450,10 @@ void LitOpd::genLoad(std::ostream & out, std::string regStr, bool is_boolean){
   if(this->getWidth() == BYTE && !is_boolean){
     // assume it's a char or bool  
     thing = std::to_string(int(valString()[0]));
-    std::cout << "char or bool ";
   } else {
     // integer or string
-    std::cout << "integer or string ";
     thing = valString();
   }
-  std::cout << valString() << std::endl;
   out << mov_command + " $" + thing + ", " + regStr << std::endl;
 }
 

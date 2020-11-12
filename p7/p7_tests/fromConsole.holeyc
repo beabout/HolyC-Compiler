@@ -17,4 +17,28 @@ int main(int x){
   TOCONSOLE "result = b && true: ";
   TOCONSOLE result; 
   TOCONSOLE "\n";
+  
+  
+  # BinOpQuads
+  if(3 < 5){
+    
+  }
+  if(3 < 5){
+    
+  }
+  if(3 < 5){
+    
+  }
+  if(3 < 5){
+    
+  }
+  if(3 < 5){
+    
+  }
+  if(3 < 5){
+    
+  }
+  if(3 < 5){
+    
+  }
 }
