@@ -1,11 +1,12 @@
 .data
-str_6: .asciz "hello\n"
+str_7: .asciz "hello\n"
+str_6: .asciz "\n"
 str_5: .asciz "\n"
+str_3: .asciz "\n"
 str_4: .asciz "\n"
 str_2: .asciz "\n"
-str_0: .asciz "\n"
 str_1: .asciz "\n"
-str_3: .asciz "\n"
+str_0: .asciz "\n"
 .align 8
 .globl main
 .text
@@ -44,6 +45,10 @@ movq -64(%rbp), %rdi
 callq printInt
 movq $str_5, %rdi
 callq printString
+movq 0(%rbp), %rdi
+callq printInt
+movq $str_6, %rdi
+callq printString
 jmp lbl_0
 lbl_0: addq $64, %rsp
 popq %rbp
@@ -59,8 +64,10 @@ movq $34, %rdx
 movq $43, %rcx
 movq $51, %r8
 movq $63, %r9
+movq $75, %r11
+pushq %r11
 callq Jumble
-movq $str_6, %rdi
+movq $str_7, %rdi
 callq printString
 movq $0, %rax
 jmp lbl_1

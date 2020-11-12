@@ -23,7 +23,7 @@ void Jumble(int one, int two, int three, int four, int five, int six, int seven)
 int main(){
   int result;
   #Jumble(12,23,34,43,51,63,75,87,52);
-  Jumble(12,23,34,43,51,63,75,87,52,33);
+  Jumble(12,23,34,43,51,63,75);
   TOCONSOLE "hello\n";
   return 0;
 }
