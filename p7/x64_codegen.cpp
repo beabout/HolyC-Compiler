@@ -78,6 +78,8 @@ void IRProgram::toX64(std::ostream& out){
 	}
 }
 
+// once we pass 6th argument, it will be on stack NOT on register 
+// - 7 is at 0, 8 is at 8
 void Procedure::allocLocals(){
   // CLB: give a label to each local
   // don't forget to add the offset.
@@ -89,16 +91,26 @@ void Procedure::allocLocals(){
     }
   }
 
+  
   // Evan : Formals under heavy construction, masks and welding goggles required.
   if (!formals.empty()){
     int counter = 1;
+    int size = formals.size();
     for (auto it = formals.begin(); it != formals.end(); ++it){
-      std::cout << counter << std::endl;         
-      int i = -((counter - 1) * 8);
-      std::string offset_register = std::to_string(i) + "(%rbp)";
-      (*it)->setMemoryLoc(offset_register);
-                 
-     counter++;
+      std::cout << counter << std::endl;
+      if(counter <= 6){
+        std::string offset_register = std::to_string(offset) + "(%rbp)";
+        (*it)->setMemoryLoc(offset_register);
+        std::cout << offset_register << std::endl;
+        offset = offset - 8;
+        counter++;
+      } else {
+        int offset = (size - counter) * 8;
+        std::string offset_register = std::to_string(offset) + "(%rbp)";
+        std::cout << offset_register << std::endl;
+        (*it)->setMemoryLoc(offset_register);
+        counter++;
+      }
     }
   }
 
@@ -312,81 +324,63 @@ void LeaveQuad::codegenX64(std::ostream& out){
 	out << "retq\n";
 }
 
+
+// setArg happens in the caller 
+
+// setArg 1, [b]
+// movq -48(%rbp), %rdi
+
+// then when we get to setArg 7, [b]
+// movq -48(%rbp), %r11
+// pushq %r11
 void SetArgQuad::codegenX64(std::ostream& out){
-	// TODO(Implement me)
-  std::cout << "INSIDE A SET ARG\n";
   switch(index){
     case 1:
       opd->genLoad(out, "%rdi");
-      std::cout << "did rdi \n";
       break;
     case 2:
       opd->genLoad(out, "%rsi");
-      std::cout << "did rsi \n";
       break;
     case 3:
       opd->genLoad(out, "%rdx");
-      std::cout << "did rdx \n";
       break;
     case 4:
       opd->genLoad(out, "%rcx");
-      std::cout << "did rcx \n";
       break;
     case 5:
       opd->genLoad(out, "%r8");
-      std::cout << "did r8 \n";
       break;
     case 6:             
       opd->genLoad(out, "%r9");
-      std::cout << "did r9 \n";
       break;
     default:
-      int i = -((index - 1) * 8);
-      std::string offset_register = std::to_string(i) + "(%rbp)";
-      opd->genLoad(out, offset_register);
-      std::cout << "did default \n";
+      opd->genLoad(out, "%r11");
+      out << "pushq %r11\n";
       break;       
   }
 }
 
 void GetArgQuad::codegenX64(std::ostream& out){
-	// We don't actually need to do anything here
-  // CLB: This would be a simple "movq" method. 
-  // - If value is in stack, we don't need to do anything. 
-  // - Heap values do need to be moved though. 
-  //out << "movq %rdi, -60(%rbp)\n";
-  //   switch(index){
-  //   case 1:
-  //     opd->genStore(out, "%rdi");
-  //     std::cout << "did rdi \n";
-  //     break;
-  //   case 2:
-  //     opd->genStore(out, "%rsi");
-  //     std::cout << "did rsi \n";
-  //     break;
-  //   case 3:
-  //     opd->genStore(out, "%rdx");
-  //     std::cout << "did rdx \n";
-  //     break;
-  //   case 4:
-  //     opd->genStore(out, "%rcx");
-  //     std::cout << "did rcx \n";
-  //     break;
-  //   case 5:
-  //     opd->genStore(out, "%r8");
-  //     std::cout << "did r8 \n";
-  //     break;
-  //   case 6:             
-  //     opd->genStore(out, "%r9");
-  //     std::cout << "did r9 \n";
-  //     break;
-  //   default:
-  //     int i = -((index - 1) * 8);
-  //     std::string offset_register = std::to_string(i) + "(%rbp)";
-  //     opd->genStore(out, offset_register);
-  //     std::cout << "did " + offset_register + " \n";
-  //     break;       
-  // }
+    switch(index){
+    case 1:
+      opd->genStore(out, "%rdi");
+      break;
+    case 2:
+      opd->genStore(out, "%rsi");
+      break;
+    case 3:
+      opd->genStore(out, "%rdx");
+      break;
+    case 4:
+      opd->genStore(out, "%rcx");
+      break;
+    case 5:
+      opd->genStore(out, "%r8");
+      break;
+    case 6:             
+      opd->genStore(out, "%r9");
+      break;   
+  }
   
 }
 
