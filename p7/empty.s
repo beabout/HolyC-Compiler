@@ -1,14 +1,14 @@
 .data
-str_6: .asciz "ASSERT: [OR PASSES].\n"
+str_7: .asciz "ASSERT: [GTE PASSES].\n"
 str_8: .asciz "ASSERT: [LTE FAILS].\n"
 str_5: .asciz "ASSERT: [NEQ FAILS].\n"
+str_9: .asciz "GOODBYE\n"
+str_6: .asciz "ASSERT: [OR PASSES].\n"
+str_0: .asciz "Hello\n"
+str_1: .asciz "ASSERT: [LT PASSES].\n"
 str_4: .asciz "ASSERT: [EQ PASSES].\n"
-str_7: .asciz "ASSERT: [GTE PASSES].\n"
 str_3: .asciz "ASSERT: [AND FAILS].\n"
 str_2: .asciz "ASSERT: [GT PASSES].\n"
-str_1: .asciz "ASSERT: [LT PASSES].\n"
-str_9: .asciz "GOODBYE\n"
-str_0: .asciz "Hello\n"
 gbl_result: .quad 0
 .align 8
 .globl main
@@ -49,7 +49,7 @@ lbl_2: nop
 movq $1, %rax
 movq $0, %rbx
 andq %rax, %rbx
-movb %al, -40(%rbp)
+movq %rbx, -40(%rbp)
 movb -40(%rbp), %al
 cmpb $0, %al
 je lbl_3
@@ -81,7 +81,7 @@ lbl_5: nop
 movq $1, %rax
 movq $0, %rbx
 orq %rax, %rbx
-movb %al, -64(%rbp)
+movq %rbx, -64(%rbp)
 movb -64(%rbp), %al
 cmpb $0, %al
 je lbl_6

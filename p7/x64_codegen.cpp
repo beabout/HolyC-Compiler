@@ -93,6 +93,7 @@ void Procedure::allocLocals(){
   if (!formals.empty()){
     int counter = 1;
     for (auto it = formals.begin(); it != formals.end(); ++it){
+      std::cout << counter << std::endl; 
       if(counter > 6){
         switch(counter){
           case 1:
@@ -117,6 +118,7 @@ void Procedure::allocLocals(){
       }
       else{
         (*it)->setMemoryLoc(std::to_string(offset) + "(%rbp)");
+        std::cout << std::to_string(offset) + "(%rbp)" << std::endl;
         offset = offset - 8;
       } 
      counter++;
@@ -173,7 +175,8 @@ void BinOpQuad::codegenX64(std::ostream &out){
     dst->genStore(out, reg_2);
     break;
   case SUB:
-    out << "subq " + reg_1 + ", " + reg_2 + "\n";
+    // CLAY: Think these need to be flipped like this in order to work. 
+    out << "subq " + reg_2 + ", " + reg_1 + "\n";
     dst->genStore(out, reg_2);
     break;
   case DIV:
@@ -187,11 +190,11 @@ void BinOpQuad::codegenX64(std::ostream &out){
     break;
   case OR:
     out << "orq " + reg_1 + ", " + reg_2 + "\n";
-    dst->genStore(out, "%al");
+    dst->genStore(out, reg_2);
     break;
   case AND:
     out << "andq " + reg_1 + ", " + reg_2 + "\n";
-    dst->genStore(out, "%al");
+    dst->genStore(out, reg_2);
     break;
   case EQ:
     out << "cmpq " + reg_1 + ", " + reg_2 + "\n";
@@ -334,7 +337,7 @@ void SymOpd::genLoad(std::ostream & out, std::string regStr){
     thing += "$";
   }
   thing += getMemoryLoc();
-  if(this->getWidth() == BYTE){
+  if(regStr == "%al" && this->getWidth() == BYTE){
     mov_command = "movb";
   }
   out << mov_command + " " + thing + ", " + regStr << std::endl;
@@ -347,13 +350,11 @@ void SymOpd::genStore(std::ostream& out, std::string regStr){
     thing += "$";
   }
   thing += getMemoryLoc();
-  if (this->getWidth() == BYTE){
+  if (regStr == "%al" && this->getWidth() == BYTE){
     mov_command = "movb";
   }
    out << mov_command + " " + regStr + ", " + thing << std::endl;
 }
-
-
 
 void AuxOpd::genLoad(std::ostream & out, std::string regStr){
   std::string thing = "";
@@ -362,7 +363,7 @@ void AuxOpd::genLoad(std::ostream & out, std::string regStr){
     thing += "$";
   }
   thing += getMemoryLoc();
-  if(this->getWidth() == BYTE){
+  if(regStr == "%al" && this->getWidth() == BYTE){
     mov_command = "movb";
   }
   out << mov_command + " " + thing + ", " + regStr << std::endl;
@@ -375,7 +376,7 @@ void AuxOpd::genStore(std::ostream& out, std::string regStr){
     thing += "$";
   }
   thing += getMemoryLoc();
-  if (this->getWidth() == BYTE){
+  if (regStr == "%al" && this->getWidth() == BYTE){
     mov_command = "movb";
   }
   out << mov_command + " " + regStr + ", " + thing << std::endl;
@@ -386,8 +387,17 @@ void LitOpd::genLoad(std::ostream & out, std::string regStr){
   if(regStr == "%al"){
     mov_command = "movb";
   }
-  out << mov_command + " $" + valString() + ", " + regStr << std::endl;
-
+  std::string thing = "";
+  if(this->getWidth() == BYTE){
+    // assume it's a char or bool  
+    std::cout << "char or bool" << std::endl;
+    thing = std::to_string(int(valString()[0]));
+  } else {
+    // integer or string
+    std::cout << "integer or string" << std::endl;
+    thing = valString();
+  }
+  out << mov_command + " $" + thing + ", " + regStr << std::endl;
 }
 
 void LitOpd::genStore(std::ostream& out, std::string regStr){

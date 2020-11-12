@@ -1,28 +1,20 @@
 .data
-str_1: .asciz "in else bih"
-str_0: .asciz "wuddup bih"
-gbl_hey: .quad 0
 .align 8
 .globl main
 .text
-main: nop
-fun_main:
+main:
 pushq %rbp
 movq %rsp, %rbp
 addq $16, %rbp
-subq $16, %rsp
-movq $1, %rax
-movq %rax, (gbl_hey)
-movq (gbl_hey), %rax
-cmpq $0, %rax
-je lbl_1
-movq $str_0, %rdi
-callq printString
-jmp lbl_2
-lbl_1: nop
-movq $str_1, %rdi
-callq printString
-lbl_2: nop
-lbl_0: addq $16, %rsp
+subq $32, %rsp
+movq $23, %rax
+movq $3, %rbx
+subq %rax, %rbx
+movq %rbx, -32(%rbp)
+movq -32(%rbp), %rax
+movq %rax, -24(%rbp)
+movq -24(%rbp), %rdi
+callq printInt
+lbl_0: addq $32, %rsp
 popq %rbp
 retq

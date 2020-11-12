@@ -13,7 +13,6 @@ int SayHello()
   }
   if(true && false){
     TOCONSOLE "ASSERT: [AND FAILS].\n";
-
   }
   if(62 == 62){
     TOCONSOLE "ASSERT: [EQ PASSES].\n";

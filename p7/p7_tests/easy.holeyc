@@ -1,9 +1,5 @@
-bool hey; 
 int main(){
-  hey = true; 
-  if(hey){
-    TOCONSOLE "wuddup bih";
-  } else {
-    TOCONSOLE "in else bih"; 
-  }
+  int a; 
+  a = 23 - 3;
+  TOCONSOLE a; 
 }
