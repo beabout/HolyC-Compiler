@@ -1,49 +1,22 @@
 int result;
 
-int SayHello()
-{
-  result = 0; 
-  TOCONSOLE "Hello\n";
-  TOCONSOLE result; 
-  if(1 < 2){
-    TOCONSOLE "ASSERT: [LT PASSES].\n";
-  }
-  if(4 > 3){
-    TOCONSOLE "ASSERT: [GT PASSES].\n";
-  }
+int giveMeFive(){
+  result = 5;
+  # still need AND to work 
   if(true && false){
     TOCONSOLE "ASSERT: [AND FAILS].\n";
   }
-  if(62 == 62){
-    TOCONSOLE "ASSERT: [EQ PASSES].\n";
-  }
-  if(51 != 51){
-     TOCONSOLE "ASSERT: [NEQ FAILS].\n";   
-  }
-  if(true || false){
-    TOCONSOLE "ASSERT: [OR PASSES].\n";
-  }
-  if(62 >= 52){
-    TOCONSOLE "ASSERT: [GTE PASSES].\n";
-  }
-  if(22 <= 2){
-    TOCONSOLE "ASSERT: [LTE FAILS].\n";
-  }
+  return 5; 
 }
 
-int SayGoodbye(){
-  TOCONSOLE "GOODBYE\n";
-}
-
-int main()
-{
-  if(true)
-  {
-    SayHello();
+int main(){
+  int x;
+  if(true){
+    x = giveMeFive();
+    TOCONSOLE x+4;
   } else {
-    SayGoodbye();
-  }
-  
+    TOCONSOLE "FART\n";
+  }  
 }
 
 

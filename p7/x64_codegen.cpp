@@ -177,7 +177,7 @@ void BinOpQuad::codegenX64(std::ostream &out){
   case SUB:
     // CLAY: Think these need to be flipped like this in order to work. 
     out << "subq " + reg_2 + ", " + reg_1 + "\n";
-    dst->genStore(out, reg_2);
+    dst->genStore(out, reg_1);
     break;
   case DIV:
     out << "movq $0, %rdx\n";
@@ -311,6 +311,37 @@ void LeaveQuad::codegenX64(std::ostream& out){
 
 void SetArgQuad::codegenX64(std::ostream& out){
 	// TODO(Implement me)
+  std::cout << "INSIDE A SET ARG\n";
+  switch(index){
+    case 1:
+      opd->genLoad(out, "%rdi");
+      std::cout << "did rdi \n";
+      break;
+    case 2:
+      opd->genLoad(out, "%rsi");
+      std::cout << "did rsi \n";
+      break;
+    case 3:
+      opd->genLoad(out, "%rdx");
+      std::cout << "did rdx \n";
+      break;
+    case 4:
+      opd->genLoad(out, "%rcx");
+      std::cout << "did rcx \n";
+      break;
+    case 5:
+      opd->genLoad(out, "%r8");
+      std::cout << "did r8 \n";
+      break;
+    case 6:             
+      opd->genLoad(out, "%r9");
+      std::cout << "did r9 \n";
+      break;
+    default:
+      opd->genLoad(out, "-999(%rbp)");
+      std::cout << "did default \n";
+      break;       
+  }
 }
 
 void GetArgQuad::codegenX64(std::ostream& out){
@@ -318,7 +349,7 @@ void GetArgQuad::codegenX64(std::ostream& out){
   // CLB: This would be a simple "movq" method. 
   // - If value is in stack, we don't need to do anything. 
   // - Heap values do need to be moved though. 
-  out << "movq %rdi, -60(%rbp)\n";
+  //out << "movq %rdi, -60(%rbp)\n";
 }
 
 void SetRetQuad::codegenX64(std::ostream& out){
