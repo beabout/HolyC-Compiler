@@ -1,9 +1,24 @@
 int Jumble(int one, int two, int three, int four, int five, int six, int seven, int eight){
-  return (one * two * three * four * five * six * seven * eight);
+  TOCONSOLE one;
+  TOCONSOLE "\n";
+  TOCONSOLE two;
+  TOCONSOLE "\n";
+  TOCONSOLE three;
+  TOCONSOLE "\n";
+  TOCONSOLE four;
+  TOCONSOLE "\n";
+  TOCONSOLE five;
+  TOCONSOLE "\n";
+  TOCONSOLE six;
+  TOCONSOLE "\n";
+  TOCONSOLE seven;
+  TOCONSOLE "\n";
+  return (one);
 }
 
 int main(){
   int result;
   result = Jumble(12,23,34,43,51,63,75,87);
-  TOCONSOLE result;
+  #TOCONSOLE result;
+  return 0;
 }

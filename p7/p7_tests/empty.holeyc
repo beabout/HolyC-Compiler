@@ -1,22 +1,17 @@
 int result;
 
-int giveMeFive(){
-  result = 5;
-  # still need AND to work 
-  if(true && false){
-    TOCONSOLE "ASSERT: [AND FAILS].\n";
-  }
-  return 5; 
-}
-
 int main(){
   int x;
-  if(true){
-    x = giveMeFive();
-    TOCONSOLE x+4;
-  } else {
-    TOCONSOLE "FART\n";
-  }  
+  char b; 
+  b = '1;
+  x = 2; 
+  if(true && true){
+    TOCONSOLE "PASS: Inside true && false if block.\n";
+  }
+  if(false || true){
+    TOCONSOLE "PASS: Inside false || false if block.\n";
+  }
+  TOCONSOLE b;
 }
 
 

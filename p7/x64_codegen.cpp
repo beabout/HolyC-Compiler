@@ -60,7 +60,7 @@ void IRProgram::datagenX64(std::ostream& out){
 	// so that everything is aligned to a quadword value
 	// again
   // Drew: "Make sure your code is x64 aligned."
-	out << ".align 8\n";
+	out << ".align 8\n";  
   out << ".globl main\n";
   out << ".text\n";
   //out << "main: jmp fun_main\n";
@@ -94,7 +94,6 @@ void Procedure::allocLocals(){
     int counter = 1;
     for (auto it = formals.begin(); it != formals.end(); ++it){
       std::cout << counter << std::endl; 
-      if(counter > 6){
         switch(counter){
           case 1:
             (*it)->setMemoryLoc("%rdi");
@@ -113,14 +112,13 @@ void Procedure::allocLocals(){
             break;
           case 6:             
             (*it)->setMemoryLoc("%r9");
+            break;
+          default:
+            int i = -((counter - 1) * 8);
+            std::string offset_register = std::to_string(i) + "(%rbp)";
+            (*it)->setMemoryLoc(offset_register);
             break;       
         }
-      }
-      else{
-        (*it)->setMemoryLoc(std::to_string(offset) + "(%rbp)");
-        std::cout << std::to_string(offset) + "(%rbp)" << std::endl;
-        offset = offset - 8;
-      } 
      counter++;
     }
   }
@@ -166,10 +164,14 @@ void BinOpQuad::codegenX64(std::ostream &out){
   std::string reg_1  = "%rax";
   std::string reg_2  = "%rbx";
 
-  src1->genLoad(out, reg_1);
-  src2->genLoad(out, reg_2);
-  switch (op)
-  {
+  if (op == ADD || op == SUB || op == DIV || op == MULT){
+    src1->genLoad(out, reg_1);
+    src2->genLoad(out, reg_2);
+  } else {
+    src1->genLoad(out, reg_1, true);
+    src2->genLoad(out, reg_2, true);
+  }
+  switch (op) {
   case ADD:
     out << "addq " + reg_1 + ", " + reg_2 + "\n";
     dst->genStore(out, reg_2);
@@ -275,7 +277,8 @@ void NopQuad::codegenX64(std::ostream& out){
 void IntrinsicQuad::codegenX64(std::ostream& out){
 	switch(myIntrinsic){
 	case OUTPUT:
-    myArg->genLoad(out, "%rdi");
+    
+    myArg->genLoad(out, "%rdi"); // this overwrites rdi, which is bad.
     if (myArg->getWidth() == QUADWORD){
       out << "callq printInt\n";
     }
@@ -286,14 +289,30 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 			// assume it's a string
 			out << "callq printString\n";
 		}
+    
 		break;
 	case INPUT:
-		TODO("IMPLEMENT ME");
+    if (myArg->getWidth() == QUADWORD){
+      out << "callq getInt\n";
+      myArg->genStore(out, "%rax");
+    }
+    if (myArg->getWidth() == BYTE){
+      if(myArgsType == "char"){
+        std::cout << "should be char " << myArgsType << std::endl; 
+        out << "callq getChar\n";
+      } else {
+        std::cout << "should be bool " << myArgsType << std::endl;
+        out << "callq getBool\n";
+      }
+      myArg->genStore(out, "%rax");
+    }
 	}
 }
 
 void CallQuad::codegenX64(std::ostream& out){
+
 	out << "callq " << this->callee->getName() << "\n"; // i think - Evan
+
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
@@ -338,7 +357,9 @@ void SetArgQuad::codegenX64(std::ostream& out){
       std::cout << "did r9 \n";
       break;
     default:
-      opd->genLoad(out, "-999(%rbp)");
+      int i = -((index - 1) * 8);
+      std::string offset_register = std::to_string(i) + "(%rbp)";
+      opd->genLoad(out, offset_register);
       std::cout << "did default \n";
       break;       
   }
@@ -350,18 +371,52 @@ void GetArgQuad::codegenX64(std::ostream& out){
   // - If value is in stack, we don't need to do anything. 
   // - Heap values do need to be moved though. 
   //out << "movq %rdi, -60(%rbp)\n";
+  //   switch(index){
+  //   case 1:
+  //     opd->genStore(out, "%rdi");
+  //     std::cout << "did rdi \n";
+  //     break;
+  //   case 2:
+  //     opd->genStore(out, "%rsi");
+  //     std::cout << "did rsi \n";
+  //     break;
+  //   case 3:
+  //     opd->genStore(out, "%rdx");
+  //     std::cout << "did rdx \n";
+  //     break;
+  //   case 4:
+  //     opd->genStore(out, "%rcx");
+  //     std::cout << "did rcx \n";
+  //     break;
+  //   case 5:
+  //     opd->genStore(out, "%r8");
+  //     std::cout << "did r8 \n";
+  //     break;
+  //   case 6:             
+  //     opd->genStore(out, "%r9");
+  //     std::cout << "did r9 \n";
+  //     break;
+  //   default:
+  //     int i = -((index - 1) * 8);
+  //     std::string offset_register = std::to_string(i) + "(%rbp)";
+  //     opd->genStore(out, offset_register);
+  //     std::cout << "did " + offset_register + " \n";
+  //     break;       
+  // }
+  
 }
 
 void SetRetQuad::codegenX64(std::ostream& out){
-  //this->opd->setMemoryLoc("%rax"); // ???
-  this->opd->genStore(out, "%rax");
-}
-
-void GetRetQuad::codegenX64(std::ostream& out){
+  // movq stuff, %rax
   this->opd->genLoad(out, "%rax");
 }
 
-void SymOpd::genLoad(std::ostream & out, std::string regStr){
+void GetRetQuad::codegenX64(std::ostream& out){
+  // mov %rax, stuff
+  this->opd->genStore(out, "%rax");
+}
+
+void SymOpd::genLoad(std::ostream & out, std::string regStr, bool is_boolean){
   std::string thing = "";
   std::string mov_command = "movq"; 
   if(this->getWidth() == ADDR){
@@ -387,7 +442,7 @@ void SymOpd::genStore(std::ostream& out, std::string regStr){
    out << mov_command + " " + regStr + ", " + thing << std::endl;
 }
 
-void AuxOpd::genLoad(std::ostream & out, std::string regStr){
+void AuxOpd::genLoad(std::ostream & out, std::string regStr, bool is_boolean){
   std::string thing = "";
   std::string mov_command = "movq"; 
   if(this->getWidth() == ADDR){
@@ -413,21 +468,22 @@ void AuxOpd::genStore(std::ostream& out, std::string regStr){
   out << mov_command + " " + regStr + ", " + thing << std::endl;
 }
 
-void LitOpd::genLoad(std::ostream & out, std::string regStr){
+void LitOpd::genLoad(std::ostream & out, std::string regStr, bool is_boolean){
   std::string mov_command = "movq"; 
   if(regStr == "%al"){
     mov_command = "movb";
   }
   std::string thing = "";
-  if(this->getWidth() == BYTE){
+  if(this->getWidth() == BYTE && !is_boolean){
     // assume it's a char or bool  
-    std::cout << "char or bool" << std::endl;
     thing = std::to_string(int(valString()[0]));
+    std::cout << "char or bool ";
   } else {
     // integer or string
-    std::cout << "integer or string" << std::endl;
+    std::cout << "integer or string ";
     thing = valString();
   }
+  std::cout << valString() << std::endl;
   out << mov_command + " $" + thing + ", " + regStr << std::endl;
 }
 

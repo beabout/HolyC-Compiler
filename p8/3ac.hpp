@@ -2,16 +2,19 @@
 #define HOLEYC_3AC_HPP
 
 #include <assert.h>
-#include "list"
-#include "map"
+#include <list>
+#include <map>
+#include <set>
 #include "err.hpp"
 #include "symbol_table.hpp"
+#include "types.hpp"
 
 namespace holeyc{
 
 class TypeAnalysis;
 class Procedure;
 class IRProgram;
+class ControlFlowGraph;
 
 class Label{
 public:
@@ -19,7 +22,7 @@ public:
 		this->name = nameIn;
 	}
 	std::string toString(){
-		return "lbl_" + this->name;
+		return this->name;
 	}
 	std::string getName(){
 		return name;
@@ -38,8 +41,6 @@ public:
 	virtual std::string valString() = 0;
 	virtual std::string locString() = 0;
 	virtual OpdWidth getWidth(){ return myWidth; }
-	virtual void genLoad(std::ostream& out, std::string dstReg, bool is_boolean = false) = 0;
-	virtual void genStore(std::ostream& out, std::string srcReg) = 0;
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
 			if (basic->isChar()){ return BYTE; }
@@ -51,7 +52,6 @@ public:
 		assert(false);
 	}
 private:
-	std::string memoryLoc; // be it rax or -24(rbp)
 	OpdWidth myWidth;
 };
 
@@ -67,16 +67,6 @@ public:
 		return mySym->getName();
 	}
 	const SemSymbol * getSym(){ return mySym; }
-  virtual void genLoad(std::ostream& out, std::string loc, bool is_boolean = false)
-		override;
-	virtual void genStore(std::ostream& out, std::string loc)
-		override;
-	virtual void setMemoryLoc(std::string loc){
-		myLoc = loc;
-	}
-	virtual std::string getMemoryLoc(){
-		return myLoc;
-	}
 private:
 	//Private Constructor
 	SymOpd(SemSymbol * sym, OpdWidth width)
@@ -84,7 +74,7 @@ private:
 	SemSymbol * mySym;
 	friend class Procedure;
 	friend class IRProgram;
-	std::string myLoc; // where I am located in memory
+	std::string myLoc;
 };
 
 class LitOpd : public Opd{
@@ -97,10 +87,6 @@ public:
 	virtual std::string locString() override{
 		throw InternalError("Tried to get location of a constant");
 	}
-	virtual void genLoad(std::ostream& out, std::string loc, bool is_boolean = false)
-		override;
-	virtual void genStore(std::ostream& out, std::string loc)
-		override;
 private:
 	std::string val;
 };
@@ -118,19 +104,8 @@ public:
 	std::string getName(){
 		return name;
 	}
-	virtual void genLoad(std::ostream& out, std::string loc, bool is_boolean = false)
-		override;
-	virtual void genStore(std::ostream& out, std::string loc)
-		override;
-	virtual void setMemoryLoc(std::string loc){
-		myLoc = loc;
-	}
-	virtual std::string getMemoryLoc(){
-		return myLoc; // where I am located in memory
-	}
 private:
 	std::string name;
-	std::string myLoc = "UNINIT";
 };
 
 enum BinOp {
@@ -139,30 +114,30 @@ enum BinOp {
 enum UnaryOp{
 	NEG, NOT
 };
-enum Intrinsic {
-	OUTPUT, INPUT
-};
 
 class Quad{
 public:
 	Quad();
 	void addLabel(Label * label);
+	Label * getLabel(){ return labels.front(); }
+	void clearLabels(){ labels.clear(); }
 	virtual std::string repr() = 0;
 	std::string commentStr();
 	virtual std::string toString(bool verbose=false);
 	void setComment(std::string commentIn);
-	virtual void codegenX64(std::ostream& out) = 0;
-	void codegenLabels(std::ostream& out);
 private:
 	std::string myComment;
 	std::list<Label *> labels;
+	OpdWidth width;
 };
 
 class BinOpQuad : public Quad{
 public:
 	BinOpQuad(Opd * dstIn, BinOp opIn, Opd * src1In, Opd * src2In);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
+	Opd * getDst(){ return dst; }
+	Opd * getSrc1(){ return src1; }
+	Opd * getSrc2(){ return src2; }
 private:
 	Opd * dst;
 	BinOp op;
@@ -174,11 +149,12 @@ class UnaryOpQuad : public Quad {
 public:
 	UnaryOpQuad(Opd * dstIn, UnaryOp opIn, Opd * srcIn);
 	std::string repr() override ;
-	void codegenX64(std::ostream& out) override;
+	Opd * getDst(){ return dst; }
+	Opd * getSrc(){ return src; }
 private:
-  Opd * dst;
-  UnaryOp op;
-  Opd * src;
+	Opd * dst;
+	UnaryOp op;
+	Opd * src;
 };
 
 class AssignQuad : public Quad{
@@ -188,30 +164,18 @@ public:
 	: dst(dstIn), src(srcIn)
 	{ }
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
-
+	Opd * getDst(){ return dst; }
+	Opd * getSrc(){ return src; }
 private:
 	Opd * dst;
 	Opd * src;
-};
-
-class LocQuad : public Quad {
-public:
-	LocQuad(Opd * srcIn, Opd * tgtIn, bool srcLocIn)
-	: src(srcIn), tgt(tgtIn), srcLoc(srcLocIn){ }
-	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
-private:
-	Opd * src;
-	Opd * tgt;
-	bool srcLoc;
 };
 
 class JmpQuad : public Quad {
 public:
 	JmpQuad(Label * tgtIn);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
+	Label * getLabel(){ return tgt; }
 private:
 	Label * tgt;
 };
@@ -220,7 +184,8 @@ class JmpIfQuad : public Quad {
 public:
 	JmpIfQuad(Opd * cndIn, Label * tgtIn);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
+	Label * getLabel(){ return tgt; }
+	Opd * getCnd(){ return cnd; }
 private:
 	Opd * cnd;
 	Label * tgt;
@@ -230,28 +195,32 @@ class NopQuad : public Quad {
 public:
 	NopQuad();
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
 };
 
-class IntrinsicQuad : public Quad {
+class IntrinsicOutputQuad : public Quad {
 public:
-	IntrinsicQuad(Intrinsic intrinsic, Opd * arg);
+	IntrinsicOutputQuad(Opd * arg, const DataType * type);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
-  void addType(std::string type){
-    myArgsType = type;
-  }
+	Opd * getSrc(){ return myArg; }
 private:
 	Opd * myArg;
-	Intrinsic myIntrinsic;
-	std::string myArgsType;
+	const DataType * myType;
+};
+
+class IntrinsicInputQuad : public Quad {
+public:
+	IntrinsicInputQuad(Opd * arg, const DataType * type);
+	std::string repr() override;
+	Opd * getDst(){ return myArg; }
+private:
+	Opd * myArg;
+	const DataType * myType;
 };
 
 class CallQuad : public Quad{
 public:
 	CallQuad(SemSymbol * calleeIn);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
 private:
 	SemSymbol * callee;
 };
@@ -260,7 +229,6 @@ class EnterQuad : public Quad{
 public:
 	EnterQuad(Procedure * proc);
 	virtual std::string repr() override;
-	void codegenX64(std::ostream& out) override;
 private:
 	Procedure * myProc;
 };
@@ -269,7 +237,6 @@ class LeaveQuad : public Quad{
 public:
 	LeaveQuad(Procedure * proc);
 	virtual std::string repr() override;
-	void codegenX64(std::ostream& out) override;
 private:
 	Procedure * myProc;
 };
@@ -278,7 +245,7 @@ class SetArgQuad : public Quad{
 public:
 	SetArgQuad(size_t indexIn, Opd * opdIn);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
+	Opd * getSrc(){ return opd; }
 private:
 	size_t index;
 	Opd * opd;
@@ -288,7 +255,7 @@ class GetArgQuad : public Quad{
 public:
 	GetArgQuad(size_t indexIn, Opd * opdIn);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
+	Opd * getDst(){ return opd; }
 private:
 	size_t index;
 	Opd * opd;
@@ -298,7 +265,7 @@ class SetRetQuad : public Quad{
 public:
 	SetRetQuad(Opd * opdIn);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
+	Opd * getSrc(){ return opd; }
 private:
 	Opd * opd;
 };
@@ -307,7 +274,7 @@ class GetRetQuad : public Quad{
 public:
 	GetRetQuad(Opd * opdIn);
 	std::string repr() override;
-	void codegenX64(std::ostream& out) override;
+	Opd * getDst(){ return opd; }
 private:
 	Opd * opd;
 };
@@ -332,17 +299,19 @@ public:
 	holeyc::Label * getLeaveLabel();
 
 	void toX64(std::ostream& out);
-	size_t localsSize() const;
+	size_t arSize() const;
 	size_t numTemps() const;
 
 	std::list<Quad *> * getQuads(){
 		return bodyQuads;
 	}
+	EnterQuad * getEnter(){ return enter; }
+	LeaveQuad * getLeave(){ return leave; }
 private:
 	void allocLocals();
 
 	EnterQuad * enter;
-	Quad * leave;
+	LeaveQuad * leave;
 	Label * leaveLabel;
 
 	IRProgram * myProg;
@@ -356,23 +325,28 @@ private:
 
 class IRProgram{
 public:
-	IRProgram(TypeAnalysis * taIn) : ta(taIn){}
+	IRProgram(TypeAnalysis * taIn) : ta(taIn){
+		procs = new std::list<Procedure *>();
+	}
 	Procedure * makeProc(std::string name);
-	std::list<Procedure *> getProcs();
+	std::list<Procedure *> * getProcs();
 	Label * makeLabel();
 	Opd * makeString(std::string val);
 	void gatherGlobal(SemSymbol * sym);
 	SymOpd * getGlobal(SemSymbol * sym);
+	OpdWidth opDerefWidth(ASTNode * node);
 	OpdWidth opWidth(ASTNode * node);
+	const DataType * nodeType(ASTNode * node);
 
 	std::string toString(bool verbose=false);
 
 	void toX64(std::ostream& out);
+	std::set<Opd *> globalSyms();
 private:
 	TypeAnalysis * ta;
 	size_t max_label = 0;
 	size_t str_idx = 0;
-	std::list<Procedure *> procs; 
+	std::list<Procedure *> * procs; 
 	HashMap<AuxOpd *, std::string> strings;
 	std::map<SemSymbol *, SymOpd *> globals;
 

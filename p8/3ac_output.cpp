@@ -63,7 +63,8 @@ void FormalDeclNode::to3AC(Procedure * proc){
 }
 
 Opd * IntLitNode::flatten(Procedure * proc){
-	return new LitOpd(std::to_string(myNum), QUADWORD);
+	Opd * res = new LitOpd(std::to_string(myNum), QUADWORD);
+	return res;
 }
 
 Opd * StrLitNode::flatten(Procedure * proc){
@@ -72,7 +73,8 @@ Opd * StrLitNode::flatten(Procedure * proc){
 }
 
 Opd * CharLitNode::flatten(Procedure * proc){
-	return new LitOpd(std::string(1, myVal), BYTE);
+	int ascii = int(myVal);
+	return new LitOpd(std::to_string(ascii), BYTE);
 }
 
 Opd * FalseNode::flatten(Procedure * prog){
@@ -99,6 +101,15 @@ Opd * AssignExpNode::flatten(Procedure * proc){
 }
 
 static void argsTo3AC(Procedure * proc, std::list<ExpNode *> * args){
+	/*
+	size_t argIdx = 1;
+	for (auto elt : *args){
+		Opd * arg = elt->flatten(proc);
+		Quad * argQuad = new SetInQuad(argIdx, arg);
+		proc->addQuad(argQuad);
+		argIdx++;
+	}
+	*/
 	std::list<Opd *> argOpds;
 	for (auto elt : *args){
 		Opd * argOpd = elt->flatten(proc);
@@ -293,15 +304,16 @@ void PostDecStmtNode::to3AC(Procedure * proc){
 
 void FromConsoleStmtNode::to3AC(Procedure * proc){
 	Opd * child = this->myDst->flatten(proc);
-	IntrinsicQuad * quad = new IntrinsicQuad(INPUT, child);
-  quad->addType(this->getType());
+	IntrinsicInputQuad * quad = new IntrinsicInputQuad(child,
+		proc->getProg()->nodeType(myDst));
 	proc->addQuad(quad);
 }
 
 void ToConsoleStmtNode::to3AC(Procedure * proc){
 	Opd * child = this->mySrc->flatten(proc);
-	IntrinsicQuad * quad = new IntrinsicQuad(OUTPUT, child);
-  proc->addQuad(quad);
+	IntrinsicOutputQuad * quad = new IntrinsicOutputQuad(child,
+		proc->getProg()->nodeType(mySrc));
+	proc->addQuad(quad);
 }
 
 void IfStmtNode::to3AC(Procedure * proc){
@@ -413,52 +425,6 @@ void VarDeclNode::to3AC(IRProgram * prog){
 Opd * NullPtrNode::flatten(Procedure * prog){
 	Opd * res = new LitOpd("0", ADDR);
 	return res;
-}
-
-Opd * RefNode::flatten(Procedure * proc){
-	Opd * dst = proc->makeTmp(ADDR);
-	Opd * child = myID->flatten(proc);
-	LocQuad * loc = new LocQuad(child, dst, true);
-	
-	proc->addQuad(loc);
-	return dst;
-}
-
-Opd * DerefNode::flatten(Procedure * proc){
-	Opd * dst = proc->makeTmp(ADDR);
-	Opd * getVal = myID->flatten(proc);
-	LocQuad * mem = new LocQuad(getVal, dst, false);
-
-	proc->addQuad(mem);
-	return dst;
-}
-
-Opd * IndexNode::flatten(Procedure * proc){
-	Opd * baseOpd = myBase->flatten(proc);
-	Opd * offOpd = myOffset->flatten(proc);
-	Opd * strideOpd = nullptr;
-	OpdWidth width = proc->getProg()->opWidth(this);
-	if (width == ADDR){
-		LitOpd * litOpd = new LitOpd("4", ADDR);
-		strideOpd = proc->makeTmp(ADDR);
-		Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
-	} else if (width == QUADWORD){
-		LitOpd * litOpd = new LitOpd("4", ADDR);
-		strideOpd = proc->makeTmp(ADDR);
-		Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
-	} else if (width == BYTE){
-		strideOpd = offOpd;
-	}
-	
-	Opd * tmp1 = proc->makeTmp(ADDR);
-	Quad * offQuad = new BinOpQuad(tmp1, ADD, baseOpd, strideOpd);
-	proc->addQuad(offQuad);
-
-	Opd * tmp2 = proc->makeTmp(ADDR);
-	LocQuad * baseQuad = new LocQuad(tmp1, tmp2, false);
-	proc->addQuad(baseQuad);
-
-	return tmp2;
 }
 
 }

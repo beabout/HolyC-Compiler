@@ -1,0 +1,26 @@
+[BEGIN GLOBALS]
+str_2 "Here ya go: "
+str_3 "\n"
+str_1 "give me an integer value: "
+str_0 "give me a boolean: "
+[END GLOBALS]
+[BEGIN main LOCALS]
+x (formal)
+b (local)
+result (local)
+tmp0 (tmp)
+[END main LOCALS]
+lbl_main:   enter main
+            getarg 1 [x]
+            TOCONSOLE [str_0]
+            FROMCONSOLE [b]
+            [tmp0] := [b] AND8 1
+            [result] := [tmp0]
+            TOCONSOLE [result]
+            TOCONSOLE [str_1]
+            FROMCONSOLE [x]
+            TOCONSOLE [str_2]
+            TOCONSOLE [x]
+            TOCONSOLE [str_3]
+lbl_0:      leave main
+

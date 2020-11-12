@@ -1,10 +1,17 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-void printByte(char c){
-	if (c == '0'){ fprintf(stdout, "false"); }
-	else if (c == '1'){ fprintf(stdout, "true"); }
-	else { fprintf(stdout, "%c", c); }
+void printBool(char c){
+	if (c == 0){ 
+		fprintf(stdout, "false"); 
+	} else{ 
+		fprintf(stdout, "true"); 
+	}
+	fflush(stdout);
+}
+
+void printChar(char c){
+	fprintf(stdout, "%c", c);
 	fflush(stdout);
 }
 
@@ -38,7 +45,14 @@ long int getInt(){
 
 char getChar(){
 	char c;
-	scanf("%c", &c);
-	getchar(); // Consume trailing newline
+	c = getchar();
+	if (c != '\n' && c != 0x10){
+		char next = getchar(); // Consume trailing newline
+		if (next != '\n' && next != 0x10){
+			ungetc(next, stdin);
+		}
+	} else {
+		//user didn't enter anything before newline
+	}
 	return c;
 }

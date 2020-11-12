@@ -1,4 +1,4 @@
- #ifndef HOLEYC_AST_HPP
+#ifndef HOLEYC_AST_HPP
 #define HOLEYC_AST_HPP
 
 #include <ostream>
@@ -19,8 +19,6 @@ class Opd;
 class SymbolTable;
 class SemSymbol;
 
-class DerefNode;
-class RefNode;
 class DeclListNode;
 class StmtListNode;
 class FormalsListNode;
@@ -89,8 +87,7 @@ public:
 	void attachSymbol(SemSymbol * symbolIn) { } 
 	bool nameAnalysis(SymbolTable * symTab) override { return false; }
 	virtual void typeAnalysis(TypeAnalysis *) override {; } 
-	virtual Opd * flatten(Procedure * proc) override = 0;
-  virtual std::string getType() = 0;
+	virtual Opd * flatten(Procedure * proc) override { return nullptr; }
 };
 
 class IDNode : public LValNode{
@@ -105,75 +102,10 @@ public:
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
 	virtual Opd * flatten(Procedure * proc) override;
-  virtual std::string getType() override {
-    std::string val;
-    if(mySymbol){
-      if(mySymbol->getDataType()->isVoid()){
-        val = "void";
-      } else if(mySymbol->getDataType()->isInt()) {
-        val = "int";
-      } else if(mySymbol->getDataType()->isBool()) {
-        val = "bool";
-      } else if(mySymbol->getDataType()->isChar()) {
-        val = "char";
-      } else if(mySymbol->getDataType()->isPtr()) {
-        val = "ptr";
-      }
-    } else {
-      val = "empty type";
-    }
-    return val;
-  }
 private:
 	std::string name;
 	SemSymbol * mySymbol = nullptr;
 };
-
-class RefNode : public LValNode{
-public:
-	RefNode(size_t l, size_t c, IDNode * id)
-	: LValNode(l, c), myID(id){ }
-	void unparse(std::ostream& out, int indent) override;
-	std::string nodeKind() override { return "Ref"; }
-
-	virtual bool nameAnalysis(SymbolTable *) override;
-	virtual void typeAnalysis(TypeAnalysis *) override;
-	virtual Opd * flatten(Procedure * prog) override;
-  std::string getType() override { return "pointer Ref"; }
-private:
-	IDNode * myID;
-};
-
-class DerefNode : public LValNode{
-public:
-	DerefNode(size_t l, size_t c, IDNode * id)
-	: LValNode(l, c), myID(id){ }
-	void unparse(std::ostream& out, int indent) override;
-	std::string nodeKind() override { return "Deref"; }
-	virtual bool nameAnalysis(SymbolTable *) override;
-	virtual void typeAnalysis(TypeAnalysis *) override;
-	virtual Opd * flatten(Procedure * prog) override;
-  std::string getType() override { return "pointer Deref"; }
-
-private:
-	IDNode * myID;
-};
-
-class IndexNode : public LValNode{
-public:
-	IndexNode(size_t l, size_t c, IDNode * id, ExpNode * offset)
-	: LValNode(l, c), myBase(id), myOffset(offset){ }
-	void unparse(std::ostream& out, int indent) override;
-	std::string nodeKind() override { return "Index"; }
-	virtual bool nameAnalysis(SymbolTable * symTab) override;
-	virtual void typeAnalysis(TypeAnalysis *) override;
-	virtual Opd * flatten(Procedure * prog) override;
-  std::string getType() override { return "Index"; }
-private:
-	IDNode * myBase;
-	ExpNode * myOffset;
-};
-
 
 class TypeNode : public ASTNode{
 public:
@@ -258,17 +190,6 @@ public:
 	std::list<FormalDeclNode *> * getFormals() const{
 		return myFormals;
 	}
-
-	int num_of_variables() {
-		int result = myFormals->size();
-		for(auto statement : * myBody){
-			if(statement->nodeKind() == "VarDecl"){
-        result++;
-      }
-		}
-		return result; 
-	}
-
 	void unparse(std::ostream& out, int indent) override;
 	virtual std::string nodeKind() override { return "FnDecl"; }
 	virtual bool nameAnalysis(SymbolTable * symTab) override;
@@ -307,7 +228,6 @@ public:
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
 	virtual void to3AC(Procedure * prog) override;
-  std::string getType() { return myDst->getType(); }
 private:
 	LValNode * myDst;
 };
@@ -321,7 +241,6 @@ public:
 	bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
 	virtual void to3AC(Procedure * prog) override;
-	  
 private:
 	ExpNode * mySrc;
 };
