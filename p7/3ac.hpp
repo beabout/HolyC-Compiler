@@ -364,6 +364,7 @@ public:
 	void gatherGlobal(SemSymbol * sym);
 	SymOpd * getGlobal(SemSymbol * sym);
 	OpdWidth opWidth(ASTNode * node);
+  TypeAnalysis * getTA() { return ta; }
 
 	std::string toString(bool verbose=false);
 

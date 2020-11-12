@@ -1,4 +1,5 @@
 #include "ast.hpp"
+#include "type_analysis.hpp"
 
 namespace holeyc{
 
@@ -294,14 +295,14 @@ void PostDecStmtNode::to3AC(Procedure * proc){
 void FromConsoleStmtNode::to3AC(Procedure * proc){
 	Opd * child = this->myDst->flatten(proc);
 	IntrinsicQuad * quad = new IntrinsicQuad(INPUT, child);
-  quad->addType(this->getType());
+  quad->addType(proc->getProg()->getTA()->nodeType(myDst)->getString());
 	proc->addQuad(quad);
 }
 
 void ToConsoleStmtNode::to3AC(Procedure * proc){
 	Opd * child = this->mySrc->flatten(proc);
 	IntrinsicQuad * quad = new IntrinsicQuad(OUTPUT, child);
-  quad->addType(this->getType());
+  quad->addType(proc->getProg()->getTA()->nodeType(mySrc)->getString());
   proc->addQuad(quad);
 }
 
