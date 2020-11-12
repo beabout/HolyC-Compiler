@@ -1,11 +1,11 @@
 .data
 str_7: .asciz "\n"
-str_3: .asciz "\n"
-str_1: .asciz "give me a bool value: "
-str_6: .asciz "result: "
-str_4: .asciz "b: "
 str_5: .asciz "\n"
+str_4: .asciz "b: "
+str_3: .asciz "\n"
+str_6: .asciz "result: "
 str_2: .asciz "Here ya go: "
+str_1: .asciz "give me a bool value: "
 str_0: .asciz "give me a character: "
 .align 8
 .globl main

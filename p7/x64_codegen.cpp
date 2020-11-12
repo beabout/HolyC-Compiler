@@ -93,32 +93,11 @@ void Procedure::allocLocals(){
   if (!formals.empty()){
     int counter = 1;
     for (auto it = formals.begin(); it != formals.end(); ++it){
-      std::cout << counter << std::endl; 
-        switch(counter){
-          case 1:
-            (*it)->setMemoryLoc("%rdi");
-            break;
-          case 2:
-            (*it)->setMemoryLoc("%rsi");
-            break;
-          case 3:
-            (*it)->setMemoryLoc("%rdx");
-            break;
-          case 4:
-            (*it)->setMemoryLoc("%rcx");
-            break;
-          case 5:
-            (*it)->setMemoryLoc("%r8");
-            break;
-          case 6:             
-            (*it)->setMemoryLoc("%r9");
-            break;
-          default:
-            int i = -((counter - 1) * 8);
-            std::string offset_register = std::to_string(i) + "(%rbp)";
-            (*it)->setMemoryLoc(offset_register);
-            break;       
-        }
+      std::cout << counter << std::endl;         
+      int i = -((counter - 1) * 8);
+      std::string offset_register = std::to_string(i) + "(%rbp)";
+      (*it)->setMemoryLoc(offset_register);
+                 
      counter++;
     }
   }
@@ -283,7 +262,12 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
       out << "callq printInt\n";
     }
     else if (myArg->getWidth() == BYTE){
-      out << "callq printByte\n";
+      if(myArgsType == "char"){
+        out << "callq printChar\n";
+      }
+      else{
+        out << "callq printBool\n";
+      }
     } else {
 			//If the argument is an ADDR,
 			// assume it's a string
@@ -311,7 +295,7 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 
 void CallQuad::codegenX64(std::ostream& out){
 
-	out << "callq " << this->callee->getName() << "\n"; // i think - Evan
+	out << "callq " << this->callee->getName() << "\n";
 
 }
 

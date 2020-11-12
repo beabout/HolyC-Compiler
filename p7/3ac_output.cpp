@@ -301,6 +301,7 @@ void FromConsoleStmtNode::to3AC(Procedure * proc){
 void ToConsoleStmtNode::to3AC(Procedure * proc){
 	Opd * child = this->mySrc->flatten(proc);
 	IntrinsicQuad * quad = new IntrinsicQuad(OUTPUT, child);
+  quad->addType(this->getType());
   proc->addQuad(quad);
 }
 

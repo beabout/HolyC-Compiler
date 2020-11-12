@@ -1,21 +1,20 @@
 int main(int x){
-  int a;
-  char ca; 
+  
   bool b;
-  TOCONSOLE "give me a character: ";
-  FROMCONSOLE ca; 
-  TOCONSOLE ca;
   TOCONSOLE "give me a bool value: ";
-  FROMCONSOLE b; 
-  TOCONSOLE "Here ya go: ";
-  TOCONSOLE b;
-  TOCONSOLE "\n";
-  bool result;
-  result = b && true;
+  FROMCONSOLE b;
   TOCONSOLE "b: ";
   TOCONSOLE b;
   TOCONSOLE "\n";
+  
+  bool result;
+  result = false; 
   TOCONSOLE "result: ";
+  TOCONSOLE result; 
+  TOCONSOLE "\n";
+
+  result = b && true;
+  TOCONSOLE "result = b && true: ";
   TOCONSOLE result; 
   TOCONSOLE "\n";
 }

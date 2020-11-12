@@ -1,6 +1,21 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+void printBool(char c){
+  if (c == 0){
+    fprintf(stdout, "false");
+  }
+  else{
+    fprintf(stdout, "true");
+  }
+  fflush(stdout);
+}
+
+void printChar(char c){
+  fprintf(stdout, "%c", c);
+  fflush(stdout);
+}
+
 void printByte(char c){
 	if (c == '0'){ fprintf(stdout, "false"); }
 	else if (c == '1'){ fprintf(stdout, "true"); }
