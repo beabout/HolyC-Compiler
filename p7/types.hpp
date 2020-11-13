@@ -278,7 +278,13 @@ public:
 		return myFormalTypes;
 	}
 	virtual bool validVarType() const override { return false; }
-	virtual size_t getSize() const override { return 0; }
+	virtual size_t getSize() const override { 
+    size_t size = 0;
+    for (auto it = myFormalTypes->begin(); it != myFormalTypes->end(); ++it){
+      size++; 
+    }
+    return size; 
+  }
 private:
 	const std::list<const DataType *> * myFormalTypes;
 	const DataType * myRetType;

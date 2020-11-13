@@ -1,11 +1,11 @@
 .data
-str_6: .asciz "\n"
-str_5: .asciz "\n"
-str_4: .asciz "\n"
 str_7: .asciz "\n"
-str_3: .asciz "\n"
-str_8: .asciz "hello\n"
+str_5: .asciz "\n"
 str_2: .asciz "\n"
+str_4: .asciz "\n"
+str_8: .asciz "hello\n"
+str_6: .asciz "\n"
+str_3: .asciz "\n"
 str_1: .asciz "\n"
 str_0: .asciz "\n"
 .align 8
@@ -15,7 +15,7 @@ Jumble:
 pushq %rbp
 movq %rsp, %rbp
 addq $16, %rbp
-subq $64, %rsp
+subq $80, %rsp
 movq %rdi, -24(%rbp)
 movq %rsi, -32(%rbp)
 movq %rdx, -40(%rbp)
@@ -55,7 +55,7 @@ callq printInt
 movq $str_7, %rdi
 callq printString
 jmp lbl_0
-lbl_0: addq $64, %rsp
+lbl_0: addq $80, %rsp
 popq %rbp
 retq
 main:
@@ -74,6 +74,7 @@ pushq %r11
 movq $26, %r11
 pushq %r11
 callq Jumble
+addq $16, %rsp
 movq $str_8, %rdi
 callq printString
 movq $0, %rax

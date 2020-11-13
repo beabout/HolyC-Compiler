@@ -301,9 +301,12 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 }
 
 void CallQuad::codegenX64(std::ostream& out){
-
 	out << "callq " << this->callee->getName() << "\n";
-
+  const FnType * fn = callee->getDataType()->asFn();
+  if (6 < fn->getSize()){
+    size_t offset = (fn->getSize() - 6) * 8;
+    out << "addq $" << offset << ", %rsp\n";
+  }
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
