@@ -1,0 +1,20 @@
+int incrementMe(int val){
+  val++;
+  return val;
+}
+
+int func(int a){
+  int b;
+  b = 5;
+  if(a < 5){
+    while(a < 5){
+      a++;
+      b--;
+    }
+    TOCONSOLE a;
+  } else {
+    b = 12;
+    a = incrementMe(b);
+  }
+  return a;
+}
