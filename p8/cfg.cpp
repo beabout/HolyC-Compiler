@@ -137,7 +137,11 @@ void ControlFlowGraph::optimize(){
 	// bool dceEffect = DeadCodeElimination::run(this);
 
 	// TODO: implement this code
-	bool constantEffect = ConstantsAnalysis::run(this);
+
+	bool constantEffect = true;
+	while(constantEffect){	
+    constantEffect = ConstantsAnalysis::run(this);
+	}
 }
 
 std::set<BasicBlock *> ControlFlowGraph::blockSuccessors(BasicBlock * block){

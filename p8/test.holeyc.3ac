@@ -1,0 +1,11 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN main LOCALS]
+b (local)
+tmp0 (tmp)
+[END main LOCALS]
+main:       enter main
+            [tmp0] := 0
+            [b] := [tmp0]
+lbl_0:      leave main
+
