@@ -112,4 +112,15 @@ size_t Procedure::arSize() const{
 	return size;
 }
 
+void Procedure::replaceQuad(Quad * old_quad, Quad *new_quad){
+  auto it = bodyQuads->begin();
+  bool not_found = true;
+  while(it != bodyQuads->end() && not_found == true){
+    if(*it == old_quad){
+      *it = new_quad;
+      not_found = false;
+    }
+    ++it;
+  }
+}
 }

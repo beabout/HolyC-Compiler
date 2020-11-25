@@ -135,6 +135,7 @@ class BinOpQuad : public Quad{
 public:
 	BinOpQuad(Opd * dstIn, BinOp opIn, Opd * src1In, Opd * src2In);
 	std::string repr() override;
+  BinOp getOp(){ return op; }
 	Opd * getDst(){ return dst; }
 	Opd * getSrc1(){ return src1; }
 	Opd * getSrc2(){ return src2; }
@@ -292,7 +293,7 @@ public:
 	void gatherFormal(SemSymbol * sym);
 	SymOpd * getSymOpd(SemSymbol * sym);
 	AuxOpd * makeTmp(OpdWidth width);
-
+	void replaceQuad(Quad* old_quad, Quad* new_quad);
 	std::string toString(bool verbose=false); 
 	std::string getName();
 

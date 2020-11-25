@@ -1,0 +1,47 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN incrementMe LOCALS]
+val (formal)
+tmp0 (tmp)
+[END incrementMe LOCALS]
+fun_incrementMe: enter incrementMe
+            getarg 1 [val]
+            [tmp0] := 1 AND8 0
+            IFZ [tmp0] GOTO lbl_1
+            [val] := [val] ADD64 1
+lbl_1:      nop
+            setret [val]
+            goto lbl_0
+lbl_0:      leave incrementMe
+[BEGIN func LOCALS]
+a (formal)
+b (local)
+tmp0 (tmp)
+tmp1 (tmp)
+tmp2 (tmp)
+[END func LOCALS]
+fun_func:   enter func
+            getarg 1 [a]
+            [b] := 5
+            [tmp0] := [a] LT64 5
+            IFZ [tmp0] GOTO lbl_3
+lbl_5:      nop
+            [tmp1] := [a] LT64 5
+            IFZ [tmp1] GOTO lbl_6
+            [a] := [a] ADD64 1
+            [b] := [b] SUB64 1
+            goto lbl_5
+lbl_6:      nop
+            TOCONSOLE [a]
+            goto lbl_4
+lbl_3:      nop
+            [b] := 12
+            setarg 1 [b]
+            call incrementMe
+            getret [tmp2]
+            [a] := [tmp2]
+lbl_4:      nop
+            setret [a]
+            goto lbl_2
+lbl_2:      leave func
+

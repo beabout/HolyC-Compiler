@@ -1,5 +1,7 @@
 int incrementMe(int val){
-  val++;
+  if(true && false){
+    val++;
+  }
   return val;
 }
 

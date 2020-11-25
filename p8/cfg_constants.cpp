@@ -7,7 +7,17 @@ bool ConstantsAnalysis::runGraph(ControlFlowGraph * cfg){
 	// dead code elimination pass. However, constant propagation
 	// is a FORWARD analysis, so the inFacts will be made up
 	// of the union of PREDECESSORS, rather than the union of SUCCESSORS
-	TODO(implement me!)
+	//TODO(implement me!)
+
+	// cfg has:
+	//std::set<BasicBlock *> blockSuccessors(BasicBlock * block);
+	//std::set<BasicBlock *> blockPredecessors(BasicBlock * block);
+
+  for(auto block : *(cfg->getBlocks())){
+    runBlock(cfg, block);
+  }
+	
+  return true; // CHANGE ME 
 }
 
 bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
@@ -25,6 +35,120 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
 	// that fact and keep rolling
 	// if the source operand is a variable (SymOpd or AuxOpd), but that
 	// variable is known to be constant, replace the 
-
-	TODO(implement me!)
+  for(auto quad : *(block->getQuads())){
+    // do shtuff
+    if (auto q = dynamic_cast<BinOpQuad *>(quad)){
+      // then we know it has source operands.
+      // if both src1 and src2 are constants, we can fold.
+      Opd* src1 = q->getSrc1();
+      Opd* src2 = q->getSrc2();
+      Opd *dest = q->getDst();
+      if(auto op1 = dynamic_cast<LitOpd *>(src1)){
+        if(auto op2 = dynamic_cast<LitOpd*>(src2)){
+        // we can fold.
+          std::string value_1 = op1->valString();
+          std::string value_2 = op2->valString();
+          int ival; 
+          bool bval1; 
+          bool bval2;
+          bool bval;
+          switch (q->getOp()){
+            case BinOp::ADD:
+              ival = std::stoi(value_1) + std::stoi(value_2);
+              LitOpd* value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
+              AssignQuad* assign_quad = new AssignQuad(dest, value_to_assign);
+              cfg->getProc()->replaceQuad(quad, assign_quad);
+              break;
+            case BinOp::SUB:
+              ival = std::stoi(value_1) - std::stoi(value_2);
+              LitOpd* value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
+              AssignQuad* assign_quad = new AssignQuad(dest, value_to_assign);
+              cfg->getProc()->replaceQuad(quad, assign_quad);
+              break;
+            case BinOp::DIV:
+              // we don't wanna divide by 0
+              if(!(std::stoi(value_2) == 0)){
+                ival = std::stoi(value_1) / std::stoi(value_2);
+                LitOpd* value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
+                AssignQuad* assign_quad = new AssignQuad(dest, value_to_assign);
+                cfg->getProc()->replaceQuad(quad, assign_quad);
+              }
+              break;
+            case BinOp::MULT:
+                ival = std::stoi(value_1) * std::stoi(value_2); 
+                LitOpd* value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
+                AssignQuad* assign_quad = new AssignQuad(dest, value_to_assign);
+                cfg->getProc()->replaceQuad(quad, assign_quad);             
+              break;
+            case BinOp::OR:
+              // bool
+              std::cout << "Value is: " << value_1 << std::endl; // test
+              bval1 = (value_1 != "0");
+              bval2 = (value_2 != "0");
+              bval = bval1 || bval2;
+              LitOpd *value_to_assign = new LitOpd(std::to_string(bval), dest->getWidth());
+              AssignQuad *assign_quad = new AssignQuad(dest, value_to_assign);
+              cfg->getProc()->replaceQuad(quad, assign_quad);
+              break;
+            case BinOp::AND:
+              // bool
+              bval1 = (value_1 != "0");
+              bval2 = (value_2 != "0");
+              bval = bval1 && bval2;
+              LitOpd *value_to_assign = new LitOpd(std::to_string(bval), dest->getWidth());
+              AssignQuad *assign_quad = new AssignQuad(dest, value_to_assign);
+              cfg->getProc()->replaceQuad(quad, assign_quad);
+              break;
+            case BinOp::EQ:
+              if(value_1 == value_2)
+              {
+                // result is true.
+                // replace this quad with "assign true" quad.
+              }else{
+                // result is false.
+                // replace this quad with "assign false" quad.
+              }
+              break;
+            case BinOp::NEQ:
+              if(value_1 != value_2){
+                // result is true.
+              }else{
+                // result is false.
+              }
+              break;
+            case BinOp::LT:
+              if(value_1 < value_2){
+                // result is true.
+              }else{
+                // result is false.
+              }
+              break;
+            case BinOp::GT:
+              if(value_1 > value_2){
+                // result is true.
+              }else{
+                // result is false.
+              }
+              break;
+            case BinOp::LTE:
+              if(value_1 <= value_2){
+                // result is true.
+              }else{
+                // result is false.
+              }
+              break;
+            case BinOp::GTE:
+              if(value_1 >= value_2){
+                // result is true.
+              }else{
+                // result is false.
+              }
+            default:
+              break;
+          }
+        }
+      }
+    }
+  }
+  return true;
 }
