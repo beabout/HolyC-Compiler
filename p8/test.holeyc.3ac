@@ -3,9 +3,11 @@
 [BEGIN main LOCALS]
 b (local)
 tmp0 (tmp)
+tmp1 (tmp)
 [END main LOCALS]
 main:       enter main
-            [tmp0] := 0
-            [b] := [tmp0]
+            [tmp0] := 1
+            [tmp1] := 0 AND8 [tmp0]
+            [b] := [tmp1]
 lbl_0:      leave main
 

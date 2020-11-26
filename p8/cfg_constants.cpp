@@ -25,18 +25,20 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
 	// is a forward analysis, so you should iterate over the block
 	// from the first quad to the last, collecting the known constants
 
-	// There are two things you should do for each quad: 
-	// 1) Constant Folding
-	// if all source operands are constants (i.e. can cast to LitOpd),
-	// evaluate the result and replace the quad with a simple assignment
-	// 2) Constant Propagation
-	// if the source operand of an assignment is a constant, record
-	// that fact and keep rolling
-	// if the source operand is a variable (SymOpd or AuxOpd), but that
-	// variable is known to be constant, replace the 
+  // There are two things you should do for each quad:
+  // 1) Constant Folding
+  // if all source operands are constants (i.e. can cast to LitOpd),
+  // evaluate the result and replace the quad with a simple assignment
+  // 2) Constant Propagation
+  // if the source operand of an assignment is a constant, record
+  // that fact and keep rolling
+  // if the source operand is a variable (SymOpd or AuxOpd), but that
+  // variable is known to be constant, replace the
   bool still_changing = false;
   for(auto quad : *(block->getQuads())){
     // do shtuff
+
+    // 1) Constant Folding
     if (auto q = dynamic_cast<BinOpQuad *>(quad)){
       // then we know it has source operands.
       // if both src1 and src2 are constants, we can fold.
@@ -162,6 +164,57 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
         }
       }
     }
+    
+    // 2) Constant Propogation
+    if (auto q = dynamic_cast<BinOpQuad *>(quad)){
+      std::cout << "Binary op quad detected at propogation phase.\n";
+      Opd* src1 = q->getSrc1();
+      Opd* src2 = q->getSrc2();
+      if (auto op1_sym = dynamic_cast<SymOpd *>(src1)) {
+        // attempt to propogate op1.
+        still_changing = true;
+        cout << op1_sym->getSym()->getName() << endl;
+      }
+      else if (auto op1_aux = dynamic_cast<AuxOpd *>(src1)) {
+        still_changing = true;
+        cout << op1_aux->getName() << endl;
+      }
+      
+      if(auto op2_sym = dynamic_cast<SymOpd*>(src2)) {
+        // attempt to propogate op2.
+        still_changing = true;
+        cout << op2_sym->getSym()->getName() << endl;
+      }
+      else if (auto op2_aux = dynamic_cast<AuxOpd *>(src1)) {
+        still_changing = true;
+        cout << op2_sym->getSym()->getName() << endl;
+      }
+    } else if (auto q = dynamic_cast<UnaryOpQuad *>(quad)){
+
+
+    } else if (auto q = dynamic_cast<AssignQuad *>(quad)) {
+
+
+    } else if (auto q = dynamic_cast<SetArgQuad *>(quad)){
+
+
+    }
+
+    //if([tmp]) ?
+
+    // 2) Constant Propagation
+    // here i think - evan
+    // where can temps occur?
+    // - BinOpQuad
+    // - UnarOpQuad
+    // - AssignQuad
+    // - CallQuad?
+
+    // a  = [tmp]
+    // a = 1 + [tmp]
+    // a = ![tmp]
+    // setarg 1 [tmp]
   }
-  return still_changing;
-}
+
+    return still_changing;
+  }
