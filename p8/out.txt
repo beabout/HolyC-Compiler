@@ -10,3 +10,4 @@ main:       enter main
             [tmp1] := 0 AND8 [tmp0]
             [b] := [tmp1]
 lbl_0:      leave main
+

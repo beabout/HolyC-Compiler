@@ -12,8 +12,10 @@ bool ConstantsAnalysis::runGraph(ControlFlowGraph * cfg){
 	// cfg has:
 	//std::set<BasicBlock *> blockSuccessors(BasicBlock * block);
 	//std::set<BasicBlock *> blockPredecessors(BasicBlock * block);
-  bool still_changing = false; 
+  bool still_changing = false;
+  int count = 0;
   for(auto block : *(cfg->getBlocks())){
+    cout << "count: " << count++ << endl;
     still_changing = runBlock(cfg, block) && still_changing;
   }
   return still_changing;
@@ -34,6 +36,8 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
   // that fact and keep rolling
   // if the source operand is a variable (SymOpd or AuxOpd), but that
   // variable is known to be constant, replace the
+  Procedure * curr_proc = cfg->getProc();
+  IRProgram * ir = curr_proc->getProg();
   bool still_changing = false;
   for(auto quad : *(block->getQuads())){
     // do shtuff
@@ -168,27 +172,59 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
     // 2) Constant Propogation
     if (auto q = dynamic_cast<BinOpQuad *>(quad)){
       std::cout << "Binary op quad detected at propogation phase.\n";
-      Opd* src1 = q->getSrc1();
-      Opd* src2 = q->getSrc2();
-      if (auto op1_sym = dynamic_cast<SymOpd *>(src1)) {
+      Opd * src1 = q->getSrc1();
+      Opd * src2 = q->getSrc2();
+      LitOpd * op1_sym = dynamic_cast<LitOpd *>(src1);
+      LitOpd * op2_sym = dynamic_cast<LitOpd *>(src2);
+      HashMap<AuxOpd *, std::string> strings = ir->getStrings();
+
+      if (op1_sym == nullptr){
         // attempt to propogate op1.
         still_changing = true;
-        cout << op1_sym->getSym()->getName() << endl;
+        if(AuxOpd * qq = dynamic_cast<AuxOpd *>(src1)){
+          std::cout << "1: Check if this AuxOpd is a string\n";
+          HashMap<AuxOpd *, std::string>::iterator it = strings.find(qq);
+          if(it != strings.end()) {
+            cout << "1: made it into strings if\n";
+            std::string value = it->second;
+            LitOpd * new_opd = new LitOpd(value, q->getDst()->getWidth());
+            q->setSrc1(new_opd);
+          }
+          std::cout << "1: Check if this AuxOpd is a temp\n";
+          std::list<AuxOpd *>::iterator  tmpIt;
+          tmpIt = find(curr_proc->getTemps().begin(), curr_proc->getTemps().end(), qq);
+          if(tmpIt != curr_proc->getTemps().end()){
+            cout << "1: made it into temps if\n";
+            
+          }
+        } else if (SymOpd * qq = dynamic_cast<SymOpd *>(src1)) {
+
+        }
       }
-      else if (auto op1_aux = dynamic_cast<AuxOpd *>(src1)) {
+      if (op2_sym == nullptr) {
+        // attempt to propogate op2
         still_changing = true;
-        cout << op1_aux->getName() << endl;
+        if(AuxOpd * qq = dynamic_cast<AuxOpd *>(src2)){
+          std::cout << "2: Check if this AuxOpd is a string\n";
+          HashMap<AuxOpd *, std::string>::iterator it = strings.find(qq);
+          if(it != strings.end()){
+            cout << "2: made it into strings if\n";
+            std::string value = it->second;
+            LitOpd * new_opd = new LitOpd(value, q->getDst()->getWidth());
+            q->setSrc2(new_opd);
+          }
+          std::cout << "2: Check if this AuxOpd is a temp\n";
+          std::list<AuxOpd *>::iterator tmpIt;
+          tmpIt = find(curr_proc->getTemps().begin(), curr_proc->getTemps().end(), qq);
+          if (tmpIt != curr_proc->getTemps().end()){
+            cout << "2: made it into temps if\n";
+            
+          }
+        } else if (SymOpd * qq = dynamic_cast<SymOpd *>(src2)) {
+
+        }
       }
       
-      if(auto op2_sym = dynamic_cast<SymOpd*>(src2)) {
-        // attempt to propogate op2.
-        still_changing = true;
-        cout << op2_sym->getSym()->getName() << endl;
-      }
-      else if (auto op2_aux = dynamic_cast<AuxOpd *>(src1)) {
-        still_changing = true;
-        cout << op2_sym->getSym()->getName() << endl;
-      }
     } else if (auto q = dynamic_cast<UnaryOpQuad *>(quad)){
 
 

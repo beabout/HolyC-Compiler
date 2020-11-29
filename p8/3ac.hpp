@@ -139,6 +139,8 @@ public:
 	Opd * getDst(){ return dst; }
 	Opd * getSrc1(){ return src1; }
 	Opd * getSrc2(){ return src2; }
+	void setSrc1(Opd* new_opd){ src1 = new_opd; }
+	void setSrc2(Opd* new_opd){ src2 = new_opd; }
 private:
 	Opd * dst;
 	BinOp op;
@@ -306,6 +308,9 @@ public:
 	std::list<Quad *> * getQuads(){
 		return bodyQuads;
 	}
+  std::list<AuxOpd *> getTemps(){
+    return temps;
+  }
 	EnterQuad * getEnter(){ return enter; }
 	LeaveQuad * getLeave(){ return leave; }
 private:
@@ -338,7 +343,7 @@ public:
 	OpdWidth opDerefWidth(ASTNode * node);
 	OpdWidth opWidth(ASTNode * node);
 	const DataType * nodeType(ASTNode * node);
-
+	HashMap<AuxOpd *, std::string> getStrings(){return strings;}
 	std::string toString(bool verbose=false);
 
 	void toX64(std::ostream& out);
