@@ -240,7 +240,7 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
     if (auto q = dynamic_cast<AssignQuad *>(quad)) {
       int t = 1;
       // update outFacts with value
-      cout << "ASSIGNQUAD\n";
+      cout << "AssignQuad\n";
       if(LitOpd * lit_opd = dynamic_cast<LitOpd *>(q->getSrc())){
         cout << "src is literal\n";
         // [tmp0] = 1
@@ -279,7 +279,7 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
       inFacts[block].printFacts();
 
     } else if (auto q = dynamic_cast<BinOpQuad *>(quad)) {
-      cout << "BINOPQUAD\n";
+      cout << "BinOpQuad\n";
       // [a] = [b] AND8 [tmp0]
       LitOpd* src1_lit = dynamic_cast<LitOpd *>(q->getSrc1());
       LitOpd* src2_lit = dynamic_cast<LitOpd *>(q->getSrc2());
@@ -333,18 +333,45 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
       }
       // Not sure if this works, but hope this will actually replace quad. - Evan
       if(value_to_assign_1 != nullptr || value_to_assign_2 != nullptr){
-        BinOpQuad *assign_quad = q;
-        proc->replaceQuad(quad, assign_quad);
-        block->replaceQuad(quad, assign_quad);
+        BinOpQuad *new_bin_quad = q;
+        proc->replaceQuad(quad, new_bin_quad);
+        block->replaceQuad(quad, new_bin_quad);
       }
       
     } else if (auto q = dynamic_cast<UnaryOpQuad *>(quad)) {
-
+      cout << "UnaryOpQuad\n";
+      LitOpd* src_lit = dynamic_cast<LitOpd *>(q->getSrc());
+      if(src_lit == nullptr){
+        LitOpd *value_to_assign = nullptr;
+        bool inverse_bval;
+        ConstantVal new_value = inFacts[block].getVal(q->getSrc());
+        switch (new_value.getType()){
+        case INTVAL:
+          // it is a NEG64
+          changed = true;
+          value_to_assign = new LitOpd(std::to_string(new_value.intVal), q->getDst()->getWidth());
+          q->setSrc(value_to_assign);
+          break;
+        case BOOLVAL:
+          // it is a NOT8
+          changed = true;
+          // inverse_bval = !new_value.boolVal;
+          // value_to_assign = new LitOpd(std::to_string(inverse_bval), q->getDst()->getWidth());
+          value_to_assign = new LitOpd(std::to_string(new_value.boolVal), q->getDst()->getWidth());
+          q->setSrc(value_to_assign);
+          break;
+        default:
+          cout << "Src is not LitOpd [TOPVAL, CHARVAL] This value was never updated.\n";
+          break;
+        }
+        
+        UnaryOpQuad * un_op_quad = q;
+        proc->replaceQuad(quad, un_op_quad);
+        block->replaceQuad(quad, un_op_quad);
+      }
     } else if (auto q = dynamic_cast<SetArgQuad *>(quad)) {
 
     }
-
-    
   }
   outFacts[block].addFacts(inFacts[block]); // update my outfacts.
   return changed;

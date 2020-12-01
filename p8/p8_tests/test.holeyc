@@ -1,7 +1,8 @@
 void main(){
-
+  int a; 
+  a = -3;
   bool b;
-
-  b = false && (true || false);
-
+  bool c;
+  b = true && (true || true);
+  c = !b;
 }

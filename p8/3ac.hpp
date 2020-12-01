@@ -155,6 +155,7 @@ public:
 	std::string repr() override ;
 	Opd * getDst(){ return dst; }
 	Opd * getSrc(){ return src; }
+  void setSrc(Opd * new_opd){ src = new_opd; }
 private:
 	Opd * dst;
 	UnaryOp op;
