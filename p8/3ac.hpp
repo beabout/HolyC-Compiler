@@ -87,6 +87,7 @@ public:
 	virtual std::string locString() override{
 		throw InternalError("Tried to get location of a constant");
 	}
+	
 private:
 	std::string val;
 };
@@ -168,7 +169,14 @@ public:
 	{ }
 	std::string repr() override;
 	Opd * getDst(){ return dst; }
-	Opd * getSrc(){ return src; }
+	Opd * getSrc(){ 
+		std::cout << "Inside GetSrc\n"; 
+		if(src == nullptr)
+		{
+			cout << "Source was nullptr, and that is the issue.\n";
+		}
+		return src; 
+		}
 private:
 	Opd * dst;
 	Opd * src;
@@ -313,6 +321,9 @@ public:
   }
 	EnterQuad * getEnter(){ return enter; }
 	LeaveQuad * getLeave(){ return leave; }
+
+	std::map<SemSymbol *, SymOpd *> getLocals(){ return locals; };
+
 private:
 	void allocLocals();
 

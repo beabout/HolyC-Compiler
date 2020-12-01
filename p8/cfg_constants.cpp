@@ -12,17 +12,67 @@ bool ConstantsAnalysis::runGraph(ControlFlowGraph * cfg){
 	// cfg has:
 	//std::set<BasicBlock *> blockSuccessors(BasicBlock * block);
 	//std::set<BasicBlock *> blockPredecessors(BasicBlock * block);
-  bool still_changing = false;
-  int count = 0;
-  for(auto block : *(cfg->getBlocks())){
-    cout << "count: " << count++ << endl;
-    still_changing = runBlock(cfg, block) && still_changing;
+
+  Procedure * proc = cfg->getProc();
+  IRProgram * prog = proc->getProg();
+  std::set<Opd *> globalSyms = prog->globalSyms();
+  
+  // initialize ConstantsFacts for every block
+  for (BasicBlock *block : *cfg->getBlocks()){
+    ConstantsFacts empty;
+    inFacts[block] = empty;
+    outFacts[block] = empty;
   }
-  return still_changing;
+
+  bool changed = true;
+  int count = 0; 
+  while(changed) {
+    changed = false;
+    cout << "\ntime running: " << ++count << endl;
+    for(auto block : *cfg->getBlocks()) {
+      ConstantsFacts in = inFacts[block];
+
+      // Block's ConstantFacts: add to blockSuccessors ConstantsFacts
+      for (BasicBlock *block : cfg->blockPredecessors(block)) {
+        in.addFacts(outFacts[block]);
+      }
+      // Block's ConstantFacts: add global variables constants with TOPVAL
+      for(auto sym : globalSyms){ 
+        ConstantVal cVal; 
+        cVal.setTop();
+        in.gen(sym, cVal);
+      }
+      // Block's ConstantFacts: add formal constants with TOPVAL
+      for (auto formal : proc->getFormals()){
+        ConstantVal cVal;
+        cVal.setTop();
+        in.gen(formal, cVal);
+      }
+      // Block's ConstantFacts: add local variables constants with TOPVAL
+      for (auto local : proc->getLocals()){
+        ConstantVal cVal;
+        cVal.setTop();
+        in.gen(local.second, cVal);
+      }
+      // Block's ConstantFacts: add temps? variables constants with TOPVAL
+      for (auto temp : proc->getTemps()){
+        ConstantVal cVal;
+        cVal.setTop();
+        in.gen(temp, cVal);
+      }
+
+      inFacts[block] = in;
+      bool blockChange = runBlock(cfg, block);
+      if(blockChange){
+        changed = true;
+      }
+    }
+  }
+  return changed;
 }
 
 bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
-	//This function should iterate over each quad in the block, 
+	// This function should iterate over each quad in the block, 
 	// much like the dead code elimination pass, except that this
 	// is a forward analysis, so you should iterate over the block
 	// from the first quad to the last, collecting the known constants
@@ -36,12 +86,16 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
   // that fact and keep rolling
   // if the source operand is a variable (SymOpd or AuxOpd), but that
   // variable is known to be constant, replace the
-  Procedure * curr_proc = cfg->getProc();
-  IRProgram * ir = curr_proc->getProg();
-  bool still_changing = false;
-  for(auto quad : *(block->getQuads())){
-    // do shtuff
 
+  Procedure * proc = cfg->getProc();
+  IRProgram * ir = proc->getProg();
+
+  // obtain ConstantFacts of the incoming ConstantFacts and set outFacts at end of function.
+  ConstantsFacts in = inFacts[block];
+  ConstantsFacts myOutFacts;
+  
+  bool changed = false;
+  for(Quad* quad : *(block->getQuads())){
     // 1) Constant Folding
     if (auto q = dynamic_cast<BinOpQuad *>(quad)){
       // then we know it has source operands.
@@ -51,7 +105,7 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
       Opd *dest = q->getDst();
       if(auto op1 = dynamic_cast<LitOpd *>(src1)){
         if(auto op2 = dynamic_cast<LitOpd*>(src2)){
-          still_changing = true;
+          changed = true;
           std::string value_1 = op1->valString();
           std::string value_2 = op2->valString();
           int ival; 
@@ -65,13 +119,15 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
               ival = std::stoi(value_1) + std::stoi(value_2);
               value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
               break;
             case BinOp::SUB:
               ival = std::stoi(value_1) - std::stoi(value_2);
               value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
               break;
             case BinOp::DIV:
               // we don't wanna divide by 0
@@ -79,23 +135,26 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
                 ival = std::stoi(value_1) / std::stoi(value_2);
                 value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
                 assign_quad = new AssignQuad(dest, value_to_assign);
-                cfg->getProc()->replaceQuad(quad, assign_quad);
+                proc->replaceQuad(quad, assign_quad);
+                block->replaceQuad(quad, assign_quad);
               }
               break;
             case BinOp::MULT:
-                ival = std::stoi(value_1) * std::stoi(value_2); 
-                value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
-                assign_quad = new AssignQuad(dest, value_to_assign);
-                cfg->getProc()->replaceQuad(quad, assign_quad);             
+              ival = std::stoi(value_1) * std::stoi(value_2); 
+              value_to_assign = new LitOpd(std::to_string(ival),dest->getWidth());
+              assign_quad = new AssignQuad(dest, value_to_assign);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
               break;
             case BinOp::OR:
-              std::cout << "Value is: " << value_1 << std::endl; // test
               bval1 = (value_1 != "0");
               bval2 = (value_2 != "0");
               bval = bval1 || bval2;
               value_to_assign = new LitOpd(std::to_string(bval), dest->getWidth());
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
+              std::cout << "Replaced an OR quad with a LitOpd.\n";
               break;
             case BinOp::AND:
               bval1 = (value_1 != "0");
@@ -103,7 +162,9 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
               bval = bval1 && bval2;
               value_to_assign = new LitOpd(std::to_string(bval), dest->getWidth());
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
+              std::cout << "Replaced an AND quad with a LitOpd.\n";
               break;
             case BinOp::EQ:
               if(value_1 == value_2){
@@ -116,7 +177,8 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
                 value_to_assign = new LitOpd("0", dest->getWidth());
               }
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
               break;
             case BinOp::NEQ:
               if(value_1 != value_2){
@@ -125,7 +187,8 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
                 value_to_assign = new LitOpd("0", dest->getWidth());
               }
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
               break;
             case BinOp::LT:
               if(value_1 < value_2){
@@ -134,7 +197,8 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
                 value_to_assign = new LitOpd("0", dest->getWidth());
               }
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
               break;
             case BinOp::GT:
               if(value_1 > value_2){
@@ -143,7 +207,8 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
                 value_to_assign = new LitOpd("0", dest->getWidth());
               }
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
               break;
             case BinOp::LTE:
               if(value_1 <= value_2){
@@ -152,7 +217,8 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
                 value_to_assign = new LitOpd("0", dest->getWidth());
               }
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
               break;
             case BinOp::GTE:
               if(value_1 >= value_2){
@@ -161,7 +227,8 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
                 value_to_assign = new LitOpd("0", dest->getWidth());
               }
               assign_quad = new AssignQuad(dest, value_to_assign);
-              cfg->getProc()->replaceQuad(quad, assign_quad);
+              proc->replaceQuad(quad, assign_quad);
+              block->replaceQuad(quad, assign_quad);
             default:
               break;
           }
@@ -170,87 +237,115 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
     }
     
     // 2) Constant Propogation
-    if (auto q = dynamic_cast<BinOpQuad *>(quad)){
-      std::cout << "Binary op quad detected at propogation phase.\n";
-      Opd * src1 = q->getSrc1();
-      Opd * src2 = q->getSrc2();
-      LitOpd * op1_sym = dynamic_cast<LitOpd *>(src1);
-      LitOpd * op2_sym = dynamic_cast<LitOpd *>(src2);
-      HashMap<AuxOpd *, std::string> strings = ir->getStrings();
+    if (auto q = dynamic_cast<AssignQuad *>(quad)) {
+      int t = 1;
+      // update outFacts with value
+      cout << "ASSIGNQUAD\n";
+      if(LitOpd * lit_opd = dynamic_cast<LitOpd *>(q->getSrc())){
+        cout << "src is literal\n";
+        // [tmp0] = 1
+        ConstantVal new_value = ConstantVal(lit_opd);
+        inFacts[block].updateVal(q->getDst(), new_value);
+      } else {
+        cout << "src is ID\n";
+        // [a] = [tmp0]
+        // [tmp1] := 0 AND8 [tmp0]
+        ConstantVal new_value = inFacts[block].getVal(q->getSrc());
+        inFacts[block].updateVal(q->getDst(), new_value);
+        LitOpd *value_to_assign = nullptr; 
+        switch(new_value.getType()){
+          case INTVAL:
+            value_to_assign = new LitOpd(std::to_string(new_value.intVal), q->getDst()->getWidth());
+            break; 
+          case CHARVAL: 
+            value_to_assign = new LitOpd(std::to_string(new_value.charVal), q->getDst()->getWidth());
+            break;
+          case BOOLVAL:
+            value_to_assign = new LitOpd(std::to_string(new_value.boolVal), q->getDst()->getWidth());
+            break; 
+          case TOPVAL: 
+            cout << "Src Val [TOPVAL] This value was never updated.\n";
+            break; 
 
-      if (op1_sym == nullptr){
-        // attempt to propogate op1.
-        still_changing = true;
-        if(AuxOpd * qq = dynamic_cast<AuxOpd *>(src1)){
-          std::cout << "1: Check if this AuxOpd is a string\n";
-          HashMap<AuxOpd *, std::string>::iterator it = strings.find(qq);
-          if(it != strings.end()) {
-            cout << "1: made it into strings if\n";
-            std::string value = it->second;
-            LitOpd * new_opd = new LitOpd(value, q->getDst()->getWidth());
-            q->setSrc1(new_opd);
-          }
-          std::cout << "1: Check if this AuxOpd is a temp\n";
-          std::list<AuxOpd *>::iterator  tmpIt;
-          tmpIt = find(curr_proc->getTemps().begin(), curr_proc->getTemps().end(), qq);
-          if(tmpIt != curr_proc->getTemps().end()){
-            cout << "1: made it into temps if\n";
-            
-          }
-        } else if (SymOpd * qq = dynamic_cast<SymOpd *>(src1)) {
-
+        }
+        if(value_to_assign != nullptr){
+          changed = true;
+          AssignQuad* assign_quad = new AssignQuad(q->getDst(), value_to_assign);
+          proc->replaceQuad(quad, assign_quad);
+          block->replaceQuad(quad, assign_quad);
         }
       }
-      if (op2_sym == nullptr) {
-        // attempt to propogate op2
-        still_changing = true;
-        if(AuxOpd * qq = dynamic_cast<AuxOpd *>(src2)){
-          std::cout << "2: Check if this AuxOpd is a string\n";
-          HashMap<AuxOpd *, std::string>::iterator it = strings.find(qq);
-          if(it != strings.end()){
-            cout << "2: made it into strings if\n";
-            std::string value = it->second;
-            LitOpd * new_opd = new LitOpd(value, q->getDst()->getWidth());
-            q->setSrc2(new_opd);
-          }
-          std::cout << "2: Check if this AuxOpd is a temp\n";
-          std::list<AuxOpd *>::iterator tmpIt;
-          tmpIt = find(curr_proc->getTemps().begin(), curr_proc->getTemps().end(), qq);
-          if (tmpIt != curr_proc->getTemps().end()){
-            cout << "2: made it into temps if\n";
-            
-          }
-        } else if (SymOpd * qq = dynamic_cast<SymOpd *>(src2)) {
 
+      inFacts[block].printFacts();
+
+    } else if (auto q = dynamic_cast<BinOpQuad *>(quad)) {
+      cout << "BINOPQUAD\n";
+      // [a] = [b] AND8 [tmp0]
+      LitOpd* src1_lit = dynamic_cast<LitOpd *>(q->getSrc1());
+      LitOpd* src2_lit = dynamic_cast<LitOpd *>(q->getSrc2());
+      LitOpd *value_to_assign_1 = nullptr;
+      LitOpd *value_to_assign_2 = nullptr; 
+      if(src1_lit == nullptr){
+        ConstantVal new_value = inFacts[block].getVal(q->getSrc1()); // expect value to be in inFacts
+        switch(new_value.getType()){
+          case INTVAL:
+            changed = true;
+            value_to_assign_1 = new LitOpd(std::to_string(new_value.intVal), q->getDst()->getWidth());
+            q->setSrc1(value_to_assign_1);
+            break; 
+          case CHARVAL:
+            changed = true;
+            value_to_assign_1 = new LitOpd(std::to_string(new_value.charVal), q->getDst()->getWidth());
+            q->setSrc1(value_to_assign_1);
+            break; 
+          case BOOLVAL:
+            changed = true;
+            value_to_assign_1 = new LitOpd(std::to_string(new_value.boolVal), q->getDst()->getWidth());
+            q->setSrc1(value_to_assign_1);
+            break; 
+          case TOPVAL: 
+            cout << "Src1 is not LitOpd [TOPVAL] This value was never updated.\n";
+            break;
         }
+      }
+      if(src2_lit == nullptr) {
+        ConstantVal new_value = inFacts[block].getVal(q->getSrc2());
+        switch(new_value.getType()){
+          case INTVAL:
+            changed = true;
+            value_to_assign_2 = new LitOpd(std::to_string(new_value.intVal), q->getDst()->getWidth());
+            q->setSrc2(value_to_assign_2);
+            break; 
+          case CHARVAL: 
+            changed = true;
+            value_to_assign_2 = new LitOpd(std::to_string(new_value.charVal), q->getDst()->getWidth());
+            q->setSrc2(value_to_assign_2);
+            break; 
+          case BOOLVAL:
+            changed = true;
+            value_to_assign_2 = new LitOpd(std::to_string(new_value.boolVal), q->getDst()->getWidth());
+            q->setSrc2(value_to_assign_2);
+            break; 
+          case TOPVAL:
+            cout << "Src2 is not LitOpd [TOPVAL] This value was never updated.\n";
+            break; 
+        }
+      }
+      // Not sure if this works, but hope this will actually replace quad. - Evan
+      if(value_to_assign_1 != nullptr || value_to_assign_2 != nullptr){
+        BinOpQuad *assign_quad = q;
+        proc->replaceQuad(quad, assign_quad);
+        block->replaceQuad(quad, assign_quad);
       }
       
-    } else if (auto q = dynamic_cast<UnaryOpQuad *>(quad)){
+    } else if (auto q = dynamic_cast<UnaryOpQuad *>(quad)) {
 
-
-    } else if (auto q = dynamic_cast<AssignQuad *>(quad)) {
-
-
-    } else if (auto q = dynamic_cast<SetArgQuad *>(quad)){
-
+    } else if (auto q = dynamic_cast<SetArgQuad *>(quad)) {
 
     }
 
-    //if([tmp]) ?
-
-    // 2) Constant Propagation
-    // here i think - evan
-    // where can temps occur?
-    // - BinOpQuad
-    // - UnarOpQuad
-    // - AssignQuad
-    // - CallQuad?
-
-    // a  = [tmp]
-    // a = 1 + [tmp]
-    // a = ![tmp]
-    // setarg 1 [tmp]
+    
   }
-
-    return still_changing;
-  }
+  outFacts[block].addFacts(inFacts[block]); // update my outfacts.
+  return changed;
+}

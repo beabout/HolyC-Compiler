@@ -6,7 +6,10 @@ tmp0 (tmp)
 tmp1 (tmp)
 [END main LOCALS]
 main:       enter main
+            
+            # formerly [tmp0] := 1 OR8 0
             [tmp0] := 1
+            
             [tmp1] := 0 AND8 [tmp0]
             [b] := [tmp1]
 lbl_0:      leave main

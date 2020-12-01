@@ -30,6 +30,18 @@ public:
 
 	void optimize();
 
+  void replaceQuad(Quad *old_quad, Quad *new_quad){
+    auto it = quads->begin();
+    bool not_found = true;
+    while (it != quads->end() && not_found == true){
+      if (*it == old_quad){
+        *it = new_quad;
+        not_found = false;
+      }
+      ++it;
+    }
+  }
+
 private:
 	const int num;
 	std::list<Quad *> * quads;
@@ -69,6 +81,12 @@ public:
 
 	void optimize();
 	void deadCodeElimination();
+
+	void ReplaceQuadInBlock(Quad* quad, BasicBlock* block)
+	{
+		
+	}
+
 private:
 	std::list<BasicBlock *> * blocks;
 	std::list<CFGEdge *> * edges;

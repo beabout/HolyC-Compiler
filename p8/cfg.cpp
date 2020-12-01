@@ -137,9 +137,8 @@ void ControlFlowGraph::optimize(){
 	// bool dceEffect = DeadCodeElimination::run(this);
 
 	// TODO: implement this code
-
 	bool constantEffect = true;
-	while(constantEffect){	
+	while(constantEffect){
     constantEffect = ConstantsAnalysis::run(this);
 	}
 }
