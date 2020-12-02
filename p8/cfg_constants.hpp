@@ -107,11 +107,30 @@ public:
       if(it != vals.end()) { 
         // opd to add already exists in Facts
         if(it->second.getType() != TOPVAL && pair.second.getType() != TOPVAL){
-          ConstantVal t; 
-          t.setTop();
-          it->second = t;
+          // cout << "Both are not TOPVAL and ID is : " << pair.first->valString() << endl;
+          bool same_value = false;
+          switch(pair.second.getType()){
+            case INTVAL: 
+              same_value = (it->second.intVal == pair.second.intVal);
+              break; 
+            case CHARVAL:
+              same_value = (it->second.charVal == pair.second.charVal);
+              break; 
+            case BOOLVAL:
+              same_value = (it->second.boolVal == pair.second.boolVal);
+              break; 
+            default:
+              break;
+          }
+          if(!same_value){
+            ConstantVal t; 
+            t.setTop();
+            it->second = t;
+          }
         } else {
-          it->second = pair.second;
+          if(pair.second.getType() != TOPVAL){
+            it->second = pair.second;
+          }
         }
       } else {
         gen(pair.first, pair.second);
@@ -155,10 +174,10 @@ public:
   bool updateVal(Opd * opd, ConstantVal v){
 		auto itr = vals.find(opd);
 		if (itr == vals.end()){
-			cout << "updateVal: it's not in the list!\n";
+			// cout << "updateVal: it's not in the list!\n";
 			return false;
 		} else {
-      cout << "updateVal: it found me!\n";
+      // cout << "updateVal: it found me!\n";
 			vals[opd] = v;
 			return true;
 		}
@@ -172,16 +191,16 @@ public:
 	// saturation.
 
 	ConstantVal getVal(Opd* opd){
-		cout << "Getting Val of: " + opd->locString() << " ";
+		// cout << "Getting Val of: " + opd->locString() << " ";
     std::map<Opd *, ConstantVal>::iterator it;
     it = vals.find(opd);
     if(it == vals.end()){
-      cout << "didn't find it\n";
+      // cout << "didn't find it\n";
       ConstantVal v; 
       v.setTop();
       return v;
     } else {
-      cout << it->second.valToString() << endl;
+      // cout << it->second.valToString() << endl;
       return it->second;
     }
 	}
@@ -202,7 +221,7 @@ public:
 		std::map<BasicBlock*, ConstantsFacts>::iterator it;
 		it = outFacts.find(bb);
 		if(it == outFacts.end()){
-		cout << "couldn't find in getInFacts\n";
+		// cout << "couldn't find in getInFacts\n";
 		return nullptr;
 		} else {
 		return &(it->second);

@@ -1,44 +1,43 @@
 [BEGIN GLOBALS]
 [END GLOBALS]
-[BEGIN incrementIfTrue LOCALS]
-v (formal)
-me (formal)
-[END incrementIfTrue LOCALS]
-fun_incrementIfTrue: enter incrementIfTrue
-            getarg 1 [v]
-            getarg 2 [me]
-            IFZ [me] GOTO lbl_1
-            [v] := [v] ADD64 1
+[BEGIN fn LOCALS]
+x (formal)
+why (formal)
+tmp0 (tmp)
+[END fn LOCALS]
+fun_fn:     enter fn
+            getarg 1 [x]
+            getarg 2 [why]
+            [tmp0] := NOT8 [why]
+            IFZ [tmp0] GOTO lbl_1
+            [x] := [x] ADD64 1
 lbl_1:      nop
-            setret [v]
+            setret [x]
             goto lbl_0
-lbl_0:      leave incrementIfTrue
+lbl_0:      leave fn
 [BEGIN main LOCALS]
 a (local)
 b (local)
-c (local)
-x (local)
+wow (local)
 tmp0 (tmp)
 tmp1 (tmp)
-tmp2 (tmp)
-tmp3 (tmp)
-tmp4 (tmp)
-tmp5 (tmp)
 [END main LOCALS]
 main:       enter main
-            [tmp0] := NEG64 3
-            [a] := [tmp0]
-            [tmp1] := 1
-            [tmp2] := 1
-            [b] := 1
-            [tmp3] := 0
-            [c] := 0
-            [tmp4] := 3 ADD64 [a]
-            [a] := [tmp4]
-            setarg 1 [a]
-            setarg 2 1
-            call incrementIfTrue
-            getret [tmp5]
-            [x] := [tmp5]
+            [wow] := 0
+            [a] := 3
+            [tmp0] := 0
+            IFZ 0 GOTO lbl_3
+            [a] := 5
+            goto lbl_4
+lbl_3:      nop
+            [a] := 12
+lbl_4:      nop
+            [b] := [a]
+            setarg 1 [b]
+            setarg 2 0
+            call fn
+            getret [tmp1]
+            [a] := [tmp1]
+            TOCONSOLE [a]
 lbl_2:      leave main
 

@@ -172,9 +172,8 @@ public:
 	std::string repr() override;
 	Opd * getDst(){ return dst; }
 	Opd * getSrc(){ 
-		std::cout << "Inside GetSrc\n"; 
-		if(src == nullptr)
-		{
+		// std::cout << "Inside GetSrc\n"; 
+		if(src == nullptr){
 			cout << "Source was nullptr, and that is the issue.\n";
 		}
 		return src; 
@@ -199,6 +198,7 @@ public:
 	std::string repr() override;
 	Label * getLabel(){ return tgt; }
 	Opd * getCnd(){ return cnd; }
+  void setCnd(Opd * new_cnd) { cnd = new_cnd; }
 private:
 	Opd * cnd;
 	Label * tgt;
