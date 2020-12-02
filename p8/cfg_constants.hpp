@@ -99,6 +99,26 @@ public:
     }
   }
 
+  void merge(ConstantsFacts &other) {
+    for(auto pair : other.vals){
+      // if find pair in this->vals, set to top.
+      // otherwise, just accept it.
+      std::map<Opd *, ConstantVal>::iterator it = this->vals.find(pair.first);
+      if(it != vals.end()) { 
+        // opd to add already exists in Facts
+        if(it->second.getType() != TOPVAL && pair.second.getType() != TOPVAL){
+          ConstantVal t; 
+          t.setTop();
+          it->second = t;
+        } else {
+          it->second = pair.second;
+        }
+      } else {
+        gen(pair.first, pair.second);
+      }
+    }
+  }
+  
   void printFacts(){
     for (auto pair : vals){
       std::string s = "";
@@ -121,6 +141,7 @@ public:
       cout << s << endl;
     }
   }
+
 
   void gen(Opd * opd, ConstantVal v){
 		auto itr = vals.find(opd);

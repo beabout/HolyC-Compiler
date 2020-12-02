@@ -25,36 +25,45 @@ bool ConstantsAnalysis::runGraph(ControlFlowGraph * cfg){
   }
 
   bool changed = true;
-  int count = 0; 
   while(changed) {
     changed = false;
-    cout << "\ntime running: " << ++count << endl;
     for(auto block : *cfg->getBlocks()) {
       ConstantsFacts in = inFacts[block];
 
       // Block's ConstantFacts: add to blockSuccessors ConstantsFacts
       for (BasicBlock *block : cfg->blockPredecessors(block)) {
-        in.addFacts(outFacts[block]);
+        // get outFacts from my preds.
+        // if they both have a fact for a variable, set that variable to top.
+        // if only one fact exists, take that fact.
+
+        // in.addFacts(outFacts[block]);
+        in.merge(outFacts[block]);
       }
-      // Block's ConstantFacts: add global variables constants with TOPVAL
+      // (if true) block1 = { a: TOP, b: 3, tmp0: TOP }
+      // (else) block2 = { a: TOP, b: 5, tmp0: TOP }
+
+      // add (if true) Facts: in = { blah, a: TOP, b: 3, tmp0: TOP }
+      // add (else) Facts:    in = { blah, a: TOP, b: 5, tmp0: TOP }
+
+      // Block's ConstantFacts: add global variables with TOPVAL
       for(auto sym : globalSyms){ 
         ConstantVal cVal; 
         cVal.setTop();
         in.gen(sym, cVal);
       }
-      // Block's ConstantFacts: add formal constants with TOPVAL
+      // Block's ConstantFacts: add formal variables with TOPVAL
       for (auto formal : proc->getFormals()){
         ConstantVal cVal;
         cVal.setTop();
         in.gen(formal, cVal);
       }
-      // Block's ConstantFacts: add local variables constants with TOPVAL
+      // Block's ConstantFacts: add local variables with TOPVAL
       for (auto local : proc->getLocals()){
         ConstantVal cVal;
         cVal.setTop();
         in.gen(local.second, cVal);
       }
-      // Block's ConstantFacts: add temps? variables constants with TOPVAL
+      // Block's ConstantFacts: add temp variables with TOPVAL
       for (auto temp : proc->getTemps()){
         ConstantVal cVal;
         cVal.setTop();
@@ -92,10 +101,6 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
 
   Procedure * proc = cfg->getProc();
   IRProgram * ir = proc->getProg();
-
-  // obtain ConstantFacts of the incoming ConstantFacts and set outFacts at end of function.
-  ConstantsFacts in = inFacts[block];
-  ConstantsFacts myOutFacts;
   
   bool changed = false;
   for(Quad* quad : *(block->getQuads())){
