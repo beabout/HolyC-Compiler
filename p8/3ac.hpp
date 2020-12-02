@@ -155,6 +155,7 @@ public:
 	std::string repr() override ;
 	Opd * getDst(){ return dst; }
 	Opd * getSrc(){ return src; }
+	UnaryOp getOp(){return op;};
   void setSrc(Opd * new_opd){ src = new_opd; }
 private:
 	Opd * dst;
@@ -258,6 +259,7 @@ public:
 	SetArgQuad(size_t indexIn, Opd * opdIn);
 	std::string repr() override;
 	Opd * getSrc(){ return opd; }
+  void setSrc(Opd * new_src) { opd = new_src; }
 private:
 	size_t index;
 	Opd * opd;

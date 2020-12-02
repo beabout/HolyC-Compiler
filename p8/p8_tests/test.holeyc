@@ -1,3 +1,10 @@
+int incrementIfTrue(int v, bool me){
+  if(me){
+    v++;
+  }
+  return v;
+}
+
 void main(){
   int a; 
   a = -3;
@@ -5,4 +12,7 @@ void main(){
   bool c;
   b = true && (true || true);
   c = !b;
+  a = 3 + a;
+  int x; 
+  x = incrementIfTrue(a, b);
 }

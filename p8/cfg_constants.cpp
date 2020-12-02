@@ -62,6 +62,9 @@ bool ConstantsAnalysis::runGraph(ControlFlowGraph * cfg){
       }
 
       inFacts[block] = in;
+      cout << "----------------------\n";
+      inFacts[block].printFacts();
+      cout << "----------------------\n";
       bool blockChange = runBlock(cfg, block);
       if(blockChange){
         changed = true;
@@ -97,6 +100,32 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
   bool changed = false;
   for(Quad* quad : *(block->getQuads())){
     // 1) Constant Folding
+    if(auto q = dynamic_cast<UnaryOpQuad*>(quad)) {
+      Opd* src = q->getSrc();
+      Opd *dest = q->getDst();
+      if(auto op1 = dynamic_cast<LitOpd *>(src)){
+        LitOpd* value_to_assign = nullptr;
+        AssignQuad* assign_quad = nullptr;
+        std::string ival;
+        switch (q->getOp()){
+          case UnaryOp::NOT:
+            changed = true;
+            if (op1->valString() == "0") {
+              ival = "1";
+            } else if(op1->valString() == "1") {
+              ival = "0";
+            }
+            value_to_assign = new LitOpd(ival,dest->getWidth());
+            assign_quad = new AssignQuad(dest, value_to_assign);
+            proc->replaceQuad(quad, assign_quad);
+            block->replaceQuad(quad, assign_quad);
+            break;
+          default: 
+            // we aren't doing anything for NEG
+            break; 
+        }
+      }
+    }
     if (auto q = dynamic_cast<BinOpQuad *>(quad)){
       // then we know it has source operands.
       // if both src1 and src2 are constants, we can fold.
@@ -370,7 +399,32 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
         block->replaceQuad(quad, un_op_quad);
       }
     } else if (auto q = dynamic_cast<SetArgQuad *>(quad)) {
-
+      cout << "SetArgQuad\n";
+      LitOpd * src_lit = dynamic_cast<LitOpd *>(q->getSrc());
+      if(src_lit == nullptr){
+        LitOpd * value_to_assign = nullptr;
+        ConstantVal new_value = inFacts[block].getVal(q->getSrc());
+        switch(new_value.getType()){
+          case INTVAL:
+            changed = true;
+            value_to_assign = new LitOpd(std::to_string(new_value.intVal), q->getSrc()->getWidth());
+            q->setSrc(value_to_assign);
+            break;
+          case CHARVAL:
+            changed = true;
+            value_to_assign = new LitOpd(std::to_string(new_value.charVal), q->getSrc()->getWidth());
+            q->setSrc(value_to_assign);
+            break;
+          case BOOLVAL:
+            changed = true;
+            value_to_assign = new LitOpd(std::to_string(new_value.boolVal), q->getSrc()->getWidth());
+            q->setSrc(value_to_assign);
+            break;
+          default: 
+            cout << "Src is not a LitOpd [TOPVAL] this value was never updated.\n";
+            break;
+        }
+      }
     }
   }
   outFacts[block].addFacts(inFacts[block]); // update my outfacts.
