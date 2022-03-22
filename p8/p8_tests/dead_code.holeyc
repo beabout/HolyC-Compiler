@@ -1,8 +1,0 @@
-int main()
-{
-    if(false)
-    {
-        TOCONSOLE "I'm dead code.\n";
-    }
-    TOCONSOLE "End of program.\n";
-}

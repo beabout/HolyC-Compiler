@@ -1,8 +1,0 @@
-int a; # in Decl, set datatype. 
-int main(){
-  return a; # in Call, reference datatype?
-}
-#bool b;
-#void fn(){
-#	a = b;
-#}

@@ -1,7 +1,0 @@
-lbl_main: pushq %rbp
-movq %rsp, %rbp
-addq $16, %rbp
-subq $0, %rsp
-lbl_0: add $0, %rsp
-popq %rbp
-retq
